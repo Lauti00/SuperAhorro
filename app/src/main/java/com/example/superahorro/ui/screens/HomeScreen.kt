@@ -1,8 +1,6 @@
 package com.example.superahorro.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -10,10 +8,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.superahorro.R
 import com.example.superahorro.navigation.AppScreens
-import com.example.superahorro.ui.components.ItemCompra
 import com.example.superahorro.ui.components.MainDrawerContainer
+import com.example.superahorro.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,13 +22,28 @@ fun HomeScreen(navController: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    //  IMPORTANTE: creamos el ViewModel
+    val viewModel: HomeViewModel = viewModel()
+
     MainDrawerContainer(
         drawerState = drawerState,
+
+        // Pasamos el email del usuario (si implementaste DataStore)
+        userEmail = viewModel.userEmail,
+
+        /*
+            Cuando se cierra la sesión, se llama a viewModel y este borra la sesión en dataStore.
+            "Se olvida del usuario que se registro, NO ELIMINA AL USUARIO ELIMINA EL LOGUEO
+            Sirve para notar que no esta un usuario en sesion"
+        */
         onLogout = {
-            navController.navigate(AppScreens.Login.route) {
-                popUpTo(AppScreens.Home.route) { inclusive = true }
+            viewModel.logout {
+                navController.navigate(AppScreens.Login.route) {
+                    popUpTo(AppScreens.Home.route) { inclusive = true }
+                }
             }
         },
+
         onNavigateToHistorial = {
             navController.navigate(AppScreens.Historial.route)
         }
@@ -38,7 +52,7 @@ fun HomeScreen(navController: NavController) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    // 🔹 Usamos strings.xml
+                    //  Usamos strings.xml
                     title = { Text(stringResource(R.string.home_title)) },
 
                     navigationIcon = {
@@ -55,6 +69,7 @@ fun HomeScreen(navController: NavController) {
                     }
                 )
             },
+
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
@@ -64,10 +79,18 @@ fun HomeScreen(navController: NavController) {
                     Text("+")
                 }
             }
+
         ) { paddingValues ->
 
-            // Delegamos el contenido a otro composable
-            HomeContent(paddingValues)
+            /*IMPORTANTE:
+            Ahora pasamos las compras del ViewModel (NO mock)
+            es decir los datos ya no estan harcodeados , vienen del lugar central
+            VIEWMODEL
+            * */
+            HomeContent(
+                paddingValues = paddingValues,
+                compras = viewModel.compras
+            )
         }
     }
 }
