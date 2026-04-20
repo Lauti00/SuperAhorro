@@ -52,8 +52,12 @@ fun NuevaCompraScreen(navController: NavController) {
         SuperAhorroButton(
             text = "Guardar Compra",
             onClick = {
+                // Generamos un ID simple
+                val nuevoId = (viewModel.compras.size + 1)
+                
                 // Creamos la compra
                 val nuevaCompra = Compra(
+                    id = nuevoId,
                     supermercado = supermercado,
                     fecha = fecha,
                     total = total.toDoubleOrNull() ?: 0.0

@@ -18,7 +18,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val compras: List<Compra> = _compras
 
 
-    fun agregarCompra(compra:compra){
+    fun agregarCompra(compra: Compra){
         _compras.add(compra)
     }
 

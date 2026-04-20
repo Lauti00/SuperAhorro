@@ -14,7 +14,7 @@ val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class UserPreferences(private val context: Context) {
 
-    // 🔑 Claves para guardar datos
+    //  Claves para guardar datos
     private val IS_LOGGED = booleanPreferencesKey("is_logged")
     private val USER_EMAIL = stringPreferencesKey("user_email")
 

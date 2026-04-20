@@ -17,6 +17,7 @@ import com.example.superahorro.model.Compra
 @Composable
 fun MainDrawerContainer(
     drawerState: DrawerState,
+    userEmail: String,
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
     content: @Composable () -> Unit
@@ -27,6 +28,12 @@ fun MainDrawerContainer(
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Menú SuperAhorro", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = userEmail,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 HorizontalDivider()
                 NavigationDrawerItem(
                     label = { Text("Mis Compras") },

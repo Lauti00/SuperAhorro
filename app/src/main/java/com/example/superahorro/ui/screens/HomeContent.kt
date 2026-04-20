@@ -8,13 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.superahorro.model.listaComprasMock
+import com.example.superahorro.model.Compra
 import com.example.superahorro.ui.components.ItemCompra
 
 @Composable
-fun HomeContent(paddingValues: PaddingValues) {
+fun HomeContent(
+    paddingValues: PaddingValues,
+    compras: List<Compra>
+) {
 
-    if (listaComprasMock.isEmpty()) {
+    if (compras.isEmpty()) {
 
         // Caso vacío
         Box(
@@ -36,7 +39,7 @@ fun HomeContent(paddingValues: PaddingValues) {
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(listaComprasMock) { compra ->
+            items(compras) { compra ->
                 ItemCompra(compra = compra)
             }
         }
