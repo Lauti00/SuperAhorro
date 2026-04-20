@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Super Ahorro</string>
+
+    <string name="splash_title">SUPER AHORRO</string>
+    <string name="splash_subtitle">Tu dinero rinde más</string>
+
+    <string name="label_email">Correo Electrónico</string>
+    <string name="label_password">Contraseña</string>
+    <string name="label_nombre">Nombre Completo</string>
+    <string name="label_codigo">Código de 6 dígitos</string>
+    <string name="label_nueva_password">Nueva Contraseña</string>
+
+    <string name="btn_ingresar">Ingresar</string>
+    <string name="btn_olvide_password">¿Olvidaste tu contraseña?</string>
+    <string name="btn_ir_registro">¿No tienes cuenta? Regístrate</string>
+
+    <string name="title_registro">Crear Cuenta</string>
+    <string name="btn_registrarse">Registrarse</string>
+    <string name="btn_volver_login">Ya tengo cuenta. Volver al Login</string>
+
+    <string name="title_recuperar">Recuperar Contraseña</string>
+    <string name="msg_ingresa_correo">Ingresa tu correo electrónico registrado y te enviaremos un código de seguridad.</string>
+    <string name="btn_enviar_codigo">Enviar Código</string>
+    <string name="btn_cancelar">Cancelar y volver</string>
+    <string name="msg_codigo_enviado">Hemos enviado un código a:\n%1$s</string>
+    <string name="btn_guardar_password">Guardar Contraseña</string>
+    <string name="btn_reenviar_codigo">Volver a enviar código</string>
+
+    <!-- Home -->
+    <string name="home_title">Mis Últimas Compras</string>
+    <string name="label_fecha">Fecha:</string>
+    <string name="label_total">Total:</string>
+
+    <!-- Drawer -->
+    <string name="menu_title">Menú SuperAhorro</string>
+    <string name="menu_historial">Mis Compras</string>
+    <string name="menu_estadisticas">Estadísticas</string>
+    <string name="menu_logout">Cerrar Sesión</string>
+
+    <!-- General -->
+    <string name="cd_menu">Abrir menú</string>
+
+</resources>
