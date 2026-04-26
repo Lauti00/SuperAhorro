@@ -10,7 +10,8 @@ import com.example.superahorro.ui.components.ItemCompra
 import com.example.superahorro.ui.components.SimpleScreenContainer
 
 @Composable
-fun HistorialScreen(onBack: () -> Unit) {
+fun HistorialScreen(onBack: () -> Unit,
+                    onCompraClick: (Int) -> Unit) {
     val context = LocalContext.current
 
     SimpleScreenContainer(
@@ -23,7 +24,7 @@ fun HistorialScreen(onBack: () -> Unit) {
                 ItemCompra(
                     compra = compra,
                     onItemClick = { clickedCompra ->
-                        navController.navigate("detalle_compra/${clickedCompra.id}")
+                        onCompraClick(clickedCompra.id)
                     },
                     onShare = {
                         val texto = """

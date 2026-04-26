@@ -131,7 +131,11 @@ fun AppNavigation() {
         composable(AppScreens.Historial.route) {
             HistorialScreen( onBack = {
                 navController.popBackStack()
-            })
+            },
+                onCompraClick = { compraId ->
+                    navController.navigate("detalle_compra/$compraId")
+                }
+                )
         }
 
         //  ESTADÍSTICAS
