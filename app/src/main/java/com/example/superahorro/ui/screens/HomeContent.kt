@@ -14,7 +14,11 @@ import com.example.superahorro.ui.components.ItemCompra
 @Composable
 fun HomeContent(
     paddingValues: PaddingValues,
-    compras: List<Compra>
+    compras: List<Compra>,
+    /*
+    * Función que se pasa como parametro, cuando alguien quiera compartir ejecuta esto.
+    * */
+    onShare: (Compra) -> Unit // <-- Nueva función para compartir
 ) {
 
     if (compras.isEmpty()) {
@@ -40,7 +44,10 @@ fun HomeContent(
                 .fillMaxSize()
         ) {
             items(compras) { compra ->
-                ItemCompra(compra = compra)
+                ItemCompra(
+                    compra = compra,
+                    onShare = onShare
+                )
             }
         }
     }

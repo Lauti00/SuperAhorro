@@ -1,17 +1,13 @@
 package com.example.superahorro.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.superahorro.model.Compra
+import kotlinx.coroutines.launch
 
 // --- 1. EL CONTENEDOR DEL MENÚ LATERAL ---
 @Composable
@@ -20,28 +16,70 @@ fun MainDrawerContainer(
     userEmail: String,
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
+    onNavigateToEstadisticas: () -> Unit, // 🔥 NUEVO
     content: @Composable () -> Unit
 ) {
+
+    //  Necesario para abrir/cerrar el drawer
+    val scope = rememberCoroutineScope()
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Menú SuperAhorro", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
+
+                Text(
+                    "Menú SuperAhorro",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
                 Text(
                     text = userEmail,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
+
                 HorizontalDivider()
+
+                //  MIS COMPRAS
                 NavigationDrawerItem(
                     label = { Text("Mis Compras") },
                     selected = false,
-                    onClick = onNavigateToHistorial // <--- USA LA FUNCIÓN PARA IR AL HISTORIAL
+                    onClick = {
+                        scope.launch {
+                            drawerState.close() //  cerramos el drawer
+                        }
+                        onNavigateToHistorial() // <--- USA LA FUNCIÓN PARA IR AL HISTORIAL
+                    }
                 )
-                NavigationDrawerItem(label = { Text("Estadísticas") }, selected = false, onClick = {})
-                NavigationDrawerItem(label = { Text("Cerrar Sesión") }, selected = false, onClick = onLogout)
+
+                //  ESTADÍSTICAS
+                NavigationDrawerItem(
+                    label = { Text("Estadísticas") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onNavigateToEstadisticas()
+                    }
+                )
+
+                //  LOGOUT
+                NavigationDrawerItem(
+                    label = { Text("Cerrar Sesión") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onLogout()
+                    }
+                )
             }
         },
         content = content
@@ -64,41 +102,6 @@ fun ResumenGastosCard(userName: String, montoTotal: String) {
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-// --- 3. EL ITEM DE LA LISTA ---
-@Composable
-fun ItemCompra(compra: Compra) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(compra.supermercado.take(1), fontWeight = FontWeight.Bold)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = compra.supermercado, style = MaterialTheme.typography.titleMedium)
-                Text(text = compra.fecha, style = MaterialTheme.typography.bodySmall)
-            }
-            Text(
-                text = "$${compra.total}",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
             )
         }
     }
