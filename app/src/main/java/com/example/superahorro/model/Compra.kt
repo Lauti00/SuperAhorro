@@ -4,7 +4,8 @@ data class Compra(
     val id: Int,
     val supermercado: String,
     val fecha: String,
-    val total: Double
+    val total: Double,
+    val productos: List<Producto> = emptyList()
 )
 
 val listaComprasMock = listOf(

@@ -5,10 +5,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext //  para obtener el contexto
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.superahorro.R
+import com.example.superahorro.navigation.AppScreens
 import com.example.superahorro.ui.components.MainDrawerContainer
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
@@ -25,8 +28,14 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    //  IMPORTANTE: creamos el ViewModel
-    val viewModel: HomeViewModel = viewModel()
+    /*
+     IMPORTANTE:
+    En lugar de crear un ViewModel nuevo,
+    usamos el MISMO ViewModel asociado a la pantalla HOME
+    */
+    val viewModel: HomeViewModel = viewModel(
+        navController.getBackStackEntry(AppScreens.Home.route)
+    )
 
     // Contexto necesario para lanzar el Intent
     val context = LocalContext.current
@@ -94,6 +103,15 @@ fun HomeScreen(
             HomeContent(
                 paddingValues = paddingValues,
                 compras = viewModel.compras,
+
+                /*
+                Cuando el usuario toca una compra (la card completa),
+                navegamos al detalle
+                */
+                onItemClick = { compra ->
+                    viewModel.seleccionarCompra(compra)
+                    navController.navigate("detalle_compra")
+                },
 
                 /*
                  Función que se ejecuta cuando el usuario toca "Compartir"
