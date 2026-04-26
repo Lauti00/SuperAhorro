@@ -15,6 +15,7 @@ import com.example.superahorro.ui.components.ItemCompra
 fun HomeContent(
     paddingValues: PaddingValues,
     compras: List<Compra>,
+    onItemClick: (Compra) -> Unit,
     /*
     * Función que se pasa como parametro, cuando alguien quiera compartir ejecuta esto.
     * */
@@ -46,6 +47,7 @@ fun HomeContent(
             items(compras) { compra ->
                 ItemCompra(
                     compra = compra,
+                    onItemClick = onItemClick,
                     onShare = onShare
                 )
             }

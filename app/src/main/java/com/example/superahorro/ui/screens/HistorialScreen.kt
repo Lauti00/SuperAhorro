@@ -23,6 +23,9 @@ fun HistorialScreen(navController: NavController) {
             items(listaComprasMock) { compra ->
                 ItemCompra(
                     compra = compra,
+                    onItemClick = { clickedCompra ->
+                        navController.navigate("detalle_compra/${clickedCompra.id}")
+                    },
                     onShare = {
                         val texto = """
                             Compra en ${compra.supermercado}

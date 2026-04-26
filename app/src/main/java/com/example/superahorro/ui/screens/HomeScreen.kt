@@ -24,8 +24,14 @@ fun HomeScreen(navController: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    //  IMPORTANTE: creamos el ViewModel
-    val viewModel: HomeViewModel = viewModel()
+    /*
+     IMPORTANTE:
+    En lugar de crear un ViewModel nuevo,
+    usamos el MISMO ViewModel asociado a la pantalla HOME
+    */
+    val viewModel: HomeViewModel = viewModel(
+        navController.getBackStackEntry(AppScreens.Home.route)
+    )
 
     // Contexto necesario para lanzar el Intent
     val context = LocalContext.current
@@ -52,7 +58,6 @@ fun HomeScreen(navController: NavController) {
         onNavigateToHistorial = {
             navController.navigate(AppScreens.Historial.route)
         },
-
 
         onNavigateToEstadisticas = {
             navController.navigate(AppScreens.Estadisticas.route)
@@ -101,6 +106,15 @@ fun HomeScreen(navController: NavController) {
             HomeContent(
                 paddingValues = paddingValues,
                 compras = viewModel.compras,
+
+                /*
+                Cuando el usuario toca una compra (la card completa),
+                navegamos al detalle
+                */
+                onItemClick = { compra ->
+                    viewModel.seleccionarCompra(compra)
+                    navController.navigate("detalle_compra")
+                },
 
                 /*
                  Función que se ejecuta cuando el usuario toca "Compartir"

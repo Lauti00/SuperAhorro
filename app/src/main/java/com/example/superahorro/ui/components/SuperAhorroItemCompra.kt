@@ -1,6 +1,7 @@
 package com.example.superahorro.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -17,12 +18,14 @@ import com.example.superahorro.model.Compra
 @Composable
 fun ItemCompra(
     compra: Compra,
+    onItemClick: (Compra) -> Unit,
     onShare: (Compra) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 6.dp)
+            .clickable { onItemClick(compra) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
