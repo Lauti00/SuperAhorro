@@ -8,12 +8,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation.NavController
 import com.example.superahorro.R
 import com.example.superahorro.ui.components.*
 
 @Composable
-fun OlvidarPasswordScreen(navController: NavController) {
+fun OlvidarPasswordScreen(
+    onBack: () -> Unit,
+    onPasswordResetSuccess: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var pasoActual by remember { mutableStateOf(1) }
     var codigo by remember { mutableStateOf("") }
@@ -52,7 +54,7 @@ fun OlvidarPasswordScreen(navController: NavController) {
 
             SuperAhorroTextButton(
                 text = stringResource(id = R.string.btn_cancelar),
-                onClick = { navController.popBackStack() }
+                onClick = onBack
             )
 
         } else if (pasoActual == 2) {
@@ -88,7 +90,7 @@ fun OlvidarPasswordScreen(navController: NavController) {
                 text = stringResource(id = R.string.btn_guardar_password),
                 onClick = {
                     if (codigo.isNotBlank() && nuevaPassword.isNotBlank()) {
-                        navController.popBackStack()
+                        onPasswordResetSuccess()
                     }
                 }
             )

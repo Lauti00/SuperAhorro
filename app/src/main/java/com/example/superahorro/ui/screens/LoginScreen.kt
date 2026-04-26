@@ -8,16 +8,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.superahorro.R
-import com.example.superahorro.navigation.AppScreens
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+//fun LoginScreen(navController: NavController) {
+fun LoginScreen(onLoginSuccess: () -> Unit,
+                onNavigateToRegister: () -> Unit,
+                onNavigateToForgotPassword: () -> Unit
+    ) {
 
     // CAMBIO CLAVE: ahora usamos ViewModel en vez de remember
+    //Usamos el LoginViewModel asociado a esta pantalla, lo crea si no existe y
+    // lo mantiene vivo mientras la pantalla exista”
     val viewModel: LoginViewModel = viewModel()
 
     AuthContainer {
@@ -47,21 +51,21 @@ fun LoginScreen(navController: NavController) {
 
         EspacioPequeño()
 
+        // OLVIDÉ PASSWORD
         SuperAhorroTextButton(
             text = stringResource(id = R.string.btn_olvide_password),
-            onClick = { navController.navigate(AppScreens.OlvidarPassword.route) }
+            onClick = onNavigateToForgotPassword
         )
 
         EspacioNormal()
 
+        // LOGIN
         SuperAhorroButton(
             text = stringResource(id = R.string.btn_ingresar),
             onClick = {
                 // Validación desde ViewModel (NO en la UI)
                 if (viewModel.login()) {
-                    navController.navigate(AppScreens.Home.route) {
-                        popUpTo(AppScreens.Login.route) { inclusive = true }
-                    }
+                    onLoginSuccess()
                 }
             }
         )
@@ -77,9 +81,10 @@ fun LoginScreen(navController: NavController) {
 
         EspacioPequeño()
 
+        // REGISTRO
         SuperAhorroTextButton(
             text = stringResource(id = R.string.btn_ir_registro),
-            onClick = { navController.navigate(AppScreens.Registro.route) }
+            onClick = onNavigateToRegister
         )
     }
 }

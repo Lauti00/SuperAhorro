@@ -34,49 +34,123 @@ fun AppNavigation() {
         startDestination = AppScreens.Splash.route
     ) {
 
-        //  SPLASH
+        //Separo Navegacion de la UI, la pantalla no decide a donde ir, lo hace AppNavigation
         composable(AppScreens.Splash.route) {
-            SplashScreen(navController)
+            SplashScreen(
+                onNavigateToLogin = {
+                    navController.navigate(AppScreens.Login.route) {
+                        popUpTo(AppScreens.Splash.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
         //  LOGIN
-        composable(AppScreens.Login.route) {
+        /*composable(AppScreens.Login.route) {
             LoginScreen(navController)
+        }*/
+
+        composable(AppScreens.Login.route) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(AppScreens.Home.route) {
+                        //Borro de la pila de screen el login evitando deslogueo al dar "Atras"
+                        popUpTo(AppScreens.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(AppScreens.Registro.route)
+                },
+                onNavigateToForgotPassword = {
+                    navController.navigate(AppScreens.OlvidarPassword.route)
+                }
+            )
         }
 
         //  REGISTRO
         composable(AppScreens.Registro.route) {
-            RegistroScreen(navController)
+            RegistroScreen(
+                onRegisterSuccess = {
+                    navController.navigate(AppScreens.Home.route) {
+                        popUpTo(AppScreens.Login.route) { inclusive = true }
+                    }
+                },
+                onBackToLogin = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         //  RECUPERAR PASSWORD
         composable(AppScreens.OlvidarPassword.route) {
-            OlvidarPasswordScreen(navController)
+            OlvidarPasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onPasswordResetSuccess = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         //  HOME
         composable(AppScreens.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(
+                onLogout = {
+                    navController.navigate(AppScreens.Login.route) {
+                        popUpTo(AppScreens.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToHistorial = {
+                    navController.navigate(AppScreens.Historial.route)
+                },
+                onNavigateToEstadisticas = {
+                    navController.navigate(AppScreens.Estadisticas.route)
+                },
+                onNavigateToNuevaCompra = {
+                    navController.navigate(AppScreens.NuevaCompra.route)
+                }
+            )
         }
 
         //  PERFIL
         composable(AppScreens.Perfil.route) {
-            ProfileScreen(navController)
+            ProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onSaveProfile = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         //  HISTORIAL
         composable(AppScreens.Historial.route) {
-            HistorialScreen(navController)
+            HistorialScreen( onBack = {
+                navController.popBackStack()
+            })
         }
 
         //  ESTADÍSTICAS
         composable(AppScreens.Estadisticas.route) {
-            EstadisticasScreen(navController)
+            EstadisticasScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         //  NUEVA COMPRA
         composable(AppScreens.NuevaCompra.route) {
-            NuevaCompraScreen(navController)
+            NuevaCompraScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onCompraGuardada = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

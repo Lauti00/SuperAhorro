@@ -5,18 +5,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
 import com.example.superahorro.model.listaComprasMock
 import com.example.superahorro.ui.components.ItemCompra
 import com.example.superahorro.ui.components.SimpleScreenContainer
 
 @Composable
-fun HistorialScreen(navController: NavController) {
+fun HistorialScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
     SimpleScreenContainer(
         title = "Historial de Compras",
-        onBack = { navController.popBackStack() }
+        onBack = onBack
     ) {
         // Mostramos la lista de compras usando el componente visual
         LazyColumn {

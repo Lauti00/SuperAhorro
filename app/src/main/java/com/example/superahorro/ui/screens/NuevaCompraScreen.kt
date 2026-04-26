@@ -1,17 +1,16 @@
 package com.example.superahorro.ui.screens
 
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import com.example.superahorro.model.Compra
 
 @Composable
-fun NuevaCompraScreen(navController: NavController) {
+fun NuevaCompraScreen(    onBack: () -> Unit,
+                          onCompraGuardada: () -> Unit
+)
+{
 
     val viewModel: HomeViewModel = viewModel()
 
@@ -22,7 +21,7 @@ fun NuevaCompraScreen(navController: NavController) {
 
     SimpleScreenContainer(
         title = "Nueva Compra",
-        onBack = { navController.popBackStack() }
+        onBack = onBack
     ) {
 
         SuperAhorroTextField(
@@ -67,7 +66,7 @@ fun NuevaCompraScreen(navController: NavController) {
                 viewModel.agregarCompra(nuevaCompra)
 
                 // Volvemos atrás (Home)
-                navController.popBackStack()
+                onCompraGuardada()
             }
         )
     }

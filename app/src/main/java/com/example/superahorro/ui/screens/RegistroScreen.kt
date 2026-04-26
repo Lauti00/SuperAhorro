@@ -5,13 +5,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.navigation.NavController
 import com.example.superahorro.R
-import com.example.superahorro.navigation.AppScreens
 import com.example.superahorro.ui.components.*
 
 @Composable
-fun RegistroScreen(navController: NavController) {
+fun RegistroScreen(
+    onRegisterSuccess: () -> Unit,
+    onBackToLogin: () -> Unit
+) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -52,9 +53,7 @@ fun RegistroScreen(navController: NavController) {
         SuperAhorroButton(
             text = stringResource(id = R.string.btn_registrarse),
             onClick = {
-                navController.navigate(AppScreens.Home.route) {
-                    popUpTo(AppScreens.Login.route) { inclusive = true }
-                }
+                    onRegisterSuccess()
             }
         )
 
@@ -62,7 +61,7 @@ fun RegistroScreen(navController: NavController) {
 
         SuperAhorroTextButton(
             text = stringResource(id = R.string.btn_volver_login),
-            onClick = { navController.popBackStack() }
+            onClick = onBackToLogin
         )
     }
 }

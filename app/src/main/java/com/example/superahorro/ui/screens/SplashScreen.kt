@@ -5,25 +5,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import com.example.superahorro.navigation.AppScreens
 import com.example.superahorro.ui.components.BrandHeader
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+//fun SplashScreen(navController: NavController, onNavigateToLogin: () -> Unit) {
+fun SplashScreen(onNavigateToLogin: () -> Unit) {
 
-    LaunchedEffect(key1 = true) {
+    //Ahora SplashScreen solo demora 2,5 segundos y devuelve el control de la
+    // navegacion a AppNavigation
+    LaunchedEffect(Unit) {
         delay(2500)
-        navController.navigate(AppScreens.Login.route) {
-            popUpTo(AppScreens.Splash.route) { inclusive = true }
-        }
+        onNavigateToLogin()
     }
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        //Pantalla de Bienvenida (o Splash Screen), previa a mostrar la pantalla de Login
         BrandHeader()
     }
 }

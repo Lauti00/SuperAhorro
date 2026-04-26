@@ -1,25 +1,26 @@
 package com.example.superahorro.ui.screens
 
 import android.content.Intent //  IMPORTANTE para el Intent
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext //  para obtener el contexto
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.superahorro.R
-import com.example.superahorro.navigation.AppScreens
 import com.example.superahorro.ui.components.MainDrawerContainer
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    onLogout: () -> Unit,
+    onNavigateToHistorial: () -> Unit,
+    onNavigateToEstadisticas: () -> Unit,
+    onNavigateToNuevaCompra: () -> Unit
+) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -43,20 +44,14 @@ fun HomeScreen(navController: NavController) {
         */
         onLogout = {
             viewModel.logout {
-                navController.navigate(AppScreens.Login.route) {
-                    popUpTo(AppScreens.Home.route) { inclusive = true }
-                }
+                onLogout()
             }
         },
 
-        onNavigateToHistorial = {
-            navController.navigate(AppScreens.Historial.route)
-        },
+        onNavigateToHistorial = onNavigateToHistorial,
 
 
-        onNavigateToEstadisticas = {
-            navController.navigate(AppScreens.Estadisticas.route)
-        }
+        onNavigateToEstadisticas = onNavigateToEstadisticas
 
     ) {
 
@@ -83,9 +78,7 @@ fun HomeScreen(navController: NavController) {
 
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = {
-                        navController.navigate(AppScreens.NuevaCompra.route)
-                    }
+                    onClick = onNavigateToNuevaCompra
                 ) {
                     Text("+")
                 }

@@ -1,13 +1,15 @@
 package com.example.superahorro.ui.screens
 
 import androidx.compose.runtime.*
-import androidx.navigation.NavController
 import com.example.superahorro.ui.components.ProfileForm
 import com.example.superahorro.ui.components.ProfileHeader
 import com.example.superahorro.ui.components.SimpleScreenContainer
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(
+    onBack: () -> Unit,
+    onSaveProfile: () -> Unit
+) {
     // 1. LÓGICA DE ESTADO
     var nombre by remember { mutableStateOf("Martín") }
     var email by remember { mutableStateOf("martin@correo.com") }
@@ -15,7 +17,7 @@ fun ProfileScreen(navController: NavController) {
     // 2. ENSAMBLADO USANDO TUS COMPONENTES
     SimpleScreenContainer(
         title = "Mi Perfil",
-        onBack = { navController.popBackStack() }
+        onBack = onBack
     ) {
         // Llamamos al Header que tenés en ProfileComponents
         ProfileHeader(nombre = nombre, email = email)
@@ -28,7 +30,7 @@ fun ProfileScreen(navController: NavController) {
             onEmailChange = { email = it },
             onSave = {
                 // Aquí irá la conexión a la base de datos después
-                navController.popBackStack()
+                onSaveProfile()
             }
         )
     }
