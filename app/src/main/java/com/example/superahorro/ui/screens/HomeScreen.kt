@@ -5,13 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext //  para obtener el contexto
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.superahorro.R
-import com.example.superahorro.navigation.AppScreens
+import com.example.superahorro.model.Compra
 import com.example.superahorro.ui.components.MainDrawerContainer
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
@@ -22,7 +20,8 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
     onNavigateToEstadisticas: () -> Unit,
-    onNavigateToNuevaCompra: () -> Unit
+    onNavigateToNuevaCompra: () -> Unit,
+    onCompraClick: (Compra) -> Unit
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -33,9 +32,7 @@ fun HomeScreen(
     En lugar de crear un ViewModel nuevo,
     usamos el MISMO ViewModel asociado a la pantalla HOME
     */
-    val viewModel: HomeViewModel = viewModel(
-        navController.getBackStackEntry(AppScreens.Home.route)
-    )
+    val viewModel: HomeViewModel = viewModel()
 
     // Contexto necesario para lanzar el Intent
     val context = LocalContext.current
@@ -110,7 +107,7 @@ fun HomeScreen(
                 */
                 onItemClick = { compra ->
                     viewModel.seleccionarCompra(compra)
-                    navController.navigate("detalle_compra")
+                    onCompraClick(compra)
                 },
 
                 /*

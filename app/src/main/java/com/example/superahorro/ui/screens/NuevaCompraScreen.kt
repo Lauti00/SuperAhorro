@@ -1,27 +1,25 @@
 package com.example.superahorro.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Text
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import com.example.superahorro.model.Compra
 import com.example.superahorro.model.Producto
-import com.example.superahorro.navigation.AppScreens
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NuevaCompraScreen(    onBack: () -> Unit,
-                          onCompraGuardada: () -> Unit
-)
+fun NuevaCompraScreen(      viewModel: HomeViewModel,
+                            onBack: () -> Unit,
+                            onCompraGuardada: () -> Unit)
 {
 
     /*
      IMPORTANTE:
     Usamos el MISMO ViewModel que Home
     */
-    val viewModel: HomeViewModel = viewModel(
-        navController.getBackStackEntry(AppScreens.Home.route)
-    )
 
     //  Estado del supermercado
     var supermercado by remember { mutableStateOf("") }

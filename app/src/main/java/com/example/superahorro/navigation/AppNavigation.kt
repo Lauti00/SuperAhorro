@@ -1,6 +1,7 @@
 package com.example.superahorro.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,7 +10,7 @@ import com.example.superahorro.ui.screens.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 
 /*
-1. Definimos las rutas de nuestra app
+1. Definimos las rutas de nuestra app.
 */
 sealed class AppScreens(val route: String) {
     object Splash : AppScreens("splash_screen")
@@ -21,6 +22,10 @@ sealed class AppScreens(val route: String) {
     object Historial : AppScreens("historial_screen")
     object Perfil : AppScreens("perfil_screen")
     object Estadisticas : AppScreens("estadisticas_screen")
+
+    object DetalleCompra : AppScreens("detalle_compra/{id}") {
+        fun createRoute(id: Int) = "detalle_compra/$id"
+    }
 }
 
 /*
@@ -111,6 +116,9 @@ fun AppNavigation() {
                 },
                 onNavigateToNuevaCompra = {
                     navController.navigate(AppScreens.NuevaCompra.route)
+                },
+                onCompraClick = { compra ->
+                    navController.navigate(AppScreens.DetalleCompra.createRoute(compra.id))
                 }
             )
         }
@@ -129,13 +137,14 @@ fun AppNavigation() {
 
         //  HISTORIAL
         composable(AppScreens.Historial.route) {
-            HistorialScreen( onBack = {
-                navController.popBackStack()
-            },
+            HistorialScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
                 onCompraClick = { compraId ->
                     navController.navigate("detalle_compra/$compraId")
                 }
-                )
+            )
         }
 
         //  ESTADÍSTICAS
@@ -149,7 +158,14 @@ fun AppNavigation() {
 
         //  NUEVA COMPRA
         composable(AppScreens.NuevaCompra.route) {
+            // Aca obtenemos el ViewModel compartido
+            val parentEntry = remember {
+                navController.getBackStackEntry(AppScreens.Home.route)
+            }
+            val homeViewModel: HomeViewModel = viewModel(parentEntry)
+
             NuevaCompraScreen(
+                viewModel = homeViewModel,
                 onBack = {
                     navController.popBackStack()
                 },
@@ -160,12 +176,29 @@ fun AppNavigation() {
         }
 
         //DETALLE COMPRA
-        composable("detalle_compra") {
+        composable(
+            route = AppScreens.DetalleCompra.route
+        )
+        //Referenciamos al contexto de navegacion actual (ruta, argumentos, stack de navegacion)
+        { backStackEntry ->
+            val compraId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            //Recuperamos el mismo ViewModel del Home
+            val parentEntry = remember{
+                navController.getBackStackEntry(AppScreens.Home.route)
+            }
 
-            val viewModel: HomeViewModel = viewModel()
+            val viewModel: HomeViewModel = viewModel(parentEntry)
+            //Buscamos en la lista de compras del ViewModel la que coincida con el id de la ruta
+            val compra = viewModel.compras.find { it.id == compraId }
 
-            viewModel.compraSeleccionada?.let { compra ->
-                DetalleCompraScreen(navController, compra)
+            //Si la compra existe se pasa
+            compra?.let {
+                DetalleCompraScreen(
+                    compra = it,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

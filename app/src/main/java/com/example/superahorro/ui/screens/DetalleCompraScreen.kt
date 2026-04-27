@@ -14,12 +14,12 @@ import com.example.superahorro.ui.components.SimpleScreenContainer
 
 @Composable
 fun DetalleCompraScreen(
-    navController: NavController,
-    compra: Compra
+    compra: Compra,
+    onBack: () -> Unit
 ) {
     SimpleScreenContainer(
         title = "Detalle de Compra",
-        onBack = { navController.popBackStack() }
+        onBack = onBack
     ) {
         // Mostramos los datos principales
         Text(text = "Supermercado: ${compra.supermercado}")
