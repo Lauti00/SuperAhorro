@@ -53,10 +53,6 @@ fun AppNavigation() {
         }
 
         //  LOGIN
-        /*composable(AppScreens.Login.route) {
-            LoginScreen(navController)
-        }*/
-
         composable(AppScreens.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -137,12 +133,18 @@ fun AppNavigation() {
 
         //  HISTORIAL
         composable(AppScreens.Historial.route) {
+            val parentEntry = remember {
+                navController.getBackStackEntry(AppScreens.Home.route)
+            }
+            val homeViewModel: HomeViewModel = viewModel(parentEntry)
+
             HistorialScreen(
+                viewModel = homeViewModel,
                 onBack = {
                     navController.popBackStack()
                 },
                 onCompraClick = { compraId ->
-                    navController.navigate("detalle_compra/$compraId")
+                    navController.navigate(AppScreens.DetalleCompra.createRoute(compraId))
                 }
             )
         }

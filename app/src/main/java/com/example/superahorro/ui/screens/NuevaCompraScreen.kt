@@ -3,18 +3,26 @@ package com.example.superahorro.ui.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import com.example.superahorro.model.Compra
 import com.example.superahorro.model.Producto
+import com.example.superahorro.model.CatalogoProducto
+import com.example.superahorro.model.catalogoProductos
+
+@OptIn(ExperimentalMaterial3Api::class)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NuevaCompraScreen(      viewModel: HomeViewModel,
-                            onBack: () -> Unit,
-                            onCompraGuardada: () -> Unit)
-{
+fun NuevaCompraScreen(
+    viewModel: HomeViewModel,
+    onBack: () -> Unit,
+    onCompraGuardada: () -> Unit
+) {
 
     /*
      IMPORTANTE:
@@ -37,16 +45,32 @@ fun NuevaCompraScreen(      viewModel: HomeViewModel,
     */
     val productos = remember { mutableStateListOf<Producto>() }
 
-    //  Estados del formulario de producto
-    var nombreProducto by remember { mutableStateOf("") }
-    var precioProducto by remember { mutableStateOf("") }
+    /*
+     Catálogo:
+    Lista fija de productos disponibles
+    */
+    val catalogo = catalogoProductos
+
+    /*
+     Producto seleccionado del catálogo
+    */
+    var productoSeleccionado by remember { mutableStateOf<CatalogoProducto?>(null) }
+
+    /*
+     Estado del dropdown
+    */
+    var expanded by remember { mutableStateOf(false) }
+
+    /*
+     Cantidad (lo único que escribe el usuario)
+    */
     var cantidadProducto by remember { mutableStateOf("") }
 
     /*
      Total automático:
     Se calcula en base a los productos
     */
-    val total = productos.sumOf { it.precio * it.cantidad }
+    val totalCalculado = productos.sumOf { it.subtotal() }
 
     SimpleScreenContainer(
         title = "Nueva Compra",
@@ -67,19 +91,45 @@ fun NuevaCompraScreen(      viewModel: HomeViewModel,
 
         EspacioNormal()
 
-        //  FORMULARIO DE PRODUCTO
-        SuperAhorroTextField(
-            value = nombreProducto,
-            onValueChange = { nombreProducto = it },
-            label = "Nombre producto"
-        )
+        /*
+         SELECTOR DE PRODUCTOS (DROPDOWN)
+        */
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = productoSeleccionado?.nombre ?: "",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Seleccionar producto") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
 
-        SuperAhorroTextField(
-            value = precioProducto,
-            onValueChange = { precioProducto = it },
-            label = "Precio"
-        )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                catalogo.forEach { producto ->
+                    DropdownMenuItem(
+                        text = { Text("${producto.nombre} - $${producto.precio}") },
+                        onClick = {
+                            productoSeleccionado = producto
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
 
+        EspacioNormal()
+
+        /*
+         Cantidad (único input real del usuario)
+        */
         SuperAhorroTextField(
             value = cantidadProducto,
             onValueChange = { cantidadProducto = it },
@@ -92,28 +142,24 @@ fun NuevaCompraScreen(      viewModel: HomeViewModel,
             text = "Agregar producto",
             onClick = {
 
-                val precio = precioProducto.toDoubleOrNull()
                 val cantidad = cantidadProducto.toIntOrNull()
 
                 /*
-                Validaciones básicas:
-                - nombre no vacío
-                - precio válido
+                Validaciones:
+                - producto seleccionado
                 - cantidad válida
                 */
-                if (nombreProducto.isNotBlank() && precio != null && cantidad != null) {
+                if (productoSeleccionado != null && cantidad != null) {
 
                     productos.add(
                         Producto(
-                            nombre = nombreProducto,
-                            precio = precio,
+                            producto = productoSeleccionado!!,
                             cantidad = cantidad
                         )
                     )
 
-                    // Limpiamos campos
-                    nombreProducto = ""
-                    precioProducto = ""
+                    // Limpiamos selección
+                    productoSeleccionado = null
                     cantidadProducto = ""
                 }
             }
@@ -123,13 +169,13 @@ fun NuevaCompraScreen(      viewModel: HomeViewModel,
 
         // LISTA DE PRODUCTOS AGREGADOS
         productos.forEach {
-            Text("${it.nombre} - ${it.cantidad} x $${it.precio}")
+            Text("${it.producto.nombre} - ${it.cantidad} x $${it.producto.precio}")
         }
 
         EspacioNormal()
 
         // TOTAL AUTOMÁTICO
-        Text("Total: $${"%.2f".format(total)}")
+        Text("Total: $${"%.2f".format(totalCalculado)}")
 
         EspacioGrande()
 
@@ -140,12 +186,11 @@ fun NuevaCompraScreen(      viewModel: HomeViewModel,
                 // Generamos un ID simple
                 val nuevoId = (viewModel.compras.size + 1)
 
-                // Creamos la compra con productos y total automático
+                // Creamos la compra con productos
                 val nuevaCompra = Compra(
                     id = nuevoId,
                     supermercado = supermercado,
                     fecha = fecha,
-                    total = total,
                     productos = productos.toList()
                 )
 

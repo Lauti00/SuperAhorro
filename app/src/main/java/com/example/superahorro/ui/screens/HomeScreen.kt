@@ -119,7 +119,7 @@ fun HomeScreen(
                     val texto = """
                         Compra en ${compra.supermercado}
                         Fecha: ${compra.fecha}
-                        Total: $${compra.total}
+                        Total: $${compra.total()}
                     """.trimIndent()
 
                     /*Aca le digo que quiero compartir algo*/

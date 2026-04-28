@@ -45,7 +45,7 @@ fun ItemCompra(
                 Text(text = compra.fecha, style = MaterialTheme.typography.bodySmall)
             }
             Text(
-                text = "$${compra.total}",
+                text = "$${compra.total()}",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold

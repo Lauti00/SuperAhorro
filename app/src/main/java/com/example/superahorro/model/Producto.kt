@@ -1,7 +1,8 @@
 package com.example.superahorro.model
-
 data class Producto(
-    val nombre: String,
-    val precio: Double,
-    val cantidad: Int
+   val producto: CatalogoProducto ,
+    val cantidad : Int
 )
+{
+    fun subtotal(): Double = producto.precio * cantidad
+}

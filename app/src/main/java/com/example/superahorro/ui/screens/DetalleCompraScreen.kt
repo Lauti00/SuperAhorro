@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.superahorro.model.Compra
 import com.example.superahorro.ui.components.SimpleScreenContainer
 
@@ -28,22 +27,35 @@ fun DetalleCompraScreen(
         Text(text = "Fecha: ${compra.fecha}")
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(text = "Total: $${compra.total}")
+        Text(text = "Total: $${"%.2f".format(compra.total())}")
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(text = "Productos", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Por ahora usamos productos MOCK
-        val productosMock = listOf(
-            "Leche - $100",
-            "Pan - $200",
-            "Arroz - $300"
-        )
+        /*
+         Ahora usamos los productos REALES de la compra
+        (ya no usamos mock)
+        */
+        if (compra.productos.isEmpty()) {
 
-        LazyColumn {
-            items(productosMock) { producto ->
-                Text(text = producto, modifier = Modifier.padding(8.dp))
+            // Caso sin productos
+            Text("No hay productos en esta compra")
+
+        } else {
+
+            LazyColumn {
+                items(compra.productos) { producto ->
+
+                    /*
+                     Mostramos cada producto con:
+                     nombre, cantidad y precio
+                    */
+                    Text(
+                        text = "${producto.producto.nombre} - ${producto.cantidad} x $${producto.producto.precio}",
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
         }
     }
