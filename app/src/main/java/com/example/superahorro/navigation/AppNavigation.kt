@@ -115,6 +115,10 @@ fun AppNavigation() {
                 },
                 onCompraClick = { compra ->
                     navController.navigate(AppScreens.DetalleCompra.createRoute(compra.id))
+                },
+
+                onNavigateToPerfil = {
+                    navController.navigate(AppScreens.Perfil.route)
                 }
             )
         }
@@ -122,6 +126,7 @@ fun AppNavigation() {
         //  PERFIL
         composable(AppScreens.Perfil.route) {
             ProfileScreen(
+                navController = navController,
                 onBack = {
                     navController.popBackStack()
                 },
@@ -151,10 +156,14 @@ fun AppNavigation() {
 
         //  ESTADÍSTICAS
         composable(AppScreens.Estadisticas.route) {
+
+            val viewModel: HomeViewModel = viewModel(
+                navController.getBackStackEntry(AppScreens.Home.route)
+            )
+
             EstadisticasScreen(
-                onBack = {
-                    navController.popBackStack()
-                }
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
             )
         }
 

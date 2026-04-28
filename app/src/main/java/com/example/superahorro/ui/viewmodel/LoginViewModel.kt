@@ -1,11 +1,17 @@
 package com.example.superahorro.ui.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.superahorro.data.datastore.UserPreferences
+import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val userPreferences = UserPreferences(application)
 
     //  Estado de los inputs
     var email by mutableStateOf("")
@@ -28,14 +34,30 @@ class LoginViewModel : ViewModel() {
         password = newPassword
     }
 
-    // Validación básica
-    fun login(): Boolean {
-        return if (email.isBlank() || password.isBlank()) {
+    // LOGIN REAL (ahora guarda el usuario)
+    fun login(onSuccess: () -> Unit) {
+
+        if (email.isBlank() || password.isBlank()) {
             errorMessage = "Completa todos los campos"
-            false
-        } else {
-            errorMessage = null
-            true
+            return
+        }
+
+        errorMessage = null
+
+        /*
+         GUARDAMOS EL EMAIL EN DATASTORE
+        */
+        viewModelScope.launch {
+            userPreferences.saveUser(email)
+
+            /*
+             También generamos el nombre automáticamente
+             Ej: lautaro@gmail.com → lautaro
+            */
+            val nombre = email.substringBefore("@")
+            userPreferences.saveUserName(nombre)
+
+            onSuccess()
         }
     }
 }

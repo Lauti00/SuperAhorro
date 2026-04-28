@@ -16,7 +16,8 @@ fun MainDrawerContainer(
     userEmail: String,
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
-    onNavigateToEstadisticas: () -> Unit, // 🔥 NUEVO
+    onNavigateToEstadisticas: () -> Unit,
+    onNavigateToPerfil: () -> Unit, //  NUEVO
     content: @Composable () -> Unit
 ) {
 
@@ -51,9 +52,9 @@ fun MainDrawerContainer(
                     selected = false,
                     onClick = {
                         scope.launch {
-                            drawerState.close() //  cerramos el drawer
+                            drawerState.close()
                         }
-                        onNavigateToHistorial() // <--- USA LA FUNCIÓN PARA IR AL HISTORIAL
+                        onNavigateToHistorial()
                     }
                 )
 
@@ -66,6 +67,18 @@ fun MainDrawerContainer(
                             drawerState.close()
                         }
                         onNavigateToEstadisticas()
+                    }
+                )
+
+                //  PERFIL (NUEVO)
+                NavigationDrawerItem(
+                    label = { Text("Mi Perfil") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onNavigateToPerfil()
                     }
                 )
 

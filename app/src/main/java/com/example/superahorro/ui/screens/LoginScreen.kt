@@ -13,15 +13,15 @@ import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.LoginViewModel
 
 @Composable
-//fun LoginScreen(navController: NavController) {
-fun LoginScreen(onLoginSuccess: () -> Unit,
-                onNavigateToRegister: () -> Unit,
-                onNavigateToForgotPassword: () -> Unit
-    ) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
+) {
 
     // CAMBIO CLAVE: ahora usamos ViewModel en vez de remember
-    //Usamos el LoginViewModel asociado a esta pantalla, lo crea si no existe y
-    // lo mantiene vivo mientras la pantalla exista”
+    // Usamos el LoginViewModel asociado a esta pantalla, lo crea si no existe y
+    // lo mantiene vivo mientras la pantalla exista
     val viewModel: LoginViewModel = viewModel()
 
     AuthContainer {
@@ -40,7 +40,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit,
 
         EspacioNormal()
 
-        //  Password también controlado por ViewModel
+        // Password también controlado por ViewModel
         SuperAhorroTextField(
             value = viewModel.password,
             onValueChange = { viewModel.onPasswordChange(it) },
@@ -63,14 +63,19 @@ fun LoginScreen(onLoginSuccess: () -> Unit,
         SuperAhorroButton(
             text = stringResource(id = R.string.btn_ingresar),
             onClick = {
-                // Validación desde ViewModel (NO en la UI)
-                if (viewModel.login()) {
+
+                /*
+                 CAMBIO IMPORTANTE:
+                 Ahora el login guarda el usuario en DataStore
+                 y ejecuta onLoginSuccess cuando termina
+                */
+                viewModel.login {
                     onLoginSuccess()
                 }
             }
         )
 
-        //  Mostrar error si existe (mejora UX)
+        // Mostrar error si existe (mejora UX)
         viewModel.errorMessage?.let {
             EspacioPequeño()
             Text(

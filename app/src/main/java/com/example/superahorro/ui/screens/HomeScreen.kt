@@ -21,8 +21,9 @@ fun HomeScreen(
     onNavigateToHistorial: () -> Unit,
     onNavigateToEstadisticas: () -> Unit,
     onNavigateToNuevaCompra: () -> Unit,
-    onCompraClick: (Compra) -> Unit
-) {
+    onCompraClick: (Compra) -> Unit,
+    onNavigateToPerfil: () -> Unit
+){
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -57,7 +58,9 @@ fun HomeScreen(
         onNavigateToHistorial = onNavigateToHistorial,
 
 
-        onNavigateToEstadisticas = onNavigateToEstadisticas
+        onNavigateToEstadisticas = onNavigateToEstadisticas,
+
+        onNavigateToPerfil = onNavigateToPerfil
 
     ) {
 
