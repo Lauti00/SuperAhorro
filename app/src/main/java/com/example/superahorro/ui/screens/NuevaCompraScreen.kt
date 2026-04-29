@@ -1,12 +1,19 @@
 package com.example.superahorro.ui.screens
 
+import android.content.Context
+import android.net.Uri
 import android.os.Build
+import java.io.File
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 import com.example.superahorro.model.Compra
@@ -15,7 +22,6 @@ import com.example.superahorro.model.CatalogoProducto
 import com.example.superahorro.model.catalogoProductos
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NuevaCompraScreen(
@@ -23,6 +29,7 @@ fun NuevaCompraScreen(
     onBack: () -> Unit,
     onCompraGuardada: () -> Unit
 ) {
+    val localContext = LocalContext.current
 
     /*
      IMPORTANTE:
@@ -67,10 +74,47 @@ fun NuevaCompraScreen(
     var cantidadProducto by remember { mutableStateOf("") }
 
     /*
+     URI de la imagen del ticket
+    */
+    var imagenUri by remember { mutableStateOf<Uri?>(null) }
+
+    /*
+     Launcher para abrir galería
+    */
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imagenUri = uri
+    }
+
+    /*
      Total automático:
     Se calcula en base a los productos
     */
     val totalCalculado = productos.sumOf { it.subtotal() }
+
+    // Crear archivo temporal para la foto
+    fun crearImagenUri(ctx: Context): Uri {
+        val file = File.createTempFile(
+            "ticket_",
+            ".jpg",
+            ctx.cacheDir
+        )
+        return FileProvider.getUriForFile(
+            ctx,
+            "${ctx.packageName}.provider",
+            file
+        )
+    }
+
+    // Launcher de cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            // La imagen ya quedó guardada en imagenUri
+        }
+    }
 
     SimpleScreenContainer(
         title = "Nueva Compra",
@@ -177,6 +221,60 @@ fun NuevaCompraScreen(
         // TOTAL AUTOMÁTICO
         Text("Total: $${"%.2f".format(totalCalculado)}")
 
+        EspacioNormal()
+
+        /*
+         BOTONES PARA ADJUNTAR TICKET
+        */
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            SuperAhorroButton(
+                text = "Galería",
+                onClick = {
+                    imagePickerLauncher.launch("image/*")
+                }
+            )
+
+            SuperAhorroButton(
+                text = "Cámara",
+                onClick = {
+                    val uri = crearImagenUri(localContext)
+                    imagenUri = uri
+                    cameraLauncher.launch(uri)
+                }
+            )
+        }
+
+        /*
+  MOSTRAR IMAGEN REAL DEL TICKET
+ Si el usuario seleccionó o sacó una foto,
+ la mostramos directamente en pantalla
+*/
+        imagenUri?.let { uri ->
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            /*
+             AsyncImage:
+             Componente de Coil que carga imágenes desde una URI
+             (puede ser cámara, galería, internet, etc)
+            */
+            coil.compose.AsyncImage(
+                model = uri, // 🔥 acá le pasamos la imagen
+                contentDescription = "Ticket de compra",
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+
+                // Opcional: ajusta cómo se ve la imagen
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+        }
+
         EspacioGrande()
 
         SuperAhorroButton(
@@ -186,12 +284,13 @@ fun NuevaCompraScreen(
                 // Generamos un ID simple
                 val nuevoId = (viewModel.compras.size + 1)
 
-                // Creamos la compra con productos
+                // Creamos la compra con productos + imagen
                 val nuevaCompra = Compra(
                     id = nuevoId,
                     supermercado = supermercado,
                     fecha = fecha,
-                    productos = productos.toList()
+                    productos = productos.toList(),
+                    imagenUri = imagenUri?.toString() // 🔥 guardamos la URI
                 )
 
                 /*

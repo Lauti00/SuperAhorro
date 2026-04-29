@@ -1,5 +1,6 @@
 package com.example.superahorro.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.superahorro.model.Compra
 import com.example.superahorro.ui.components.SimpleScreenContainer
 
@@ -20,6 +22,7 @@ fun DetalleCompraScreen(
         title = "Detalle de Compra",
         onBack = onBack
     ) {
+
         // Mostramos los datos principales
         Text(text = "Supermercado: ${compra.supermercado}")
         Spacer(modifier = Modifier.height(8.dp))
@@ -29,6 +32,31 @@ fun DetalleCompraScreen(
 
         Text(text = "Total: $${"%.2f".format(compra.total())}")
         Spacer(modifier = Modifier.height(16.dp))
+
+        /*
+          mostramos imagen del ticket si existe
+        */
+        compra.imagenUri?.let { uriString ->
+
+            val uri = Uri.parse(uriString)
+
+            Text(
+                text = "Ticket de compra",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            AsyncImage(
+                model = uri,
+                contentDescription = "Imagen del ticket",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         Text(text = "Productos", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
