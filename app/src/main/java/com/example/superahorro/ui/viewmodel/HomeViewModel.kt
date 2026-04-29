@@ -72,4 +72,36 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             onLogoutComplete()
         }
     }
+
+    //  GASTO TOTAL
+    fun obtenerGastoTotal(): Double {
+        return compras.sumOf { it.total() }
+    }
+
+    //  CANTIDAD DE COMPRAS
+    fun cantidadCompras(): Int {
+        return compras.size
+    }
+
+    //  GASTO POR SUPERMERCADO
+    fun gastoPorSupermercado(): Map<String, Double> {
+        return compras.groupBy { it.supermercado }
+            .mapValues { entry ->
+                entry.value.sumOf { it.total() }
+            }
+    }
+
+    // PRODUCTO MÁS COMPRADO
+    fun productoMasComprado(): String {
+        val todosProductos = compras.flatMap { it.productos }
+
+        if (todosProductos.isEmpty()) return "Sin datos"
+
+        return todosProductos
+            .groupBy { it.producto.nombre }
+            .maxByOrNull { it.value.sumOf { prod -> prod.cantidad } }
+            ?.key ?: "Sin datos"
+    }
+
+
 }
