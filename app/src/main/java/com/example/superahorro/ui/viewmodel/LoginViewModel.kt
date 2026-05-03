@@ -27,6 +27,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     //  Actualizar email
     fun onEmailChange(newEmail: String) {
         email = newEmail
+
+        errorMessage = when {
+            email.isBlank() -> null
+            !email.contains("@") -> "Email inválido"
+            else -> null
+        }
     }
 
     //  Actualizar password

@@ -11,18 +11,14 @@ import com.example.superahorro.ui.viewmodel.HomeViewModel
 
 @Composable
 fun ProfileScreen(
-    navController: NavController,
+    viewModel: HomeViewModel,
     onBack: () -> Unit,
     onSaveProfile: () -> Unit
 ) {
-
     /*
       IMPORTANTE:
      Usamos el MISMO ViewModel del Home
     */
-    val viewModel: HomeViewModel = viewModel(
-        navController.getBackStackEntry(AppScreens.Home.route)
-    )
 
     /*
       Estados inicializados con datos reales

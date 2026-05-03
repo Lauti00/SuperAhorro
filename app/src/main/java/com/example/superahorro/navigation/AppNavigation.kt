@@ -48,6 +48,11 @@ fun AppNavigation() {
                     navController.navigate(AppScreens.Login.route) {
                         popUpTo(AppScreens.Splash.route) { inclusive = true }
                     }
+                },
+                onNavigateToHome = {
+                    navController.navigate(AppScreens.Home.route) {
+                        popUpTo(AppScreens.Splash.route) { inclusive = true }
+                    }
                 }
             )
         }
@@ -125,14 +130,15 @@ fun AppNavigation() {
 
         //  PERFIL
         composable(AppScreens.Perfil.route) {
+            val parentEntry = remember {
+                navController.getBackStackEntry(AppScreens.Home.route)
+            }
+            val homeViewModel: HomeViewModel = viewModel(parentEntry)
+
             ProfileScreen(
-                navController = navController,
-                onBack = {
-                    navController.popBackStack()
-                },
-                onSaveProfile = {
-                    navController.popBackStack()
-                }
+                viewModel = homeViewModel,
+                onBack = { navController.popBackStack() },
+                onSaveProfile = { navController.popBackStack() }
             )
         }
 
