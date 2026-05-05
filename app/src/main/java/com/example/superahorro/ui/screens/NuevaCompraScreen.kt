@@ -231,7 +231,8 @@ fun NuevaCompraScreen(
                 text = "Galería",
                 onClick = {
                     imagePickerLauncher.launch("image/*")
-                }
+                },
+                modifier = Modifier.weight(1f)
             )
 
             SuperAhorroButton(
@@ -240,7 +241,8 @@ fun NuevaCompraScreen(
                     val uri = crearImagenUri(localContext)
                     imagenUri = uri
                     cameraLauncher.launch(uri)
-                }
+                },
+                modifier = Modifier.weight(1f)
             )
         }
 
