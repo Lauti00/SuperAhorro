@@ -1,10 +1,14 @@
 package com.example.superahorro.ui.screens
 
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.superahorro.model.CatalogoProducto
 import com.example.superahorro.ui.components.*
 import com.example.superahorro.ui.viewmodel.HomeViewModel
 
@@ -22,92 +26,206 @@ fun NuevoProductoScreen(
     var precio by remember { mutableStateOf("") }
 
     /*
-    ESTADO ERROR SIMPLE
+    ESTADO ERROR
     */
     var error by remember { mutableStateOf("") }
 
+    /*
+    CATÁLOGO ACTUAL
+    */
+    val catalogo = viewModel.catalogo
+
     SimpleScreenContainer(
-        title = "Nuevo Producto",
+        title = "Gestionar Productos",
         onBack = onBack
     ) {
 
-        /*
-        INPUT NOMBRE
-        */
-        SuperAhorroTextField(
-            value = nombre,
-            onValueChange = {
-                nombre = it
-                error = ""
-            },
-            label = "Nombre del producto"
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
 
-        EspacioNormal()
-
-        /*
-        INPUT PRECIO
-        */
-        SuperAhorroTextField(
-            value = precio,
-            onValueChange = {
-                precio = it
-                error = ""
-            },
-            label = "Precio"
-        )
-
-        EspacioNormal()
-
-        /*
-        ERROR (si hay)
-        */
-        if (error.isNotEmpty()) {
+            /*
+            TÍTULO
+            */
             Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error
+                text = "Agregar nuevo producto",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
+
             EspacioNormal()
-        }
 
-        /*
-        BOTÓN GUARDAR
-        */
-        SuperAhorroButton(
-            text = "Guardar Producto",
-            onClick = {
+            /*
+            INPUT NOMBRE
+            */
+            SuperAhorroTextField(
+                value = nombre,
+                onValueChange = {
+                    nombre = it
+                    error = ""
+                },
+                label = "Nombre del producto"
+            )
 
-                val precioDouble = precio.toDoubleOrNull()
+            EspacioNormal()
 
-                when {
-                    nombre.isBlank() -> {
-                        error = "El nombre no puede estar vacío"
-                    }
+            /*
+            INPUT PRECIO
+            */
+            SuperAhorroTextField(
+                value = precio,
+                onValueChange = {
+                    precio = it
+                    error = ""
+                },
+                label = "Precio"
+            )
 
-                    precioDouble == null -> {
-                        error = "Precio inválido"
-                    }
+            EspacioNormal()
 
-                    precioDouble <= 0 -> {
-                        error = "El precio debe ser mayor a 0"
-                    }
+            /*
+            ERROR
+            */
+            if (error.isNotEmpty()) {
 
-                    else -> {
-                        /*
-                        Guardamos en el catálogo
-                        */
-                        viewModel.agregarProductoAlCatalogo(
-                            nombre = nombre,
-                            precio = precioDouble
-                        )
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error
+                )
 
-                        /*
-                        Volvemos atrás
-                        */
-                        onProductoCreado()
+                EspacioNormal()
+            }
+
+            /*
+            BOTÓN GUARDAR
+            */
+            SuperAhorroButton(
+                text = "Guardar Producto",
+                onClick = {
+
+                    val precioDouble = precio.toDoubleOrNull()
+
+                    when {
+
+                        nombre.trim().length < 2 -> {
+                            error = "El nombre es demasiado corto"
+                        }
+
+                        precioDouble == null -> {
+                            error = "Precio inválido"
+                        }
+
+                        precioDouble <= 0 -> {
+                            error = "El precio debe ser mayor a 0"
+                        }
+
+                        precioDouble > 999999 -> {
+                            error = "Precio demasiado alto"
+                        }
+
+                        else -> {
+
+                            /*
+                            Intentamos agregar
+                            */
+                            val agregado =
+                                viewModel.agregarProductoAlCatalogo(
+                                    nombre = nombre,
+                                    precio = precioDouble
+                                )
+
+                            if (!agregado) {
+
+                                error = "Ese producto ya existe"
+
+                            } else {
+
+                                /*
+                                Limpiamos inputs
+                                */
+                                nombre = ""
+                                precio = ""
+                                error = ""
+                            }
+                        }
                     }
                 }
+            )
+
+            EspacioGrande()
+
+            /*
+            LISTA DE PRODUCTOS
+            */
+            Text(
+                text = "Productos actuales",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            EspacioNormal()
+
+            if (catalogo.isEmpty()) {
+
+                Text("No hay productos cargados")
+
+            } else {
+
+                catalogo.forEach { producto ->
+
+                    ProductoCatalogoItem(
+                        producto = producto,
+                        onEliminar = {
+                            viewModel.eliminarProductoDelCatalogo(producto)
+                        }
+                    )
+
+                    EspacioPequeño()
+                }
             }
-        )
+        }
+    }
+}
+
+/*
+ITEM DEL CATÁLOGO
+*/
+@Composable
+fun ProductoCatalogoItem(
+    producto: CatalogoProducto,
+    onEliminar: () -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Column {
+
+                Text(
+                    text = producto.nombre,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = "$${producto.precio}"
+                )
+            }
+
+            TextButton(
+                onClick = onEliminar
+            ) {
+                Text("Eliminar")
+            }
+        }
     }
 }
