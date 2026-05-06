@@ -10,6 +10,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -121,188 +123,214 @@ fun NuevaCompraScreen(
         onBack = onBack
     ) {
 
-        //  Supermercado
-        SuperAhorroTextField(
-            value = supermercado,
-            onValueChange = { supermercado = it },
-            label = "Supermercado"
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
 
-        EspacioNormal()
-
-        // Mostramos la fecha (no editable)
-        Text("Fecha: $fecha")
-
-        EspacioNormal()
-
-        /*
-         SELECTOR DE PRODUCTOS (DROPDOWN)
-        */
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                value = productoSeleccionado?.nombre ?: "",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Seleccionar producto") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+            //  Supermercado
+            SuperAhorroTextField(
+                value = supermercado,
+                onValueChange = { supermercado = it },
+                label = "Supermercado"
             )
 
-            ExposedDropdownMenu(
+            EspacioNormal()
+
+            // Mostramos la fecha (no editable)
+            Text("Fecha: $fecha")
+
+            EspacioNormal()
+
+            /*
+         SELECTOR DE PRODUCTOS (DROPDOWN)
+        */
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded }
             ) {
-                catalogo.forEach { producto ->
-                    DropdownMenuItem(
-                        text = { Text("${producto.nombre} - $${producto.precio}") },
-                        onClick = {
-                            productoSeleccionado = producto
-                            expanded = false
-                        }
-                    )
+                OutlinedTextField(
+                    value = productoSeleccionado?.nombre ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Seleccionar producto") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    catalogo.forEach { producto ->
+                        DropdownMenuItem(
+                            text = { Text("${producto.nombre} - $${producto.precio}") },
+                            onClick = {
+                                productoSeleccionado = producto
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        EspacioNormal()
+            EspacioNormal()
 
-        /*
+            /*
          Cantidad (único input real del usuario)
         */
-        SuperAhorroTextField(
-            value = cantidadProducto,
-            onValueChange = { cantidadProducto = it },
-            label = "Cantidad"
-        )
+            SuperAhorroTextField(
+                value = cantidadProducto,
+                onValueChange = { cantidadProducto = it },
+                label = "Cantidad"
+            )
 
-        EspacioPequeño()
+            EspacioPequeño()
 
-        SuperAhorroButton(
-            text = "Agregar producto",
-            onClick = {
+            SuperAhorroButton(
+                text = "Agregar producto",
+                onClick = {
 
-                val cantidad = cantidadProducto.toIntOrNull()
+                    val cantidad = cantidadProducto.toIntOrNull()
 
-                /*
+                    /*
                 Validaciones:
                 - producto seleccionado
                 - cantidad válida
                 */
-                if (productoSeleccionado != null && cantidad != null) {
+                    if (productoSeleccionado != null && cantidad != null) {
 
-                    productos.add(
-                        Producto(
-                            producto = productoSeleccionado!!,
-                            cantidad = cantidad
+                        productos.add(
+                            Producto(
+                                producto = productoSeleccionado!!,
+                                cantidad = cantidad
+                            )
                         )
-                    )
 
-                    // Limpiamos selección
-                    productoSeleccionado = null
-                    cantidadProducto = ""
+                        // Limpiamos selección
+                        productoSeleccionado = null
+                        cantidadProducto = ""
+                    }
                 }
-            }
-        )
+            )
 
-        EspacioNormal()
+            EspacioNormal()
+
+        // Contenido scrolleable
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
 
         // LISTA DE PRODUCTOS AGREGADOS
-        productos.forEach {
-            Text("${it.producto.nombre} - ${it.cantidad} x $${it.producto.precio}")
-        }
+            productos.forEach {
+                Text("${it.producto.nombre} - ${it.cantidad} x $${it.producto.precio}")
+            }
 
-        EspacioNormal()
+            EspacioNormal()
 
-        // TOTAL AUTOMÁTICO
-        Text("Total: $${"%.2f".format(totalCalculado)}")
+            // TOTAL AUTOMÁTICO
+            Text("Total: $${"%.2f".format(totalCalculado)}")
 
-        EspacioNormal()
+            EspacioNormal()
 
-        /*
-         BOTONES PARA ADJUNTAR TICKET
-        */
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            SuperAhorroButton(
-                text = "Galería",
-                onClick = {
-                    imagePickerLauncher.launch("image/*")
-                },
-                modifier = Modifier.weight(1f)
-            )
+            imagenUri?.let { uri ->
 
-            SuperAhorroButton(
-                text = "Cámara",
-                onClick = {
-                    val uri = crearImagenUri(localContext)
-                    imagenUri = uri
-                    cameraLauncher.launch(uri)
-                },
-                modifier = Modifier.weight(1f)
-            )
-        }
+                Spacer(modifier = Modifier.height(12.dp))
 
-        /*
-  MOSTRAR IMAGEN REAL DEL TICKET
- Si el usuario seleccionó o sacó una foto,
- la mostramos directamente en pantalla
-*/
-        imagenUri?.let { uri ->
+                Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            /*
-             AsyncImage:
-             Componente de Coil que carga imágenes desde una URI
-             (puede ser cámara, galería, internet, etc)
-            */
-            coil.compose.AsyncImage(
-                model = uri, // 🔥 acá le pasamos la imagen
-                contentDescription = "Ticket de compra",
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-
-                // Opcional: ajusta cómo se ve la imagen
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
-            )
-        }
-
-        EspacioGrande()
-
-        SuperAhorroButton(
-            text = "Guardar Compra",
-            onClick = {
-
-                // Generamos un ID simple
-                val nuevoId = (viewModel.compras.size + 1)
-
-                // Creamos la compra con productos + imagen
-                val nuevaCompra = Compra(
-                    id = nuevoId,
-                    supermercado = supermercado,
-                    fecha = fecha,
-                    productos = productos.toList(),
-                    imagenUri = imagenUri?.toString() // 🔥 guardamos la URI
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 /*
+MOSTRAR IMAGEN REAL DEL TICKET
+Si el usuario seleccionó o sacó una foto,
+la mostramos directamente en pantalla
+*/
+                /*
+     AsyncImage:
+     Componente de Coil que carga imágenes desde una URI
+     (puede ser cámara, galería, internet, etc)
+    */
+                coil.compose.AsyncImage(
+                    model = uri, // 🔥 acá le pasamos la imagen
+                    contentDescription = "Ticket de compra",
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+
+                    // Opcional: ajusta cómo se ve la imagen
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+            }
+
+        }
+
+            //BOTONES FIJOS ABAJO
+            Column {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    /*
+         BOTONES PARA ADJUNTAR TICKET
+        */
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        SuperAhorroButton(
+                            text = "Galería",
+                            onClick = {
+                                imagePickerLauncher.launch("image/*")
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        SuperAhorroButton(
+                            text = "Cámara",
+                            onClick = {
+                                val uri = crearImagenUri(localContext)
+                                imagenUri = uri
+                                cameraLauncher.launch(uri)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    //EspacioGrande()
+                    //EspacioNormal()
+
+                    SuperAhorroButton(
+                        text = "Guardar Compra",
+                        onClick = {
+
+                            // Generamos un ID simple
+                            val nuevoId = (viewModel.compras.size + 1)
+
+                            // Creamos la compra con productos + imagen
+                            val nuevaCompra = Compra(
+                                id = nuevoId,
+                                supermercado = supermercado,
+                                fecha = fecha,
+                                productos = productos.toList(),
+                                imagenUri = imagenUri?.toString() // 🔥 guardamos la URI
+                            )
+
+                            /*
                  ACA se guarda en el ViewModel compartido
                 */
-                viewModel.agregarCompra(nuevaCompra)
+                            viewModel.agregarCompra(nuevaCompra)
 
-                // Volvemos atrás (Home)
-                onCompraGuardada()
+                            // Volvemos atrás (Home)
+                            onCompraGuardada()
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
-        )
+        }
     }
-}
+    }
