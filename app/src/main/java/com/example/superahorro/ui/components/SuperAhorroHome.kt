@@ -17,99 +17,171 @@ fun MainDrawerContainer(
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
     onNavigateToEstadisticas: () -> Unit,
-    onNavigateToPerfil: () -> Unit, //  NUEVO
+    onNavigateToPerfil: () -> Unit,
+
+    /*
+     NUEVO:
+    Navegación a configuración
+    */
+    onNavigateToSettings: () -> Unit,
+
     content: @Composable () -> Unit
 ) {
 
-    //  Necesario para abrir/cerrar el drawer
+    // Necesario para abrir/cerrar el drawer
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+
         drawerContent = {
+
             ModalDrawerSheet {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "Menú SuperAhorro",
+                    text = "Menú SuperAhorro",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
 
+                /*
+                EMAIL DEL USUARIO
+                */
                 Text(
                     text = userEmail,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 HorizontalDivider()
 
-                //  MIS COMPRAS
+                /*
+                MIS COMPRAS
+                */
                 NavigationDrawerItem(
                     label = { Text("Mis Compras") },
                     selected = false,
+
                     onClick = {
+
                         scope.launch {
                             drawerState.close()
                         }
+
                         onNavigateToHistorial()
                     }
                 )
 
-                //  ESTADÍSTICAS
+                /*
+                ESTADÍSTICAS
+                */
                 NavigationDrawerItem(
                     label = { Text("Estadísticas") },
                     selected = false,
+
                     onClick = {
+
                         scope.launch {
                             drawerState.close()
                         }
+
                         onNavigateToEstadisticas()
                     }
                 )
 
-                //  PERFIL (NUEVO)
+                /*
+                PERFIL
+                */
                 NavigationDrawerItem(
                     label = { Text("Mi Perfil") },
                     selected = false,
+
                     onClick = {
+
                         scope.launch {
                             drawerState.close()
                         }
+
                         onNavigateToPerfil()
                     }
                 )
 
-                //  LOGOUT
+                /*
+                 SETTINGS / CONFIGURACIÓN
+                */
                 NavigationDrawerItem(
-                    label = { Text("Cerrar Sesión") },
+                    label = { Text("Configuración") },
                     selected = false,
+
                     onClick = {
+
                         scope.launch {
                             drawerState.close()
                         }
+
+                        onNavigateToSettings()
+                    }
+                )
+
+                /*
+                CERRAR SESIÓN
+                */
+                NavigationDrawerItem(
+                    label = { Text("Cerrar Sesión") },
+                    selected = false,
+
+                    onClick = {
+
+                        scope.launch {
+                            drawerState.close()
+                        }
+
                         onLogout()
                     }
                 )
             }
         },
+
         content = content
     )
 }
 
 // --- 2. LA TARJETA DE RESUMEN ---
 @Composable
-fun ResumenGastosCard(userName: String, montoTotal: String) {
+fun ResumenGastosCard(
+    userName: String,
+    montoTotal: String
+) {
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(text = "¡Hola, $userName!", style = MaterialTheme.typography.headlineSmall)
+
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+
+            Text(
+                text = "¡Hola, $userName!",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
             EspacioPequeño()
-            Text(text = "Este mes has gastado:")
+
+            Text(
+                text = "Este mes has gastado:"
+            )
+
             Text(
                 text = montoTotal,
                 style = MaterialTheme.typography.displaySmall,

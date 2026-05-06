@@ -21,7 +21,6 @@ import com.example.superahorro.ui.viewmodel.HomeViewModel
 import com.example.superahorro.model.Compra
 import com.example.superahorro.model.Producto
 import com.example.superahorro.model.CatalogoProducto
-import com.example.superahorro.model.catalogoProductos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -29,7 +28,8 @@ import com.example.superahorro.model.catalogoProductos
 fun NuevaCompraScreen(
     viewModel: HomeViewModel,
     onBack: () -> Unit,
-    onCompraGuardada: () -> Unit
+    onCompraGuardada: () -> Unit,
+    onNavigateToNuevoProducto: () -> Unit // 🔥 NUEVO
 ) {
     val localContext = LocalContext.current
 
@@ -56,9 +56,9 @@ fun NuevaCompraScreen(
 
     /*
      Catálogo:
-    Lista fija de productos disponibles
+    Ahora viene del ViewModel (dinámico)
     */
-    val catalogo = catalogoProductos
+    val catalogo = viewModel.catalogo
 
     /*
      Producto seleccionado del catálogo
@@ -79,6 +79,12 @@ fun NuevaCompraScreen(
      URI de la imagen del ticket
     */
     var imagenUri by remember { mutableStateOf<Uri?>(null) }
+
+    /*
+     ESTADOS DE ERROR
+    */
+    var errorGeneral by remember { mutableStateOf("") }
+    var errorProducto by remember { mutableStateOf("") }
 
     /*
      Launcher para abrir galería
@@ -112,23 +118,22 @@ fun NuevaCompraScreen(
     // Launcher de cámara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            // La imagen ya quedó guardada en imagenUri
-        }
-    }
+    ) { }
 
     SimpleScreenContainer(
         title = "Nueva Compra",
         onBack = onBack
     ) {
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
 
             //  Supermercado
             SuperAhorroTextField(
                 value = supermercado,
-                onValueChange = { supermercado = it },
+                onValueChange = {
+                    supermercado = it
+                    errorGeneral = ""
+                },
                 label = "Supermercado"
             )
 
@@ -167,11 +172,24 @@ fun NuevaCompraScreen(
                             onClick = {
                                 productoSeleccionado = producto
                                 expanded = false
+                                errorProducto = ""
                             }
                         )
                     }
                 }
             }
+
+            EspacioPequeño()
+
+            /*
+            BOTÓN PARA CREAR PRODUCTO
+            */
+            SuperAhorroTextButton(
+                text = "¿No está en la lista? Crear producto",
+                onClick = {
+                    onNavigateToNuevoProducto()
+                }
+            )
 
             EspacioNormal()
 
@@ -180,7 +198,10 @@ fun NuevaCompraScreen(
         */
             SuperAhorroTextField(
                 value = cantidadProducto,
-                onValueChange = { cantidadProducto = it },
+                onValueChange = {
+                    cantidadProducto = it
+                    errorProducto = ""
+                },
                 label = "Cantidad"
             )
 
@@ -197,75 +218,90 @@ fun NuevaCompraScreen(
                 - producto seleccionado
                 - cantidad válida
                 */
-                    if (productoSeleccionado != null && cantidad != null) {
+                    when {
+                        productoSeleccionado == null -> {
+                            errorProducto = "Seleccioná un producto"
+                        }
 
-                        productos.add(
-                            Producto(
-                                producto = productoSeleccionado!!,
-                                cantidad = cantidad
+                        cantidad == null || cantidad <= 0 -> {
+                            errorProducto = "Cantidad inválida"
+                        }
+
+                        else -> {
+                            productos.add(
+                                Producto(
+                                    producto = productoSeleccionado!!,
+                                    cantidad = cantidad
+                                )
                             )
-                        )
 
-                        // Limpiamos selección
-                        productoSeleccionado = null
-                        cantidadProducto = ""
+                            // Limpiamos selección
+                            productoSeleccionado = null
+                            cantidadProducto = ""
+                            errorProducto = ""
+                        }
                     }
                 }
             )
 
-            EspacioNormal()
-
-        // Contenido scrolleable
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-
-        // LISTA DE PRODUCTOS AGREGADOS
-            productos.forEach {
-                Text("${it.producto.nombre} - ${it.cantidad} x $${it.producto.precio}")
+            /*
+            ERROR DE PRODUCTO
+            */
+            if (errorProducto.isNotEmpty()) {
+                EspacioPequeño()
+                Text(errorProducto, color = MaterialTheme.colorScheme.error)
             }
 
             EspacioNormal()
 
-            // TOTAL AUTOMÁTICO
-            Text("Total: $${"%.2f".format(totalCalculado)}")
+            // Contenido scrolleable
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-            EspacioNormal()
+                // LISTA DE PRODUCTOS AGREGADOS
+                productos.forEach {
+                    Text("${it.producto.nombre} - ${it.cantidad} x $${it.producto.precio}")
+                }
 
-            imagenUri?.let { uri ->
+                EspacioNormal()
 
-                Spacer(modifier = Modifier.height(12.dp))
+                // TOTAL AUTOMÁTICO
+                Text("Total: $${"%.2f".format(totalCalculado)}")
 
-                Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
+                EspacioNormal()
 
-                Spacer(modifier = Modifier.height(8.dp))
+                imagenUri?.let { uri ->
 
-                /*
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    /*
 MOSTRAR IMAGEN REAL DEL TICKET
-Si el usuario seleccionó o sacó una foto,
-la mostramos directamente en pantalla
 */
-                /*
-     AsyncImage:
-     Componente de Coil que carga imágenes desde una URI
-     (puede ser cámara, galería, internet, etc)
-    */
-                coil.compose.AsyncImage(
-                    model = uri, // 🔥 acá le pasamos la imagen
-                    contentDescription = "Ticket de compra",
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-
-                    // Opcional: ajusta cómo se ve la imagen
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                )
+                    coil.compose.AsyncImage(
+                        model = uri,
+                        contentDescription = "Ticket de compra",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    )
+                }
             }
 
-        }
+            /*
+            ERROR GENERAL
+            */
+            if (errorGeneral.isNotEmpty()) {
+                Text(errorGeneral, color = MaterialTheme.colorScheme.error)
+                EspacioPequeño()
+            }
 
             //BOTONES FIJOS ABAJO
             Column {
@@ -274,6 +310,7 @@ la mostramos directamente en pantalla
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+
                     /*
          BOTONES PARA ADJUNTAR TICKET
         */
@@ -300,32 +337,39 @@ la mostramos directamente en pantalla
                         )
                     }
 
-                    //EspacioGrande()
-                    //EspacioNormal()
-
                     SuperAhorroButton(
                         text = "Guardar Compra",
                         onClick = {
 
-                            // Generamos un ID simple
-                            val nuevoId = (viewModel.compras.size + 1)
-
-                            // Creamos la compra con productos + imagen
-                            val nuevaCompra = Compra(
-                                id = nuevoId,
-                                supermercado = supermercado,
-                                fecha = fecha,
-                                productos = productos.toList(),
-                                imagenUri = imagenUri?.toString() // 🔥 guardamos la URI
-                            )
-
                             /*
-                 ACA se guarda en el ViewModel compartido
-                */
-                            viewModel.agregarCompra(nuevaCompra)
+                            VALIDACIONES FINALES
+                            */
+                            when {
+                                supermercado.isBlank() -> {
+                                    errorGeneral = "Ingresá el supermercado"
+                                }
 
-                            // Volvemos atrás (Home)
-                            onCompraGuardada()
+                                productos.isEmpty() -> {
+                                    errorGeneral = "Agregá al menos un producto"
+                                }
+
+                                else -> {
+
+                                    val nuevoId = (viewModel.compras.size + 1)
+
+                                    val nuevaCompra = Compra(
+                                        id = nuevoId,
+                                        supermercado = supermercado,
+                                        fecha = fecha,
+                                        productos = productos.toList(),
+                                        imagenUri = imagenUri?.toString()
+                                    )
+
+                                    viewModel.agregarCompra(nuevaCompra)
+
+                                    onCompraGuardada()
+                                }
+                            }
                         },
                         modifier = Modifier.weight(1f)
                     )
@@ -333,4 +377,4 @@ la mostramos directamente en pantalla
             }
         }
     }
-    }
+}
