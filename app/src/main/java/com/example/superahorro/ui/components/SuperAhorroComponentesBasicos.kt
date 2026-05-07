@@ -26,7 +26,7 @@ fun SuperAhorroTitle(text: String) {
 fun SuperAhorroButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(0.7f).height(50.dp)
+        modifier = modifier.height(50.dp)
     ) {
         Text(text = text, fontSize = 16.sp, style = MaterialTheme.typography.labelLarge)
     }
