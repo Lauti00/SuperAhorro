@@ -118,6 +118,8 @@ fun NuevoProductoScreen(
                         // 2. VALIDACIONES
                         when {
                             codigoTrim.isEmpty() -> error = "El código no puede estar vacío"
+                            // NUEVA VALIDACIÓN: Evitar códigos duplicados
+                            catalogo.any { it.codigo == codigoTrim && it.id != idProductoEditando } -> error = "Ya existe un producto con este código"
                             nombreTrim.isEmpty() -> error = "El nombre no puede estar vacío"
                             nombreTrim.length < 2 -> error = "Nombre demasiado corto"
                             descripcionTrim.isEmpty() -> error = "La descripción no puede estar vacía"
