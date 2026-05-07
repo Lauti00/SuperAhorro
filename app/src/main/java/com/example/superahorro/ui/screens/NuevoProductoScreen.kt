@@ -3,8 +3,12 @@ package com.example.superahorro.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -15,152 +19,130 @@ import com.example.superahorro.ui.viewmodel.HomeViewModel
 @Composable
 fun NuevoProductoScreen(
     viewModel: HomeViewModel,
-    onBack: () -> Unit,
-    onProductoCreado: () -> Unit
+    onBack: () -> Unit
 ) {
-
-    /*
-    ESTADOS DE INPUT
-    */
+    // ESTADOS DE INPUT
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
 
-    /*
-    ESTADO ERROR
-    */
+    // ESTADO PARA EDICIÓN
+    // Si es null, estamos creando. Si tiene un ID, estamos editando.
+    var idProductoEditando by remember { mutableStateOf<Int?>(null) }
+
+    // ESTADO ERROR
     var error by remember { mutableStateOf("") }
 
-    /*
-    CATÁLOGO ACTUAL
-    */
     val catalogo = viewModel.catalogo
 
     SimpleScreenContainer(
-        title = "Gestionar Productos",
+        title = "Gestionar Catálogo",
         onBack = onBack
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-
             /*
-            TÍTULO
+            FORMULARIO DE CARGA / EDICIÓN
             */
             Text(
-                text = "Agregar nuevo producto",
+                text = if (idProductoEditando == null) "Agregar nuevo producto" else "Editando: $nombre",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = if (idProductoEditando == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )
 
             EspacioNormal()
 
-            /*
-            INPUT NOMBRE
-            */
             SuperAhorroTextField(
                 value = nombre,
-                onValueChange = {
-                    nombre = it
-                    error = ""
-                },
-                label = "Nombre del producto"
+                onValueChange = { nombre = it; error = "" },
+                label = "Nombre del producto (ej: Leche)"
             )
 
             EspacioNormal()
 
-            /*
-            INPUT PRECIO
-            */
             SuperAhorroTextField(
                 value = precio,
                 onValueChange = {
-                    precio = it
-                    error = ""
+                    // Permitimos solo números y un punto/coma
+                    if (it.all { char -> char.isDigit() || char == '.' || char == ',' }) {
+                        precio = it
+                        error = ""
+                    }
                 },
-                label = "Precio"
+                label = "Precio (ej: 1200.50)"
             )
 
             EspacioNormal()
 
-            /*
-            ERROR
-            */
             if (error.isNotEmpty()) {
-
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error
-                )
-
+                Text(text = error, color = MaterialTheme.colorScheme.error)
                 EspacioNormal()
             }
 
-            /*
-            BOTÓN GUARDAR
-            */
-            SuperAhorroButton(
-                text = "Guardar Producto",
-                onClick = {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // BOTÓN PRINCIPAL
+                SuperAhorroButton(
+                    text = if (idProductoEditando == null) "Guardar Producto" else "Actualizar",
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        // 1. Limpieza de datos
+                        val nombreTrim = nombre.trim()
+                        val precioLimpio = precio.replace(",", ".") // Cambiamos coma por punto por las dudas
+                        val precioDouble = precioLimpio.toDoubleOrNull()
 
-                    val precioDouble = precio.toDoubleOrNull()
+                        // 2. VALIDACIONES
+                        when {
+                            nombreTrim.isEmpty() -> error = "El nombre no puede estar vacío"
+                            nombreTrim.length < 2 -> error = "Nombre demasiado corto"
+                            precioLimpio.isEmpty() -> error = "Debes ingresar un precio"
+                            precioDouble == null -> error = "Formato de precio inválido"
+                            precioDouble <= 0 -> error = "El precio debe ser mayor a 0"
+                            else -> {
+                                if (idProductoEditando == null) {
+                                    // MODO CREAR
+                                    val agregado = viewModel.agregarProductoAlCatalogo(nombreTrim, precioDouble)
+                                    if (!agregado) error = "Ese producto ya existe"
+                                } else {
+                                    // MODO EDITAR
+                                    // Asumimos que tu ViewModel tiene una función para actualizar
+                                    viewModel.actualizarProductoDelCatalogo(idProductoEditando!!, nombreTrim, precioDouble)
+                                    idProductoEditando = null
+                                }
 
-                    when {
-
-                        nombre.trim().length < 2 -> {
-                            error = "El nombre es demasiado corto"
-                        }
-
-                        precioDouble == null -> {
-                            error = "Precio inválido"
-                        }
-
-                        precioDouble <= 0 -> {
-                            error = "El precio debe ser mayor a 0"
-                        }
-
-                        precioDouble > 999999 -> {
-                            error = "Precio demasiado alto"
-                        }
-
-                        else -> {
-
-                            /*
-                            Intentamos agregar
-                            */
-                            val agregado =
-                                viewModel.agregarProductoAlCatalogo(
-                                    nombre = nombre,
-                                    precio = precioDouble
-                                )
-
-                            if (!agregado) {
-
-                                error = "Ese producto ya existe"
-
-                            } else {
-
-                                /*
-                                Limpiamos inputs
-                                */
-                                nombre = ""
-                                precio = ""
-                                error = ""
+                                if (error.isEmpty()) {
+                                    nombre = ""; precio = ""; error = ""
+                                }
                             }
                         }
                     }
+                )
+
+                // BOTÓN CANCELAR (Solo aparece al editar)
+                if (idProductoEditando != null) {
+                    OutlinedButton(
+                        onClick = {
+                            idProductoEditando = null
+                            nombre = ""
+                            precio = ""
+                            error = ""
+                        },
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("X")
+                    }
                 }
-            )
+            }
 
             EspacioGrande()
 
             /*
-            LISTA DE PRODUCTOS
+            LISTA DE PRODUCTOS ACTUALES
             */
             Text(
-                text = "Productos actuales",
+                text = "Productos en lista (${catalogo.size})",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -168,63 +150,61 @@ fun NuevoProductoScreen(
             EspacioNormal()
 
             if (catalogo.isEmpty()) {
-
-                Text("No hay productos cargados")
-
+                Text("El catálogo está vacío.", style = MaterialTheme.typography.bodyMedium)
             } else {
-
                 catalogo.forEach { producto ->
-
                     ProductoCatalogoItem(
                         producto = producto,
-                        onEliminar = {
-                            viewModel.eliminarProductoDelCatalogo(producto)
+                        onEliminar = { viewModel.eliminarProductoDelCatalogo(producto) },
+                        onEditar = {
+                            // Subimos los datos al formulario para editar
+                            idProductoEditando = producto.id
+                            nombre = producto.nombre
+                            precio = producto.precio.toString()
+                            error = ""
                         }
                     )
-
                     EspacioPequeño()
                 }
             }
+
+            // Espacio final para que el scroll sea cómodo
+            Spacer(modifier = Modifier.height(50.dp))
         }
     }
 }
 
-/*
-ITEM DEL CATÁLOGO
-*/
 @Composable
 fun ProductoCatalogoItem(
     producto: CatalogoProducto,
-    onEliminar: () -> Unit
+    onEliminar: () -> Unit,
+    onEditar: () -> Unit
 ) {
-
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Column {
-
-                Text(
-                    text = producto.nombre,
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Text(
-                    text = "$${producto.precio}"
-                )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = "$${"%.2f".format(producto.precio)}", style = MaterialTheme.typography.bodyMedium)
             }
 
-            TextButton(
-                onClick = onEliminar
-            ) {
-                Text("Eliminar")
+            Row {
+                IconButton(onClick = onEditar) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = onEliminar) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }

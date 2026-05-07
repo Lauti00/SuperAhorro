@@ -228,6 +228,54 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
     }
+    /*
+    ACTUALIZAR PRODUCTO DEL CATÁLOGO
+    */
+    fun actualizarProductoDelCatalogo(
+        id: Int,
+        nuevoNombre: String,
+        nuevoPrecio: Double
+    ) {
+        val index = _catalogo.indexOfFirst { it.id == id }
+
+        if (index != -1) {
+            // 1. Creamos el producto con los datos nuevos
+            val productoActualizado = CatalogoProducto(
+                id = id,
+                nombre = nuevoNombre.trim(),
+                precio = nuevoPrecio
+            )
+
+            // 2. Lo reemplazamos en el catálogo
+            _catalogo[index] = productoActualizado
+
+            // 3. Actualizamos este producto en TODAS las compras existentes
+            // (para que los precios y nombres se actualicen en el historial)
+            _compras.replaceAll { compra ->
+                val nuevosProductos = compra.productos.map { itemCompra ->
+                    if (itemCompra.producto.id == id) {
+                        // Reemplazamos el producto viejo por el actualizado, manteniendo la cantidad
+                        itemCompra.copy(producto = productoActualizado)
+                    } else {
+                        itemCompra
+                    }
+                }
+                compra.copy(productos = nuevosProductos)
+            }
+
+            // 4. Si la compra seleccionada lo tenía, también la actualizamos
+            compraSeleccionada?.let { compra ->
+                val nuevosProductos = compra.productos.map { itemCompra ->
+                    if (itemCompra.producto.id == id) {
+                        itemCompra.copy(producto = productoActualizado)
+                    } else {
+                        itemCompra
+                    }
+                }
+                compraSeleccionada = compra.copy(productos = nuevosProductos)
+            }
+        }
+    }
 
     // =========================
     // USER DATA

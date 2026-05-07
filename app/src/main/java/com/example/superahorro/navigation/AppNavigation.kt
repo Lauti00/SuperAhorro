@@ -256,8 +256,7 @@ fun AppNavigation() {
 
             NuevoProductoScreen(
                 viewModel = homeViewModel,
-                onBack = { navController.popBackStack() },
-                onProductoCreado = { navController.popBackStack() }
+                onBack = { navController.popBackStack() }
             )
         }
 
