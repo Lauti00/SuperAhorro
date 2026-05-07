@@ -4,13 +4,10 @@ import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.superahorro.model.Compra
@@ -27,14 +24,13 @@ fun DetalleCompraScreen(
     ) {
 
         // Mostramos los datos principales
-        Text(text = "Supermercado: ${compra.supermercado}", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Supermercado: ${compra.supermercado}")
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Agregamos la hora que sumamos al modelo
-        Text(text = "Fecha: ${compra.fecha} - ${compra.hora}")
-        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Fecha: ${compra.fecha}")
+        Spacer(modifier = Modifier.height(8.dp))
 
-        Text(text = "Total: $${"%.2f".format(compra.total())}", fontWeight = FontWeight.Bold)
+        Text(text = "Total: $${"%.2f".format(compra.total())}")
         Spacer(modifier = Modifier.height(16.dp))
 
         /*
@@ -67,7 +63,7 @@ fun DetalleCompraScreen(
 
         /*
          Ahora usamos los productos REALES de la compra
-         y mostramos todo el detalle (código, nombre, descripción, precio y subtotal)
+        (ya no usamos mock)
         */
         if (compra.productos.isEmpty()) {
 
@@ -77,36 +73,16 @@ fun DetalleCompraScreen(
         } else {
 
             LazyColumn {
-                items(compra.productos) { item ->
+                items(compra.productos) { producto ->
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            // Nombre y código
-                            Text(
-                                text = "${item.producto.nombre} (Cód: ${item.producto.codigo})",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            // Descripción
-                            Text(
-                                text = item.producto.descripcion,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            // Cantidad, precio unitario y subtotal
-                            Text(
-                                text = "${item.cantidad} x $${"%.2f".format(item.producto.precio)} = $${"%.2f".format(item.subtotal())}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                    /*
+                     Mostramos cada producto con:
+                     nombre, cantidad y precio
+                    */
+                    Text(
+                        text = "${producto.producto.nombre} - ${producto.cantidad} x $${producto.producto.precio}",
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
             }
         }

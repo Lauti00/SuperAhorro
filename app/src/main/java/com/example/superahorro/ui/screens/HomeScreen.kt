@@ -22,13 +22,8 @@ fun HomeScreen(
     onNavigateToEstadisticas: () -> Unit,
     onNavigateToNuevaCompra: () -> Unit,
     onCompraClick: (Compra) -> Unit,
-    onNavigateToPerfil: () -> Unit,
-
-    /*
-    NUEVA NAVEGACIÓN A SETTINGS
-    */
-    onNavigateToSettings: () -> Unit
-) {
+    onNavigateToPerfil: () -> Unit
+){
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -62,21 +57,16 @@ fun HomeScreen(
 
         onNavigateToHistorial = onNavigateToHistorial,
 
+
         onNavigateToEstadisticas = onNavigateToEstadisticas,
 
-        onNavigateToPerfil = onNavigateToPerfil,
-
-        /*
-        NAVEGACIÓN A SETTINGS
-        */
-        onNavigateToSettings = onNavigateToSettings
+        onNavigateToPerfil = onNavigateToPerfil
 
     ) {
 
         Scaffold(
             topBar = {
                 TopAppBar(
-
                     //  Usamos strings.xml
                     title = { Text(stringResource(R.string.home_title)) },
 
@@ -138,14 +128,12 @@ fun HomeScreen(
                     /*Aca le digo que quiero compartir algo*/
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-
                         /*Aca le paso los datos, es el contenido.*/
                         putExtra(Intent.EXTRA_TEXT, texto)
                     }
 
                     /*LANZO EL INTENT ACA*/
                     context.startActivity(
-
                         /*Muestro las opciones de compartir compra ws,gmail,etc*/
                         Intent.createChooser(intent, "Compartir compra")
                     )
