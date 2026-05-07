@@ -57,9 +57,10 @@ fun HistorialScreen(
                         },
 
                         onShare = {
+                            // Sumamos la hora al texto para compartir
                             val texto = """
                                 Compra en ${compra.supermercado}
-                                Fecha: ${compra.fecha}
+                                Fecha: ${compra.fecha} a las ${compra.hora}
                                 Total: $${"%.2f".format(compra.total())}
                             """.trimIndent()
 
