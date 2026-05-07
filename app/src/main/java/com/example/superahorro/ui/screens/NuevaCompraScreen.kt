@@ -43,6 +43,11 @@ fun NuevaCompraScreen(
     // Fecha automática
     val fecha = remember { java.time.LocalDate.now().toString() }
 
+    // Hora automática (formato HH:mm)
+    val hora = remember {
+        java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+    }
+
     // Lista de productos (estado dinámico)
     val productos = remember { mutableStateListOf<Producto>() }
 
@@ -96,7 +101,8 @@ fun NuevaCompraScreen(
                 )
 
                 EspacioPequeño()
-                Text("Fecha: $fecha", style = MaterialTheme.typography.bodyMedium)
+                // NUEVO: Mostramos la fecha y la hora
+                Text("Fecha: $fecha - Hora: $hora", style = MaterialTheme.typography.bodyMedium)
                 EspacioNormal()
 
                 // 2. Selector de Productos
@@ -167,7 +173,7 @@ fun NuevaCompraScreen(
 
                 EspacioNormal()
 
-                // 4. LISTA DE PRODUCTOS AGREGADOS (Corregida para que se vea bien)
+                // 4. LISTA DE PRODUCTOS AGREGADOS
                 if (productos.isNotEmpty()) {
                     Text("Productos agregados:", style = MaterialTheme.typography.titleSmall)
                     EspacioPequeño()
@@ -253,15 +259,21 @@ fun NuevaCompraScreen(
                 SuperAhorroButton(
                     text = "Guardar Compra",
                     onClick = {
-                        if (supermercado.isBlank()) {
-                            errorGeneral = "Ingresá el supermercado"
+                        val superLimpio = supermercado.trim()
+
+                        if (superLimpio.isEmpty()) {
+                            errorGeneral = "El campo de supermercado no puede estar vacío"
                         } else if (productos.isEmpty()) {
                             errorGeneral = "Agregá al menos un producto"
                         } else {
+                            // Normalizamos la primera letra en mayúscula
+                            val superNormalizado = superLimpio.lowercase().replaceFirstChar { it.uppercase() }
+
                             val nuevaCompra = Compra(
                                 id = viewModel.compras.size + 1,
-                                supermercado = supermercado,
+                                supermercado = superNormalizado,
                                 fecha = fecha,
+                                hora = hora, // NUEVO: Pasamos la hora a la Compra
                                 productos = productos.toList(),
                                 imagenUri = imagenUri?.toString()
                             )

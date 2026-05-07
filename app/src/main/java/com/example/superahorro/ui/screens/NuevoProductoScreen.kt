@@ -22,7 +22,9 @@ fun NuevoProductoScreen(
     onBack: () -> Unit
 ) {
     // ESTADOS DE INPUT
+    var codigo by remember { mutableStateOf("") } // NUEVO
     var nombre by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") } // NUEVO
     var precio by remember { mutableStateOf("") }
 
     // ESTADO PARA EDICIÓN
@@ -55,10 +57,28 @@ fun NuevoProductoScreen(
 
             EspacioNormal()
 
+            // NUEVO: Campo de Código
+            SuperAhorroTextField(
+                value = codigo,
+                onValueChange = { codigo = it; error = "" },
+                label = "Código (ej: 779...)"
+            )
+
+            EspacioNormal()
+
             SuperAhorroTextField(
                 value = nombre,
                 onValueChange = { nombre = it; error = "" },
                 label = "Nombre del producto (ej: Leche)"
+            )
+
+            EspacioNormal()
+
+            // NUEVO: Campo de Descripción
+            SuperAhorroTextField(
+                value = descripcion,
+                onValueChange = { descripcion = it; error = "" },
+                label = "Descripción"
             )
 
             EspacioNormal()
@@ -89,31 +109,46 @@ fun NuevoProductoScreen(
                     modifier = Modifier.weight(1f),
                     onClick = {
                         // 1. Limpieza de datos
+                        val codigoTrim = codigo.trim()
                         val nombreTrim = nombre.trim()
+                        val descripcionTrim = descripcion.trim()
                         val precioLimpio = precio.replace(",", ".") // Cambiamos coma por punto por las dudas
                         val precioDouble = precioLimpio.toDoubleOrNull()
 
                         // 2. VALIDACIONES
                         when {
+                            codigoTrim.isEmpty() -> error = "El código no puede estar vacío"
                             nombreTrim.isEmpty() -> error = "El nombre no puede estar vacío"
                             nombreTrim.length < 2 -> error = "Nombre demasiado corto"
+                            descripcionTrim.isEmpty() -> error = "La descripción no puede estar vacía"
                             precioLimpio.isEmpty() -> error = "Debes ingresar un precio"
                             precioDouble == null -> error = "Formato de precio inválido"
                             precioDouble <= 0 -> error = "El precio debe ser mayor a 0"
                             else -> {
                                 if (idProductoEditando == null) {
                                     // MODO CREAR
-                                    val agregado = viewModel.agregarProductoAlCatalogo(nombreTrim, precioDouble)
+                                    val agregado = viewModel.agregarProductoAlCatalogo(
+                                        codigo = codigoTrim,
+                                        nombre = nombreTrim,
+                                        descripcion = descripcionTrim,
+                                        precio = precioDouble
+                                    )
                                     if (!agregado) error = "Ese producto ya existe"
                                 } else {
                                     // MODO EDITAR
-                                    // Asumimos que tu ViewModel tiene una función para actualizar
-                                    viewModel.actualizarProductoDelCatalogo(idProductoEditando!!, nombreTrim, precioDouble)
+                                    viewModel.actualizarProductoDelCatalogo(
+                                        id = idProductoEditando!!,
+                                        nuevoCodigo = codigoTrim,
+                                        nuevoNombre = nombreTrim,
+                                        nuevaDescripcion = descripcionTrim,
+                                        nuevoPrecio = precioDouble
+                                    )
                                     idProductoEditando = null
                                 }
 
                                 if (error.isEmpty()) {
-                                    nombre = ""; precio = ""; error = ""
+                                    // Limpiamos todo al terminar
+                                    codigo = ""; nombre = ""; descripcion = ""; precio = ""; error = ""
                                 }
                             }
                         }
@@ -125,7 +160,9 @@ fun NuevoProductoScreen(
                     OutlinedButton(
                         onClick = {
                             idProductoEditando = null
+                            codigo = ""
                             nombre = ""
+                            descripcion = ""
                             precio = ""
                             error = ""
                         },
@@ -159,7 +196,9 @@ fun NuevoProductoScreen(
                         onEditar = {
                             // Subimos los datos al formulario para editar
                             idProductoEditando = producto.id
+                            codigo = producto.codigo
                             nombre = producto.nombre
+                            descripcion = producto.descripcion
                             precio = producto.precio.toString()
                             error = ""
                         }
@@ -195,6 +234,8 @@ fun ProductoCatalogoItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                // Agregamos código y descripción a la vista
+                Text(text = "${producto.codigo} - ${producto.descripcion}", style = MaterialTheme.typography.bodySmall)
                 Text(text = "$${"%.2f".format(producto.precio)}", style = MaterialTheme.typography.bodyMedium)
             }
 

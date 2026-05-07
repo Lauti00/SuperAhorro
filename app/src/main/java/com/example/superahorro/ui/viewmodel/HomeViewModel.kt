@@ -137,7 +137,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     false -> si ya existe
     */
     fun agregarProductoAlCatalogo(
+        codigo: String,
         nombre: String,
+        descripcion: String,
         precio: Double
     ): Boolean {
 
@@ -169,7 +171,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 it.id
             } ?: 0) + 1,
 
+            codigo = codigo.trim(),
+
             nombre = nombre.trim(),
+
+            descripcion = descripcion.trim(),
 
             precio = precio
         )
@@ -228,12 +234,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
     }
+
     /*
     ACTUALIZAR PRODUCTO DEL CATÁLOGO
     */
     fun actualizarProductoDelCatalogo(
         id: Int,
+        nuevoCodigo: String,
         nuevoNombre: String,
+        nuevaDescripcion: String,
         nuevoPrecio: Double
     ) {
         val index = _catalogo.indexOfFirst { it.id == id }
@@ -242,7 +251,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             // 1. Creamos el producto con los datos nuevos
             val productoActualizado = CatalogoProducto(
                 id = id,
+                codigo = nuevoCodigo.trim(),
                 nombre = nuevoNombre.trim(),
+                descripcion = nuevaDescripcion.trim(),
                 precio = nuevoPrecio
             )
 
@@ -347,11 +358,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun gastoPorSupermercado(): Map<String, Double> {
-
         return compras
-            .groupBy { it.supermercado }
+            .groupBy {
+                // Al agrupar, forzamos a que todo sea minúscula con la primera en mayúscula.
+                it.supermercado.trim().lowercase().replaceFirstChar { char -> char.uppercase() }
+            }
             .mapValues { entry ->
-
                 entry.value.sumOf {
                     it.total()
                 }
