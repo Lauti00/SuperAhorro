@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.superahorro"
+    namespace = "com.undef.superahorroniccolinibenitez"
     compileSdk = 36
 
     defaultConfig {
