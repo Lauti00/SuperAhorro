@@ -140,7 +140,7 @@ Aplicación Android para registrar, consultar y analizar gastos de supermercado,
 | 👤 Mi Perfil | Datos y configuración del usuario |
 | ⚙️ Settings | Configuración de la aplicación |
 
-[![Demo](screenshots/thumbnail.png)](screenshots/demo.mp4)
+![Demo](screenshots/demo.gif)
 
 ---
 
