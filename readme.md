@@ -119,6 +119,9 @@ git clone https://github.com/Lauti00/SuperAhorro.git
 | Emanuel Benitez | [@emanuelsimon] (https://github.com/emanuelsimon) |
 
 ---
+## Presentacion: https://docs.google.com/presentation/d/1x4-1fdXucbfgfqi8DEMaaN7sYqyHnaU2/edit?usp=sharing&ouid=102515649760807253829&rtpof=true&sd=true
+
+---
 
 ## 📄 Licencia
 
