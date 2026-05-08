@@ -1,6 +1,7 @@
 package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import android.app.Application
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,7 +31,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
         errorMessage = when {
             email.isBlank() -> null
-            !email.contains("@") -> "Email inválido"
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Formato de correo inválido"
             else -> null
         }
     }
@@ -48,6 +49,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        // Verificamos que el correo sea el correcto antes de seguir
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            errorMessage = "Formato de correo inválido"
+            return
+        }
+
+        //Si esta todo bien, limpiamos el error y seguimos
         errorMessage = null
 
         /*
@@ -62,7 +70,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             */
             val nombre = email.substringBefore("@")
             userPreferences.saveUserName(nombre)
-
             onSuccess()
         }
     }

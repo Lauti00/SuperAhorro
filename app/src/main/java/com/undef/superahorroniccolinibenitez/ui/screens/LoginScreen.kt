@@ -63,16 +63,9 @@ fun LoginScreen(
         SuperAhorroButton(
             text = stringResource(id = R.string.btn_ingresar),
             onClick = {
-
-                /*
-                 CAMBIO IMPORTANTE:
-                 Ahora el login guarda el usuario en DataStore
-                 y ejecuta onLoginSuccess cuando termina
-                */
-                viewModel.login {
-                    onLoginSuccess()
-                }
-            }
+                //Guardamos el usuario en DataStore y ejecuta onLoginSuccess cuando termina
+                viewModel.login { onLoginSuccess() } },
+                enabled = viewModel.errorMessage == null && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()
         )
 
         // Mostrar error si existe (mejora UX)

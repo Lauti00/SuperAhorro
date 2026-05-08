@@ -23,10 +23,16 @@ fun SuperAhorroTitle(text: String) {
 
 // --- BOTONES ---
 @Composable
-fun SuperAhorroButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun SuperAhorroButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(50.dp)
+        modifier = modifier.height(50.dp),
+        enabled = enabled
     ) {
         Text(text = text, fontSize = 16.sp, style = MaterialTheme.typography.labelLarge)
     }

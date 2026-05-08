@@ -8,26 +8,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.ui.components.*
+import com.undef.superahorroniccolinibenitez.ui.viewmodel.OlvidarPasswordViewModel
 
 @Composable
 fun OlvidarPasswordScreen(
     onBack: () -> Unit,
-    onPasswordResetSuccess: () -> Unit
+    onPasswordResetSuccess: () -> Unit,
+    viewModel: OlvidarPasswordViewModel = viewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var pasoActual by remember { mutableStateOf(1) }
-    var codigo by remember { mutableStateOf("") }
-    var nuevaPassword by remember { mutableStateOf("") }
-
     AuthContainer {
-
         SuperAhorroTitle(text = stringResource(id = R.string.title_recuperar))
 
         EspacioGrande()
 
-        if (pasoActual == 1) {
+        if (viewModel.pasoActual == 1) {
             Text(
                 text = stringResource(id = R.string.msg_ingresa_correo),
                 textAlign = TextAlign.Center,
@@ -37,17 +34,23 @@ fun OlvidarPasswordScreen(
             EspacioGrande()
 
             SuperAhorroTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = viewModel.email,
+                onValueChange = { viewModel.onEmailChange(it) },
                 label = stringResource(id = R.string.label_email),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
+
+            viewModel.errorMessage?.let {
+                EspacioPequeño()
+                Text(text = it, color = MaterialTheme.colorScheme.error)
+            }
 
             EspacioGrande()
 
             SuperAhorroButton(
                 text = stringResource(id = R.string.btn_enviar_codigo),
-                onClick = { if (email.isNotBlank()) pasoActual = 2 }
+                onClick = { viewModel.enviarCodigo() },
+                enabled = viewModel.errorMessage == null && viewModel.email.isNotBlank()
             )
 
             EspacioNormal()
@@ -57,9 +60,9 @@ fun OlvidarPasswordScreen(
                 onClick = onBack
             )
 
-        } else if (pasoActual == 2) {
+        } else if (viewModel.pasoActual == 2) {
             Text(
-                text = stringResource(id = R.string.msg_codigo_enviado, email),
+                text = stringResource(id = R.string.msg_codigo_enviado, viewModel.email),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge
@@ -68,8 +71,8 @@ fun OlvidarPasswordScreen(
             EspacioGrande()
 
             SuperAhorroTextField(
-                value = codigo,
-                onValueChange = { codigo = it },
+                value = viewModel.codigo,
+                onValueChange = { viewModel.onCodigoChange(it) },
                 label = stringResource(id = R.string.label_codigo),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
@@ -77,29 +80,35 @@ fun OlvidarPasswordScreen(
             EspacioNormal()
 
             SuperAhorroTextField(
-                value = nuevaPassword,
-                onValueChange = { nuevaPassword = it },
+                value = viewModel.nuevaPassword,
+                onValueChange = { viewModel.onNuevaPasswordChange(it) },
                 label = stringResource(id = R.string.label_nueva_password),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
+
+            viewModel.errorMessage?.let {
+                EspacioPequeño()
+                Text(text = it, color = MaterialTheme.colorScheme.error)
+            }
 
             EspacioGrande()
 
             SuperAhorroButton(
                 text = stringResource(id = R.string.btn_guardar_password),
                 onClick = {
-                    if (codigo.isNotBlank() && nuevaPassword.isNotBlank()) {
-                        onPasswordResetSuccess()
-                    }
-                }
+                    viewModel.guardarNuevaPassword { onPasswordResetSuccess() }
+                },
+                enabled = viewModel.errorMessage == null && 
+                          viewModel.codigo.isNotBlank() && 
+                          viewModel.nuevaPassword.isNotBlank()
             )
 
             EspacioNormal()
 
             SuperAhorroTextButton(
                 text = stringResource(id = R.string.btn_reenviar_codigo),
-                onClick = { pasoActual = 1 }
+                onClick = { viewModel.volverAlPaso1() }
             )
         }
     }
