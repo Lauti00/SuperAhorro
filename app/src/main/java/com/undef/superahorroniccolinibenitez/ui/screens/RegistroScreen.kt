@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.ui.components.*
 
 @Composable

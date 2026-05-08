@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext //  para obtener el contexto
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.MainDrawerContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
