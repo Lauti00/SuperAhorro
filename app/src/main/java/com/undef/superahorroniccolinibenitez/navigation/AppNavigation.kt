@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.undef.superahorroniccolinibenitez.ui.screens.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
+import com.undef.superahorroniccolinibenitez.viewmodel.SuperAhorroViewModel //  el nuevo ViewModel de la Base de Datos
 
 /*
 1. Definimos las rutas de nuestra app.
@@ -32,7 +33,7 @@ sealed class AppScreens(val route: String) {
     object Estadisticas : AppScreens("estadisticas_screen")
 
     /*
-     NUEVO
+
     */
     object Settings : AppScreens("settings_screen")
 
@@ -45,7 +46,7 @@ sealed class AppScreens(val route: String) {
 2. Creamos el orquestador de la navegación
 */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(viewModel: SuperAhorroViewModel) { // CORREGIDO: Ahora recibe el ViewModel enviado desde MainActivity
 
     val navController = rememberNavController()
 
@@ -248,14 +249,22 @@ fun AppNavigation() {
         // NUEVO PRODUCTO
         composable(AppScreens.NuevoProducto.route) {
 
+            //  Obtenemos el HomeViewModel compartido que vive en la ruta "Home".
+            //   contiene el catálogo general de toda la app.
             val parentEntry = remember {
                 navController.getBackStackEntry(AppScreens.Home.route)
             }
-
             val homeViewModel: HomeViewModel = viewModel(parentEntry)
 
+            //  pasamos el 'viewModel' de Room si tu vista "NuevoProductoScreen"
+            // necesita interactuar con la Base de Datos para guardar productos reales mediante KSP de forma nativa.
             NuevoProductoScreen(
-                viewModel = homeViewModel,
+                homeViewModel = homeViewModel, // NUEVO: Cambiamos "viewModel = " por "homeViewModel = " para coincidir con la nueva pantalla.
+
+                // NOTA IMPORTANTE: No hace falta pasarle el 'nuevoProductoViewModel' acá.
+                // Al tener '= viewModel()' en los parámetros de la función NuevoProductoScreen,
+                // Compose lo crea automáticamente y lo destruye cuando el usuario sale de esa pantalla.
+
                 onBack = { navController.popBackStack() }
             )
         }
@@ -263,14 +272,18 @@ fun AppNavigation() {
         // NUEVA COMPRA
         composable(AppScreens.NuevaCompra.route) {
 
+
             val parentEntry = remember {
                 navController.getBackStackEntry(AppScreens.Home.route)
             }
-
             val homeViewModel: HomeViewModel = viewModel(parentEntry)
 
+            // "NuevaCompraScreen" necesita guardar datos de manera persistente,
+            // podés proveerle el 'viewModel' de Room pasándolo en sus parámetros cuando lo creas conveniente.
             NuevaCompraScreen(
-                viewModel = homeViewModel,
+                homeViewModel = homeViewModel, // NUEVO: Actualizado al nuevo nombre de parámetro.
+
+                // NOTA: El 'nuevaCompraViewModel' local se inyecta solo en la vista.
 
                 onBack = {
                     navController.popBackStack()
@@ -300,9 +313,9 @@ fun AppNavigation() {
                 navController.getBackStackEntry(AppScreens.Home.route)
             }
 
-            val viewModel: HomeViewModel = viewModel(parentEntry)
+            val viewModelHome: HomeViewModel = viewModel(parentEntry)
 
-            val compra = viewModel.compras.find {
+            val compra = viewModelHome.compras.find {
                 it.id == compraId
             }
 
