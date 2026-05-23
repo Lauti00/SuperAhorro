@@ -192,7 +192,7 @@ fun NuevaCompraScreen(
                 SuperAhorroButton(
                     text = "Guardar Compra",
                     onClick = {
-                        val nuevoId = homeViewModel.compras.size + 1
+                        val nuevoId = homeViewModel.compras.value.size + 1
                         nuevaCompraViewModel.validarYGuardar(idNuevaCompra = nuevoId) { compraLista ->
                             homeViewModel.agregarCompra(compraLista)
                             onCompraGuardada()
