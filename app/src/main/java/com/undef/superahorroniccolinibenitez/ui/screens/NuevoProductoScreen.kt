@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,6 +18,7 @@ import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.ui.components.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
+import com.undef.superahorroniccolinibenitez.R
 
 @Composable
 fun NuevoProductoScreen(
@@ -27,12 +29,17 @@ fun NuevoProductoScreen(
     val state by nuevoProductoViewModel.uiState.collectAsState()
     val catalogo by homeViewModel.catalogo.collectAsState()
 
-    SimpleScreenContainer(title = "Gestionar Catálogo", onBack = onBack) {
+    SimpleScreenContainer(title = stringResource(id = R.string.title_gestionar_catalogo), onBack = onBack) {
         Column(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
         ) {
+
             Text(
-                text = if (state.idProductoEditando == null) "Agregar nuevo producto" else "Editando: ${state.nombre}",
+                text = if (state.idProductoEditando == null) {
+                    stringResource(id = R.string.title_agregar_nuevo_producto)
+                } else {
+                    stringResource(id = R.string.title_editando_producto, state.nombre)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (state.idProductoEditando == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
@@ -43,7 +50,7 @@ fun NuevoProductoScreen(
             SuperAhorroTextField(
                 value = state.codigo,
                 onValueChange = { nuevoProductoViewModel.onCodigoChange(it) },
-                label = "Código (ej: 779...)"
+                label = stringResource(id = R.string.label_codigo_placeholder)
             )
 
             EspacioNormal()
@@ -51,15 +58,15 @@ fun NuevoProductoScreen(
             SuperAhorroTextField(
                 value = state.nombre,
                 onValueChange = { nuevoProductoViewModel.onNombreChange(it) },
-                label = "Nombre del producto (ej: Leche)"
+                label = stringResource(id = R.string.label_nombre_placeholder)
             )
 
             EspacioNormal()
 
             SuperAhorroTextField(
                 value = state.descripcion,
-                onValueChange = { nuevoProductoViewModel.onDescripcionChange(it) },
-                label = "Descripción"
+                onValueChange = { nuevoProductoViewModel.onDescripcionChange(it)},
+                label = stringResource(id = R.string.label_descripcion)
             )
 
             EspacioNormal()
@@ -67,7 +74,7 @@ fun NuevoProductoScreen(
             SuperAhorroTextField(
                 value = state.precio,
                 onValueChange = { nuevoProductoViewModel.onPrecioChange(it) },
-                label = "Precio (ej: 1200.50)"
+                label = stringResource(id = R.string.label_precio_placeholder)
             )
 
             EspacioNormal()
@@ -79,7 +86,12 @@ fun NuevoProductoScreen(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SuperAhorroButton(
-                    text = if (state.idProductoEditando == null) "Guardar Producto" else "Actualizar",
+
+                    text = if (state.idProductoEditando == null) {
+                        stringResource(id = R.string.btn_guardar_producto)
+                    } else {
+                        stringResource(id = R.string.btn_actualizar)
+                    },
                     modifier = Modifier.weight(1f),
                     onClick = {
                         nuevoProductoViewModel.validarYGuardar(
@@ -99,7 +111,7 @@ fun NuevoProductoScreen(
                         onClick = { nuevoProductoViewModel.cancelarEdicion() },
                         modifier = Modifier.height(48.dp)
                     ) {
-                        Text("X")
+                        Text(stringResource(id = R.string.btn_cancelar_abreviado))
                     }
                 }
             }
@@ -107,7 +119,7 @@ fun NuevoProductoScreen(
             EspacioGrande()
 
             Text(
-                text = "Productos en lista (${catalogo.size})",
+                text = stringResource(id = R.string.label_productos_en_lista, catalogo.size),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -115,7 +127,7 @@ fun NuevoProductoScreen(
             EspacioNormal()
 
             if (catalogo.isEmpty()) {
-                Text("El catálogo está vacío.", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(id = R.string.msg_catalogo_vacio), style = MaterialTheme.typography.bodyMedium)
             } else {
                 catalogo.forEach { producto ->
                     ProductoCatalogoItem(
@@ -149,16 +161,33 @@ fun ProductoCatalogoItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(text = "${producto.codigo} - ${producto.descripcion}", style = MaterialTheme.typography.bodySmall)
-                Text(text = "$${"%.2f".format(producto.precio)}", style = MaterialTheme.typography.bodyMedium)
+
+                Text(
+                    text = stringResource(id = R.string.label_formato_codigo_descripcion, producto.codigo, producto.descripcion),
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                val precioFormateado = "%.2f".format(producto.precio)
+                Text(
+                    text = stringResource(id = R.string.label_formato_precio_catalogo, precioFormateado),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             Row {
                 IconButton(onClick = onEditar) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.cd_editar),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
                 IconButton(onClick = onEliminar) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = stringResource(id = R.string.cd_eliminar),
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

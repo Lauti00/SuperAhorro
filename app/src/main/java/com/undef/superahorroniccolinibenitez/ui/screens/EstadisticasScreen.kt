@@ -6,9 +6,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.undef.superahorroniccolinibenitez.ui.components.SimpleScreenContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
+import com.undef.superahorroniccolinibenitez.R
 
 @Composable
 fun EstadisticasScreen(
@@ -22,14 +24,10 @@ fun EstadisticasScreen(
     val productoTop = viewModel.productoMasComprado()
 
     SimpleScreenContainer(
-        title = "Estadísticas",
+        title = stringResource(id = R.string.title_estadisticas),
         onBack = onBack
     ) {
 
-        /*
-         Obtenemos el valor máximo para escalar las barras
-         (evita división por 0 usando 1.0 como fallback)
-        */
         val maxGasto = gastoPorSuper.values.maxOrNull() ?: 1.0
 
         LazyColumn(
@@ -43,9 +41,9 @@ fun EstadisticasScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Gasto total", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(id = R.string.label_gasto_total), style = MaterialTheme.typography.labelLarge)
                         Text(
-                            "$${"%.2f".format(gastoTotal)}",
+                            text = stringResource(id = R.string.label_formato_monto_estadistica, "%.2f".format(gastoTotal)),
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -59,9 +57,9 @@ fun EstadisticasScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Cantidad de compras", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(id = R.string.label_cantidad_compras), style = MaterialTheme.typography.labelLarge)
                         Text(
-                            "$cantidadCompras",
+                            text = stringResource(id = R.string.label_formato_cantidad_compras, cantidadCompras),
                             style = MaterialTheme.typography.headlineMedium
                         )
                     }
@@ -74,9 +72,13 @@ fun EstadisticasScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Producto más comprado", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(id = R.string.label_producto_mas_comprado), style = MaterialTheme.typography.labelLarge)
                         Text(
-                            productoTop,
+                            text = if (productoTop.isEmpty()) {
+                                stringResource(id = R.string.state_sin_datos)
+                            } else {
+                                stringResource(id = R.string.label_formato_producto_top, productoTop)
+                            },
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
@@ -86,19 +88,14 @@ fun EstadisticasScreen(
             //  GASTO POR SUPERMERCADO
             item {
                 Text(
-                    "Gasto por supermercado",
+                    text = stringResource(id = R.string.label_gasto_por_supermercado),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
 
-            /*
-              LISTA CON GRÁFICO (barra proporcional)
-            */
+            // LISTA CON GRÁFICO
             items(gastoPorSuper.toList()) { (supermercado, total) ->
 
-                /*
-                 Calculamos el porcentaje respecto al mayor gasto
-                */
                 val porcentaje = (total / maxGasto).toFloat()
 
                 Card(
@@ -106,20 +103,16 @@ fun EstadisticasScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
 
-                        // Nombre + monto
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(supermercado)
-                            Text("$${"%.2f".format(total)}")
+                            Text(text = stringResource(id = R.string.label_formato_monto_estadistica, "%.2f".format(total)))
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        /*
-                          BARRA VISUAL (tipo gráfico)
-                        */
                         LinearProgressIndicator(
                             progress = porcentaje,
                             modifier = Modifier

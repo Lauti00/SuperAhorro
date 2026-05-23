@@ -10,11 +10,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.SimpleScreenContainer
+import com.undef.superahorroniccolinibenitez.R
 
 @Composable
 fun DetalleCompraScreen(
@@ -22,30 +24,31 @@ fun DetalleCompraScreen(
     onBack: () -> Unit
 ) {
     SimpleScreenContainer(
-        title = "Detalle de Compra",
+        title = stringResource(id = R.string.title_detalle_compra),
         onBack = onBack
     ) {
 
-        // Mostramos los datos principales
-        Text(text = "Supermercado: ${compra.supermercado}", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = stringResource(id = R.string.formato_supermercado, compra.supermercado),
+            style = MaterialTheme.typography.titleMedium
+        )
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Agregamos la hora que sumamos al modelo
-        Text(text = "Fecha: ${compra.fecha} - ${compra.hora}")
+        Text(text = stringResource(id = R.string.formato_fecha_hora, compra.fecha, compra.hora))
         Spacer(modifier = Modifier.height(4.dp))
 
-        Text(text = "Total: $${"%.2f".format(compra.total())}", fontWeight = FontWeight.Bold)
+        Text(
+            text = stringResource(id = R.string.formato_total_compra, "%.2f".format(compra.total())),
+            fontWeight = FontWeight.Bold
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
-        /*
-          mostramos imagen del ticket si existe
-        */
         compra.imagenUri?.let { uriString ->
 
             val uri = Uri.parse(uriString)
 
             Text(
-                text = "Ticket de compra",
+                text = stringResource(id = R.string.label_ticket_compra),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -53,7 +56,7 @@ fun DetalleCompraScreen(
 
             AsyncImage(
                 model = uri,
-                contentDescription = "Imagen del ticket",
+                contentDescription = stringResource(id = R.string.desc_imagen_ticket),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -62,17 +65,12 @@ fun DetalleCompraScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Text(text = "Productos", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(id = R.string.label_productos), style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
-        /*
-         Ahora usamos los productos REALES de la compra
-         y mostramos todo el detalle (código, nombre, descripción, precio y subtotal)
-        */
         if (compra.productos.isEmpty()) {
 
-            // Caso sin productos
-            Text("No hay productos en esta compra")
+            Text(text = stringResource(id = R.string.state_no_productos_compra))
 
         } else {
 
@@ -88,21 +86,30 @@ fun DetalleCompraScreen(
                         )
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            // Nombre y código
+
                             Text(
-                                text = "${item.producto.nombre} (Cód: ${item.producto.codigo})",
+                                text = stringResource(
+                                    id = R.string.formato_producto_titulo,
+                                    item.producto.nombre,
+                                    item.producto.codigo
+                                ),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            // Descripción
+
                             Text(
                                 text = item.producto.descripcion,
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            // Cantidad, precio unitario y subtotal
+
                             Text(
-                                text = "${item.cantidad} x $${"%.2f".format(item.producto.precio)} = $${"%.2f".format(item.subtotal())}",
+                                text = stringResource(
+                                    id = R.string.formato_producto_valores,
+                                    item.cantidad, // Usamos la cantidad directamente (o mapeada a Int)
+                                    "%.2f".format(item.producto.precio),
+                                    "%.2f".format(item.subtotal())
+                                ),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }

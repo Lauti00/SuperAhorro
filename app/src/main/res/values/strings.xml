@@ -39,5 +39,87 @@
 
     <!-- General -->
     <string name="cd_menu">Abrir menú</string>
+    <string name="label_supermercado">Supermercado</string>
+    <string name="label_producto">Producto</string>
+    <string name="label_cantidad">Cantidad</string>
+    <string name="label_precio">Precio</string>
+    <string name="label_imagen">Imagen</string>
+
+    <!-- Nueva Compra -->
+    <string name="title_nueva_compra">Nueva Compra</string>
+    <string name="placeholder_seleccionar_producto">Seleccionar producto</string>
+    <string name="btn_crear_producto">¿No está en la lista? Crear producto</string>
+    <string name="btn_agregar_producto">Agregar producto</string>
+    <string name="title_productos_agregados">Productos agregados:</string>
+    <string name="btn_galeria">Galería</string>
+    <string name="btn_camara">Cámara</string>
+    <string name="btn_guardar_compra">Guardar Compra</string>
+
+    <string name="label_fecha_hora">Fecha: %1$s - Hora: %2$s</string>
+    <string name="label_formato_subtotal">%1$s x $%2$s = $%3$s</string>
+    <string name="label_total_dinamico">Total: $%1$s</string>
+    <string name="label_ticket_cargado">Ticket cargado:</string>
+
+    <string name="cd_editar">Editar</string>
+    <string name="cd_eliminar">Eliminar</string>
+    <string name="cd_ticket">Ticket</string>
+
+    <!-- Nuevo Producto -->
+    <string name="title_gestionar_catalogo">Gestionar Catálogo</string>
+    <string name="title_agregar_nuevo_producto">Agregar nuevo producto</string>
+    <string name="title_editando_producto">Editando: %1$s</string>
+
+    <string name="label_codigo_placeholder">Código (ej: 779...)</string>
+    <string name="label_nombre_placeholder">Nombre del producto (ej: Leche)</string>
+    <string name="label_descripcion">Descripción</string>
+    <string name="label_precio_placeholder">Precio (ej: 1200.50)</string>
+
+    <string name="btn_guardar_producto">Guardar Producto</string>
+    <string name="btn_actualizar">Actualizar</string>
+    <string name="btn_cancelar_abreviado">X</string>
+    <string name="msg_catalogo_vacio">El catálogo está vacío.</string>
+
+    <string name="label_productos_en_lista">Productos en lista (%1$d)</string>
+    <string name="label_formato_codigo_descripcion">%1$s - %2$s</string>
+    <string name="label_formato_precio_catalogo">$%1$s</string>
+
+    <!-- Estadísticas -->
+    <string name="title_estadisticas">Estadísticas</string>
+    <string name="label_gasto_total">Gasto total</string>
+    <string name="label_cantidad_compras">Cantidad de compras</string>
+    <string name="label_producto_mas_comprado">Producto más comprado</string>
+    <string name="label_gasto_por_supermercado">Gasto por supermercado</string>
+
+    <string name="label_formato_monto_estadistica">$%1$s</string>
+    <string name="label_formato_cantidad_compras">%1$d</string>
+    <string name="label_formato_producto_top">%1$s</string>
+
+    <string name="state_sin_datos">Sin datos</string>
+
+    <!--SettingsScreen -->
+    <string name="title_configuracion">Configuración</string>
+    <string name="label_gestion">Gestión</string>
+    <string name="btn_gestionar_productos">Gestionar productos</string>
+
+    <!--DetalleCompraScreen -->
+    <string name="title_detalle_compra">Detalle de Compra</string>
+    <string name="label_ticket_compra">Ticket de compra</string>
+    <string name="desc_imagen_ticket">Imagen del ticket</string>
+    <string name="label_productos">Productos</string>
+    <string name="state_no_productos_compra">No hay productos en esta compra</string>
+
+    <string name="formato_supermercado">Supermercado: %1$s</string>
+    <string name="formato_fecha_hora">Fecha: %1$s - %2$s</string>
+    <string name="formato_total_compra">Total: $%1$s</string>
+    <string name="formato_producto_titulo">%1$s (Cód: %2$s)</string>
+    <string name="formato_producto_valores">%1$d x $%2$s = $%3$s</string>
+
+    <!-- Mensajes -->
+    <string name="title_historial_compras">Historial de Compras</string>
+    <string name="state_no_compras_registradas">No hay compras registradas</string>
+    <string name="chooser_compartir_compra">Compartir compra</string>
+
+    <string name="formato_compartir_compra">Compra en %1$s\nFecha: %2$s a las %3$s\nTotal: $%4$s</string>
+
 
 </resources>

@@ -382,7 +382,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
         if (todosProductos.isEmpty()) {
-            return "Sin datos"
+            return ""
         }
 
         return todosProductos
@@ -395,6 +395,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     it.cantidad
                 }
             }
-            ?.key ?: "Sin datos"
+            ?.key ?: ""
     }
 }

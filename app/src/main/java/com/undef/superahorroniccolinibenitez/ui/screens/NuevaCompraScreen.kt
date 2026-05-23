@@ -18,12 +18,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource // IMPORTANTE: Librería para i18n
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.undef.superahorroniccolinibenitez.ui.components.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
+import com.undef.superahorroniccolinibenitez.R
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -40,11 +42,9 @@ fun NuevaCompraScreen(
 ) {
     val localContext = LocalContext.current
 
-    // Observamos el estado del nuevo ViewModel
     val state by nuevaCompraViewModel.uiState.collectAsState()
     val catalogo by homeViewModel.catalogo.collectAsState()
 
-    // Datos automáticos solo para mostrar en UI (el guardado real pasa en ViewModel)
     val fechaDisplay = remember { LocalDate.now().toString() }
     val horaDisplay = remember { LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) }
 
@@ -61,7 +61,7 @@ fun NuevaCompraScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { }
 
-    SimpleScreenContainer(title = "Nueva Compra", onBack = onBack) {
+    SimpleScreenContainer(title = stringResource(id = R.string.title_nueva_compra), onBack = onBack) {
         Column(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
@@ -69,11 +69,15 @@ fun NuevaCompraScreen(
                 SuperAhorroTextField(
                     value = state.supermercado,
                     onValueChange = { nuevaCompraViewModel.onSupermercadoChange(it) },
-                    label = "Supermercado"
+                    label = stringResource(id = R.string.label_supermercado)
                 )
 
                 EspacioPequeño()
-                Text("Fecha: $fechaDisplay - Hora: $horaDisplay", style = MaterialTheme.typography.bodyMedium)
+
+                Text(
+                    text = stringResource(id = R.string.label_fecha_hora, fechaDisplay, horaDisplay),
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 EspacioNormal()
 
                 ExposedDropdownMenuBox(
@@ -84,7 +88,7 @@ fun NuevaCompraScreen(
                         value = state.productoSeleccionado?.nombre ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Seleccionar producto") },
+                        label = { Text(stringResource(id = R.string.placeholder_seleccionar_producto)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expanded) },
                         modifier = Modifier.menuAnchor().fillMaxWidth()
                     )
@@ -95,28 +99,29 @@ fun NuevaCompraScreen(
                     ) {
                         catalogo.forEach { producto ->
                             DropdownMenuItem(
-                                text = { Text("${producto.nombre} - $${producto.precio}") },
+                                text = { Text("${producto.nombre} - $${producto.precio}") }, // El catálogo interno preserva el formato de precio de momento
                                 onClick = { nuevaCompraViewModel.onProductoSeleccionado(producto) }
                             )
                         }
                     }
                 }
 
+
                 SuperAhorroTextButton(
-                    text = "¿No está en la lista? Crear producto",
+                    text = stringResource(id = R.string.btn_crear_producto),
                     onClick = onNavigateToNuevoProducto
                 )
 
                 SuperAhorroTextField(
                     value = state.cantidadProducto,
                     onValueChange = { nuevaCompraViewModel.onCantidadChange(it) },
-                    label = "Cantidad"
+                    label = stringResource(id = R.string.label_cantidad)
                 )
 
                 EspacioPequeño()
 
                 SuperAhorroButton(
-                    text = "Agregar producto",
+                    text = stringResource(id = R.string.btn_agregar_producto),
                     onClick = { nuevaCompraViewModel.agregarProductoLocal() }
                 )
 
@@ -127,7 +132,7 @@ fun NuevaCompraScreen(
                 EspacioNormal()
 
                 if (state.productos.isNotEmpty()) {
-                    Text("Productos agregados:", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(id = R.string.title_productos_agregados), style = MaterialTheme.typography.titleSmall)
                     EspacioPequeño()
 
                     state.productos.forEach { item ->
@@ -141,15 +146,32 @@ fun NuevaCompraScreen(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(item.producto.nombre, style = MaterialTheme.typography.bodyLarge)
-                                    Text("${item.cantidad} x $${item.producto.precio} = $${"%.2f".format(item.subtotal())}",
-                                        style = MaterialTheme.typography.bodySmall)
+
+                                    val subtotalFormateado = "%.2f".format(item.subtotal())
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.label_formato_subtotal,
+                                            item.cantidad,
+                                            item.producto.precio,
+                                            subtotalFormateado
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
                                 }
 
                                 IconButton(onClick = { nuevaCompraViewModel.editarProductoLocal(item) }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = stringResource(id = R.string.cd_editar),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                                 IconButton(onClick = { nuevaCompraViewModel.eliminarProductoLocal(item) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = stringResource(id = R.string.cd_eliminar),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             }
                         }
@@ -157,14 +179,18 @@ fun NuevaCompraScreen(
                 }
 
                 EspacioNormal()
-                Text("Total: $${"%.2f".format(state.totalCalculado)}", style = MaterialTheme.typography.headlineSmall)
 
+                val totalFormateado = "%.2f".format(state.totalCalculado)
+                Text(
+                    text = stringResource(id = R.string.label_total_dinamico, totalFormateado),
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 state.imagenUri?.let { uri ->
                     EspacioNormal()
-                    Text("Ticket cargado:", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(id = R.string.label_ticket_cargado), style = MaterialTheme.typography.labelLarge)
                     coil.compose.AsyncImage(
                         model = uri,
-                        contentDescription = "Ticket",
+                        contentDescription = stringResource(id = R.string.cd_ticket),
                         modifier = Modifier.fillMaxWidth().height(150.dp).padding(vertical = 8.dp),
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop
                     )
@@ -179,18 +205,28 @@ fun NuevaCompraScreen(
                 }
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SuperAhorroButton(text = "Galería", onClick = { imagePickerLauncher.launch("image/*") }, modifier = Modifier.weight(1f))
-                    SuperAhorroButton(text = "Cámara", onClick = {
-                        val uri = crearImagenUri(localContext)
-                        nuevaCompraViewModel.onImagenUriChange(uri)
-                        cameraLauncher.launch(uri)
-                    }, modifier = Modifier.weight(1f))
+
+                    SuperAhorroButton(
+                        text = stringResource(id = R.string.btn_galeria),
+                        onClick = { imagePickerLauncher.launch("image/*") },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    SuperAhorroButton(
+                        text = stringResource(id = R.string.btn_camara),
+                        onClick = {
+                            val uri = crearImagenUri(localContext)
+                            nuevaCompraViewModel.onImagenUriChange(uri)
+                            cameraLauncher.launch(uri)
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 EspacioPequeño()
 
                 SuperAhorroButton(
-                    text = "Guardar Compra",
+                    text = stringResource(id = R.string.btn_guardar_compra),
                     onClick = {
                         val nuevoId = homeViewModel.compras.value.size + 1
                         nuevaCompraViewModel.validarYGuardar(idNuevaCompra = nuevoId) { compraLista ->
