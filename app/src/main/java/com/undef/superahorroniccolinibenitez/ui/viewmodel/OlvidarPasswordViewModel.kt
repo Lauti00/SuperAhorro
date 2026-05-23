@@ -2,80 +2,79 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import android.app.Application
 import android.util.Patterns
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class OlvidarPasswordViewModel(application: Application) : AndroidViewModel(application) {
 
-    var email by mutableStateOf("")
-        private set
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
-    var pasoActual by mutableIntStateOf(1)
-        private set
+    private val _pasoActual = MutableStateFlow(1)
+    val pasoActual: StateFlow<Int> = _pasoActual.asStateFlow()
 
-    var codigo by mutableStateOf("")
-        private set
+    private val _codigo = MutableStateFlow("")
+    val codigo: StateFlow<String> = _codigo.asStateFlow()
 
-    var nuevaPassword by mutableStateOf("")
-        private set
+    private val _nuevaPassword = MutableStateFlow("")
+    val nuevaPassword: StateFlow<String> = _nuevaPassword.asStateFlow()
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     fun onEmailChange(newEmail: String) {
-        email = newEmail
+        _email.value = newEmail
         validateEmail()
     }
 
     private fun validateEmail() {
-        errorMessage = when {
-            email.isBlank() -> null
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Formato de correo inválido"
+        _errorMessage.value = when {
+            _email.value.isBlank() -> null
+            !Patterns.EMAIL_ADDRESS.matcher(_email.value).matches() -> "Formato de correo inválido"
             else -> null
         }
     }
 
     fun onCodigoChange(newCodigo: String) {
-        codigo = newCodigo
+        _codigo.value = newCodigo
     }
 
     fun onNuevaPasswordChange(newPassword: String) {
-        nuevaPassword = newPassword
-        if (nuevaPassword.length > 0 && nuevaPassword.length < 6) {
-            errorMessage = "La contraseña debe tener al menos 6 caracteres"
+        _nuevaPassword.value = newPassword
+        if (_nuevaPassword.value.length > 0 && _nuevaPassword.value.length < 6) {
+            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
         } else {
-            errorMessage = null
+            _errorMessage.value = null
         }
     }
 
     fun enviarCodigo() {
-        if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            pasoActual = 2
-            errorMessage = null
+        if (Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()) {
+            _pasoActual.value = 2
+            _errorMessage.value = null
         } else {
-            errorMessage = "Formato de correo inválido"
+            _errorMessage.value = "Formato de correo inválido"
         }
     }
 
     fun guardarNuevaPassword(onSuccess: () -> Unit) {
-        if (codigo.isBlank()) {
-            errorMessage = "Ingresa el código"
+        if (_codigo.value.isBlank()) {
+            _errorMessage.value = "Ingresa el código"
             return
         }
-        if (nuevaPassword.length < 6) {
-            errorMessage = "La contraseña debe tener al menos 6 caracteres"
+        if (_nuevaPassword.value.length < 6) {
+            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
             return
         }
         
-        errorMessage = null
+        _errorMessage.value = null
         onSuccess()
     }
 
     fun volverAlPaso1() {
-        pasoActual = 1
-        errorMessage = null
+        _pasoActual.value = 1
+        _errorMessage.value = null
     }
 }

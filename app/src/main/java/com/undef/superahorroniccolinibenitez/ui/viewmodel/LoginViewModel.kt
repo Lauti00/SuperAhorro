@@ -2,12 +2,12 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import android.app.Application
 import android.util.Patterns
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
@@ -15,60 +15,60 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val userPreferences = UserPreferences(application)
 
     //  Estado de los inputs
-    var email by mutableStateOf("")
-        private set
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
-    var password by mutableStateOf("")
-        private set
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
 
     //  Estado de error simple
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     //  Actualizar email
     fun onEmailChange(newEmail: String) {
-        email = newEmail
+        _email.value = newEmail
 
-        errorMessage = when {
-            email.isBlank() -> null
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Formato de correo inválido"
+        _errorMessage.value = when {
+            _email.value.isBlank() -> null
+            !Patterns.EMAIL_ADDRESS.matcher(_email.value).matches() -> "Formato de correo inválido"
             else -> null
         }
     }
 
     //  Actualizar password
     fun onPasswordChange(newPassword: String) {
-        password = newPassword
+        _password.value = newPassword
     }
 
     // LOGIN REAL (ahora guarda el usuario)
     fun login(onSuccess: () -> Unit) {
 
-        if (email.isBlank() || password.isBlank()) {
-            errorMessage = "Completa todos los campos"
+        if (_email.value.isBlank() || _password.value.isBlank()) {
+            _errorMessage.value = "Completa todos los campos"
             return
         }
 
         // Verificamos que el correo sea el correcto antes de seguir
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            errorMessage = "Formato de correo inválido"
+        if (!Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()) {
+            _errorMessage.value = "Formato de correo inválido"
             return
         }
 
         //Si esta todo bien, limpiamos el error y seguimos
-        errorMessage = null
+        _errorMessage.value = null
 
         /*
          GUARDAMOS EL EMAIL EN DATASTORE
         */
         viewModelScope.launch {
-            userPreferences.saveUser(email)
+            userPreferences.saveUser(_email.value)
 
             /*
              También generamos el nombre automáticamente
              Ej: lautaro@gmail.com → lautaro
             */
-            val nombre = email.substringBefore("@")
+            val nombre = _email.value.substringBefore("@")
             userPreferences.saveUserName(nombre)
             onSuccess()
         }

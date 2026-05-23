@@ -2,68 +2,68 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import android.app.Application
 import android.util.Patterns
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class RegistroViewModel(application: Application) : AndroidViewModel(application) {
 
-    var nombre by mutableStateOf("")
-        private set
+    private val _nombre = MutableStateFlow("")
+    val nombre: StateFlow<String> = _nombre.asStateFlow()
 
-    var email by mutableStateOf("")
-        private set
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
-    var password by mutableStateOf("")
-        private set
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     fun onNombreChange(newNombre: String) {
-        nombre = newNombre
+        _nombre.value = newNombre
     }
 
     fun onEmailChange(newEmail: String) {
-        email = newEmail
+        _email.value = newEmail
         validateEmail()
     }
 
     private fun validateEmail() {
-        errorMessage = when {
-            email.isBlank() -> null
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Formato de correo inválido"
+        _errorMessage.value = when {
+            _email.value.isBlank() -> null
+            !Patterns.EMAIL_ADDRESS.matcher(_email.value).matches() -> "Formato de correo inválido"
             else -> null
         }
     }
 
     fun onPasswordChange(newPassword: String) {
-        password = newPassword
-        if (password.length > 0 && password.length < 6) {
-            errorMessage = "La contraseña debe tener al menos 6 caracteres"
+        _password.value = newPassword
+        if (_password.value.length > 0 && _password.value.length < 6) {
+            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
         } else {
             validateEmail() // Vuelve a validar el email si la pass está ok
         }
     }
 
     fun register(onSuccess: () -> Unit) {
-        if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
-            errorMessage = "Completa todos los campos"
+        if (_nombre.value.isBlank() || _email.value.isBlank() || _password.value.isBlank()) {
+            _errorMessage.value = "Completa todos los campos"
             return
         }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            errorMessage = "Formato de correo inválido"
+        if (!Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()) {
+            _errorMessage.value = "Formato de correo inválido"
             return
         }
 
-        if (password.length < 6) {
-            errorMessage = "La contraseña debe tener al menos 6 caracteres"
+        if (_password.value.length < 6) {
+            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
             return
         }
 
-        errorMessage = null
+        _errorMessage.value = null
         // Aquí iría la lógica de registro real (API, DB, etc.)
         onSuccess()
     }
