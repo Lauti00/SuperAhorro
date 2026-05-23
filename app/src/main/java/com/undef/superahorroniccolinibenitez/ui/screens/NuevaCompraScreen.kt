@@ -42,7 +42,7 @@ fun NuevaCompraScreen(
 
     // Observamos el estado del nuevo ViewModel
     val state by nuevaCompraViewModel.uiState.collectAsState()
-    val catalogo = homeViewModel.catalogo
+    val catalogo by homeViewModel.catalogo.collectAsState()
 
     // Datos automáticos solo para mostrar en UI (el guardado real pasa en ViewModel)
     val fechaDisplay = remember { LocalDate.now().toString() }

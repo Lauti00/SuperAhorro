@@ -4,6 +4,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.by
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -24,6 +26,11 @@ fun LoginScreen(
     // lo mantiene vivo mientras la pantalla exista
     val viewModel: LoginViewModel = viewModel()
 
+    // Colectamos los estados
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     AuthContainer {
 
         BrandHeader()
@@ -32,7 +39,7 @@ fun LoginScreen(
 
         // Email ahora viene del ViewModel
         SuperAhorroTextField(
-            value = viewModel.email,
+            value = email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = stringResource(id = R.string.label_email),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -42,7 +49,7 @@ fun LoginScreen(
 
         // Password también controlado por ViewModel
         SuperAhorroTextField(
-            value = viewModel.password,
+            value = password,
             onValueChange = { viewModel.onPasswordChange(it) },
             label = stringResource(id = R.string.label_password),
             visualTransformation = PasswordVisualTransformation(),
@@ -65,11 +72,11 @@ fun LoginScreen(
             onClick = {
                 //Guardamos el usuario en DataStore y ejecuta onLoginSuccess cuando termina
                 viewModel.login { onLoginSuccess() } },
-                enabled = viewModel.errorMessage == null && viewModel.email.isNotBlank() && viewModel.password.isNotBlank()
+                enabled = errorMessage == null && email.isNotBlank() && password.isNotBlank()
         )
 
         // Mostrar error si existe (mejora UX)
-        viewModel.errorMessage?.let {
+        errorMessage?.let {
             EspacioPequeño()
             Text(
                 text = it,

@@ -43,11 +43,15 @@ fun HomeScreen(
     // Contexto necesario para lanzar el Intent
     val context = LocalContext.current
 
+    // Colectamos los estados del ViewModel
+    val userEmailState by viewModel.userEmail.collectAsState()
+    val comprasState by viewModel.compras.collectAsState()
+
     MainDrawerContainer(
         drawerState = drawerState,
 
         // Pasamos el email del usuario (si implementaste DataStore)
-        userEmail = viewModel.userEmail,
+        userEmail = userEmailState,
 
         /*
             Cuando se cierra la sesión, se llama a viewModel y este borra la sesión en dataStore.
@@ -112,7 +116,7 @@ fun HomeScreen(
             * */
             HomeContent(
                 paddingValues = paddingValues,
-                compras = viewModel.compras,
+                compras = comprasState,
 
                 /*
                 Cuando el usuario toca una compra (la card completa),

@@ -25,7 +25,7 @@ fun NuevoProductoScreen(
     onBack: () -> Unit
 ) {
     val state by nuevoProductoViewModel.uiState.collectAsState()
-    val catalogo = homeViewModel.catalogo
+    val catalogo by homeViewModel.catalogo.collectAsState()
 
     SimpleScreenContainer(title = "Gestionar Catálogo", onBack = onBack) {
         Column(

@@ -20,8 +20,10 @@ fun ProfileScreen(
     /*
       Estados inicializados con datos reales
     */
-    var nombre by remember { mutableStateOf(viewModel.userName) }
-    val email = viewModel.userEmail
+    val userNameState by viewModel.userName.collectAsState()
+    var nombre by remember(userNameState) { mutableStateOf(userNameState) }
+    
+    val email by viewModel.userEmail.collectAsState()
 
     SimpleScreenContainer(
         title = "Mi Perfil",

@@ -18,13 +18,19 @@ fun RegistroScreen(
     onBackToLogin: () -> Unit,
     viewModel: RegistroViewModel = viewModel()
 ) {
+    // Colectamos los estados
+    val nombre by viewModel.nombre.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     AuthContainer {
         SuperAhorroTitle(text = stringResource(id = R.string.title_registro))
 
         EspacioGrande()
 
         SuperAhorroTextField(
-            value = viewModel.nombre,
+            value = nombre,
             onValueChange = { viewModel.onNombreChange(it) },
             label = stringResource(id = R.string.label_nombre)
         )
@@ -32,7 +38,7 @@ fun RegistroScreen(
         EspacioNormal()
 
         SuperAhorroTextField(
-            value = viewModel.email,
+            value = email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = stringResource(id = R.string.label_email),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -41,14 +47,14 @@ fun RegistroScreen(
         EspacioNormal()
 
         SuperAhorroTextField(
-            value = viewModel.password,
+            value = password,
             onValueChange = { viewModel.onPasswordChange(it) },
             label = stringResource(id = R.string.label_password),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        viewModel.errorMessage?.let {
+        errorMessage?.let {
             EspacioPequeño()
             Text(text = it, color = MaterialTheme.colorScheme.error)
         }
@@ -60,10 +66,10 @@ fun RegistroScreen(
             onClick = {
                 viewModel.register { onRegisterSuccess() }
             },
-            enabled = viewModel.errorMessage == null && 
-                      viewModel.nombre.isNotBlank() && 
-                      viewModel.email.isNotBlank() && 
-                      viewModel.password.isNotBlank()
+            enabled = errorMessage == null && 
+                      nombre.isNotBlank() && 
+                      email.isNotBlank() && 
+                      password.isNotBlank()
         )
 
         EspacioPequeño()

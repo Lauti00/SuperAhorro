@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +31,7 @@ fun HistorialScreen(
         /*
          Obtenemos las compras del ViewModel
         */
-        val compras = viewModel.compras
+        val compras by viewModel.compras.collectAsState()
 
         if (compras.isEmpty()) {
 

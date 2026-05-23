@@ -19,12 +19,19 @@ fun OlvidarPasswordScreen(
     onPasswordResetSuccess: () -> Unit,
     viewModel: OlvidarPasswordViewModel = viewModel()
 ) {
+    // Colectamos los estados
+    val email by viewModel.email.collectAsState()
+    val pasoActual by viewModel.pasoActual.collectAsState()
+    val codigo by viewModel.codigo.collectAsState()
+    val nuevaPassword by viewModel.nuevaPassword.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     AuthContainer {
         SuperAhorroTitle(text = stringResource(id = R.string.title_recuperar))
 
         EspacioGrande()
 
-        if (viewModel.pasoActual == 1) {
+        if (pasoActual == 1) {
             Text(
                 text = stringResource(id = R.string.msg_ingresa_correo),
                 textAlign = TextAlign.Center,
@@ -34,13 +41,13 @@ fun OlvidarPasswordScreen(
             EspacioGrande()
 
             SuperAhorroTextField(
-                value = viewModel.email,
+                value = email,
                 onValueChange = { viewModel.onEmailChange(it) },
                 label = stringResource(id = R.string.label_email),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
-            viewModel.errorMessage?.let {
+            errorMessage?.let {
                 EspacioPequeño()
                 Text(text = it, color = MaterialTheme.colorScheme.error)
             }
@@ -50,7 +57,7 @@ fun OlvidarPasswordScreen(
             SuperAhorroButton(
                 text = stringResource(id = R.string.btn_enviar_codigo),
                 onClick = { viewModel.enviarCodigo() },
-                enabled = viewModel.errorMessage == null && viewModel.email.isNotBlank()
+                enabled = errorMessage == null && email.isNotBlank()
             )
 
             EspacioNormal()
@@ -60,9 +67,9 @@ fun OlvidarPasswordScreen(
                 onClick = onBack
             )
 
-        } else if (viewModel.pasoActual == 2) {
+        } else if (pasoActual == 2) {
             Text(
-                text = stringResource(id = R.string.msg_codigo_enviado, viewModel.email),
+                text = stringResource(id = R.string.msg_codigo_enviado, email),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge
@@ -71,7 +78,7 @@ fun OlvidarPasswordScreen(
             EspacioGrande()
 
             SuperAhorroTextField(
-                value = viewModel.codigo,
+                value = codigo,
                 onValueChange = { viewModel.onCodigoChange(it) },
                 label = stringResource(id = R.string.label_codigo),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -80,14 +87,14 @@ fun OlvidarPasswordScreen(
             EspacioNormal()
 
             SuperAhorroTextField(
-                value = viewModel.nuevaPassword,
+                value = nuevaPassword,
                 onValueChange = { viewModel.onNuevaPasswordChange(it) },
                 label = stringResource(id = R.string.label_nueva_password),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
-            viewModel.errorMessage?.let {
+            errorMessage?.let {
                 EspacioPequeño()
                 Text(text = it, color = MaterialTheme.colorScheme.error)
             }
@@ -99,9 +106,9 @@ fun OlvidarPasswordScreen(
                 onClick = {
                     viewModel.guardarNuevaPassword { onPasswordResetSuccess() }
                 },
-                enabled = viewModel.errorMessage == null && 
-                          viewModel.codigo.isNotBlank() && 
-                          viewModel.nuevaPassword.isNotBlank()
+                enabled = errorMessage == null && 
+                          codigo.isNotBlank() && 
+                          nuevaPassword.isNotBlank()
             )
 
             EspacioNormal()
