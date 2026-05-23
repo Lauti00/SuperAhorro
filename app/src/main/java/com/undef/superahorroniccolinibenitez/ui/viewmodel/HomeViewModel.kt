@@ -1,8 +1,6 @@
 package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import android.app.Application
-import androidx.compose.runtime.*
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
@@ -10,6 +8,9 @@ import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.model.Producto
 import com.undef.superahorroniccolinibenitez.model.catalogoProductos
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -22,29 +23,29 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // =========================
 
     // Lista de compras en memoria (estado observable)
-    private val _compras = mutableStateListOf<Compra>()
+    private val _compras = MutableStateFlow<List<Compra>>(emptyList())
 
-    val compras: List<Compra> = _compras
+    val compras: StateFlow<List<Compra>> = _compras.asStateFlow()
 
     /*
     Compra seleccionada para navegación entre pantallas
     */
-    var compraSeleccionada by mutableStateOf<Compra?>(null)
-        private set
+    private val _compraSeleccionada = MutableStateFlow<Compra?>(null)
+    val compraSeleccionada: StateFlow<Compra?> = _compraSeleccionada.asStateFlow()
 
     // =========================
     // CRUD COMPRAS
     // =========================
 
     fun agregarCompra(compra: Compra) {
-        _compras.add(compra)
+        _compras.value = _compras.value + compra
     }
 
     /*
     Seleccionar compra
     */
     fun seleccionarCompra(compra: Compra) {
-        compraSeleccionada = compra
+        _compraSeleccionada.value = compra
     }
 
     /*
@@ -52,11 +53,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     */
     fun eliminarCompra(compra: Compra) {
 
-        _compras.remove(compra)
+        _compras.value = _compras.value - compra
 
         // Si era la seleccionada, la limpiamos
-        if (compraSeleccionada?.id == compra.id) {
-            compraSeleccionada = null
+        if (_compraSeleccionada.value?.id == compra.id) {
+            _compraSeleccionada.value = null
         }
     }
 
@@ -66,16 +67,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     */
     fun editarCompra(compraEditada: Compra) {
 
-        val index = _compras.indexOfFirst {
+        val currentList = _compras.value.toMutableList()
+        val index = currentList.indexOfFirst {
             it.id == compraEditada.id
         }
 
         if (index != -1) {
 
-            _compras[index] = compraEditada
+            currentList[index] = compraEditada
+            _compras.value = currentList
 
             // Actualizamos también la seleccionada
-            compraSeleccionada = compraEditada
+            _compraSeleccionada.value = compraEditada
         }
     }
 
@@ -87,13 +90,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         producto: Producto
     ) {
 
-        val index = _compras.indexOfFirst {
+        val currentList = _compras.value.toMutableList()
+        val index = currentList.indexOfFirst {
             it.id == compraId
         }
 
         if (index != -1) {
 
-            val compra = _compras[index]
+            val compra = currentList[index]
 
             val nuevosProductos =
                 compra.productos.toMutableList()
@@ -104,10 +108,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 productos = nuevosProductos
             )
 
-            _compras[index] = compraEditada
+            currentList[index] = compraEditada
+            _compras.value = currentList
 
-            if (compraSeleccionada?.id == compraId) {
-                compraSeleccionada = compraEditada
+            if (_compraSeleccionada.value?.id == compraId) {
+                _compraSeleccionada.value = compraEditada
             }
         }
     }
@@ -121,13 +126,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     - Incluye los predefinidos
     - Permite agregar nuevos dinámicamente
     */
-    private val _catalogo =
-        mutableStateListOf<CatalogoProducto>().apply {
+    private val _catalogo = MutableStateFlow(catalogoProductos.toList())
 
-            addAll(catalogoProductos)
-        }
-
-    val catalogo: List<CatalogoProducto> = _catalogo
+    val catalogo: StateFlow<List<CatalogoProducto>> = _catalogo.asStateFlow()
 
     /*
     AGREGAR NUEVO PRODUCTO AL CATÁLOGO
@@ -147,7 +148,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         VALIDAMOS SI YA EXISTE
         Ignoramos mayúsculas/minúsculas
         */
-        val yaExiste = _catalogo.any {
+        val currentCatalogo = _catalogo.value
+        val yaExiste = currentCatalogo.any {
 
             it.nombre.trim().equals(
                 nombre.trim(),
@@ -167,7 +169,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         */
         val nuevoProducto = CatalogoProducto(
 
-            id = (_catalogo.maxOfOrNull {
+            id = (currentCatalogo.maxOfOrNull {
                 it.id
             } ?: 0) + 1,
 
@@ -183,7 +185,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         /*
         Lo agregamos al catálogo
         */
-        _catalogo.add(nuevoProducto)
+        _catalogo.value = currentCatalogo + nuevoProducto
 
         return true
     }
@@ -198,13 +200,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         /*
         Eliminamos del catálogo
         */
-        _catalogo.remove(producto)
+        _catalogo.value = _catalogo.value - producto
 
         /*
         También eliminamos el producto
         de TODAS las compras existentes
         */
-        _compras.replaceAll { compra ->
+        _compras.value = _compras.value.map { compra ->
 
             val nuevosProductos =
                 compra.productos.filter {
@@ -221,7 +223,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         Si la compra seleccionada tenía
         ese producto, también la actualizamos
         */
-        compraSeleccionada?.let { compra ->
+        _compraSeleccionada.value?.let { compra ->
 
             val nuevosProductos =
                 compra.productos.filter {
@@ -229,7 +231,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     it.producto.id != producto.id
                 }
 
-            compraSeleccionada = compra.copy(
+            _compraSeleccionada.value = compra.copy(
                 productos = nuevosProductos
             )
         }
@@ -245,7 +247,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         nuevaDescripcion: String,
         nuevoPrecio: Double
     ) {
-        val index = _catalogo.indexOfFirst { it.id == id }
+        val currentCatalogo = _catalogo.value.toMutableList()
+        val index = currentCatalogo.indexOfFirst { it.id == id }
 
         if (index != -1) {
             // 1. Creamos el producto con los datos nuevos
@@ -258,11 +261,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             // 2. Lo reemplazamos en el catálogo
-            _catalogo[index] = productoActualizado
+            currentCatalogo[index] = productoActualizado
+            _catalogo.value = currentCatalogo
 
             // 3. Actualizamos este producto en TODAS las compras existentes
             // (para que los precios y nombres se actualicen en el historial)
-            _compras.replaceAll { compra ->
+            _compras.value = _compras.value.map { compra ->
                 val nuevosProductos = compra.productos.map { itemCompra ->
                     if (itemCompra.producto.id == id) {
                         // Reemplazamos el producto viejo por el actualizado, manteniendo la cantidad
@@ -275,7 +279,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             // 4. Si la compra seleccionada lo tenía, también la actualizamos
-            compraSeleccionada?.let { compra ->
+            _compraSeleccionada.value?.let { compra ->
                 val nuevosProductos = compra.productos.map { itemCompra ->
                     if (itemCompra.producto.id == id) {
                         itemCompra.copy(producto = productoActualizado)
@@ -283,7 +287,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         itemCompra
                     }
                 }
-                compraSeleccionada = compra.copy(productos = nuevosProductos)
+                _compraSeleccionada.value = compra.copy(productos = nuevosProductos)
             }
         }
     }
@@ -292,17 +296,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // USER DATA
     // =========================
 
-    var userEmail by mutableStateOf("")
-        private set
+    private val _userEmail = MutableStateFlow("")
+    val userEmail: StateFlow<String> = _userEmail.asStateFlow()
 
-    var userName by mutableStateOf("")
-        private set
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
 
     init {
 
         viewModelScope.launch {
 
-            userEmail =
+            _userEmail.value =
                 userPreferences.userEmail.first()
 
             val savedName =
@@ -310,11 +314,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
             // Si hay un nombre guardado lo usamos,
             // si no lo derivamos del email
-            userName =
+            _userName.value =
                 if (savedName.isNotEmpty()) {
                     savedName
                 } else {
-                    userEmail.substringBefore("@")
+                    _userEmail.value.substringBefore("@")
                 }
         }
     }
@@ -327,7 +331,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 nuevoNombre
             )
 
-            userName = nuevoNombre
+            _userName.value = nuevoNombre
         }
     }
 
@@ -347,18 +351,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun obtenerGastoTotal(): Double {
 
-        return compras.sumOf {
+        return _compras.value.sumOf {
             it.total()
         }
     }
 
     fun cantidadCompras(): Int {
 
-        return compras.size
+        return _compras.value.size
     }
 
     fun gastoPorSupermercado(): Map<String, Double> {
-        return compras
+        return _compras.value
             .groupBy {
                 // Al agrupar, forzamos a que todo sea minúscula con la primera en mayúscula.
                 it.supermercado.trim().lowercase().replaceFirstChar { char -> char.uppercase() }
@@ -373,7 +377,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun productoMasComprado(): String {
 
         val todosProductos =
-            compras.flatMap {
+            _compras.value.flatMap {
                 it.productos
             }
 
