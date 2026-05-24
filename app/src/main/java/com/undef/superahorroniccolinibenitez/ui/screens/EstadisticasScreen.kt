@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -114,10 +115,13 @@ fun EstadisticasScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         LinearProgressIndicator(
-                            progress = porcentaje,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
+                        progress = { porcentaje },
+                        modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(10.dp),
+                        color = ProgressIndicatorDefaults.linearColor,
+                        trackColor = ProgressIndicatorDefaults.linearTrackColor,
+                        strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
                         )
                     }
                 }
