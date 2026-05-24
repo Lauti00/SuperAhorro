@@ -1,6 +1,7 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import java.io.File
@@ -57,9 +58,20 @@ fun NuevaCompraScreen(
         return FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
     }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { }
+    val tieneCamara = localContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+
+    if (tieneCamara) {
+
+        val cameraLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture()
+        ) { success ->
+
+            if (!success) {
+                nuevaCompraViewModel.onImagenUriChange(null)
+            }
+
+        }
+
 
     SimpleScreenContainer(title = stringResource(id = R.string.title_nueva_compra), onBack = onBack) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -219,7 +231,8 @@ fun NuevaCompraScreen(
                             nuevaCompraViewModel.onImagenUriChange(uri)
                             cameraLauncher.launch(uri)
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        enabled = tieneCamara // Solo si hay cámara se muestra el boton
                     )
                 }
 
