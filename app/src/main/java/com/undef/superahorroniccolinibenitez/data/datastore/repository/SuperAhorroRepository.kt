@@ -8,14 +8,25 @@ import kotlinx.coroutines.flow.Flow
 
 class SuperAhorroRepository(private val dao: SuperAhorroDao) {
 
-    // Compras
-    val todasLasCompras: Flow<List<CompraEntity>> = dao.obtenerTodasLasCompras()
+    // =========================
+    // COMPRAS
+    // =========================
 
-    suspend fun insertarCompra(compra: CompraEntity) {
-        dao.insertarCompra(compra)
+    val todasLasCompras: Flow<List<CompraEntity>> =
+        dao.obtenerTodasLasCompras()
+
+    /*
+
+    Ahora devuelve el ID generado por Room
+    */
+    suspend fun insertarCompra(compra: CompraEntity): Long {
+        return dao.insertarCompra(compra)
     }
 
-    // Detalles
+    // =========================
+    // DETALLES
+    // =========================
+
     fun obtenerDetallesPorCompra(compraId: Int): Flow<List<DetalleCompraEntity>> {
         return dao.obtenerDetallesPorCompra(compraId)
     }
@@ -24,10 +35,28 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
         dao.insertarDetalle(detalle)
     }
 
-    // Catálogo
-    val catalogo: Flow<List<CatalogoEntity>> = dao.obtenerCatalogo()
+    // =========================
+    // CATALOGO
+    // =========================
+
+    val catalogo: Flow<List<CatalogoEntity>> =
+        dao.obtenerCatalogo()
 
     suspend fun insertarProductoCatalogo(producto: CatalogoEntity) {
         dao.insertarProductoCatalogo(producto)
+    }
+
+    /*
+    ACTUALIZAR PRODUCTO
+    */
+    suspend fun actualizarProducto(producto: CatalogoEntity) {
+        dao.actualizarProducto(producto)
+    }
+
+    /*
+    ELIMINAR PRODUCTO
+    */
+    suspend fun eliminarProducto(producto: CatalogoEntity) {
+        dao.eliminarProducto(producto)
     }
 }

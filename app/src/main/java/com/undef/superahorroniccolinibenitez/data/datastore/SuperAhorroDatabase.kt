@@ -8,12 +8,15 @@ import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.Compr
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
 
 @Database(
-    entities = [CompraEntity::class, DetalleCompraEntity::class, CatalogoEntity::class],
+    entities = [
+        CompraEntity::class,
+        DetalleCompraEntity::class,
+        CatalogoEntity::class
+    ],
     version = 1,
     exportSchema = false
 )
 abstract class SuperAhorroDatabase : RoomDatabase() {
 
     abstract fun superAhorroDao(): SuperAhorroDao
-
 }

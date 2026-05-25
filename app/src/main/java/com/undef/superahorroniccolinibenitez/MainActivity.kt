@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.room.Room
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import com.undef.superahorroniccolinibenitez.data.datastore.SuperAhorroDatabase
 import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhorroRepository
 import com.undef.superahorroniccolinibenitez.navigation.AppNavigation
@@ -43,10 +43,12 @@ class MainActivity : ComponentActivity() {
         // 4. INSTANCIAMOS EL VIEWMODEL USANDO UN FACTORY
         // Como el ViewModel recibe el repositorio por parámetro en su constructor, Android necesita un "Factory"
         // para saber cómo fabricarlo correctamente sin romper el ciclo de vida de la app.
-        val viewModel: SuperAhorroViewModel by viewModels {
+        val superAhorroViewModel: SuperAhorroViewModel by viewModels {
             object : ViewModelProvider.Factory {
+
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
                     return SuperAhorroViewModel(repository) as T
                 }
             }
@@ -56,18 +58,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
             SuperAhorroTheme {
+
                 // El Scaffold principal de la aplicación
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
 
                     // Usamos un Box para respetar el padding (los márgenes) del sistema
                     // y que el contenido no quede tapado por la barra superior de Android
-                    Box(modifier = Modifier.padding(innerPadding)) {
+                    Box(
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
 
                         // Llamamos al archivo de navegación para que muestre el Login
                         // LE PASAMOS NUESTRO VIEWMODEL: Ahora la navegación puede compartir este "cerebro" con las demás pantallas
-                        AppNavigation(viewModel = viewModel)
-
+                        AppNavigation(
+                            superAhorroViewModel = superAhorroViewModel
+                        )
                     }
                 }
             }
