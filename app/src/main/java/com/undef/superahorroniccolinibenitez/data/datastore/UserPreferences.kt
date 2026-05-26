@@ -17,33 +17,60 @@ class UserPreferences(private val context: Context) {
      Definimos las claves que vamos a guardar
     */
     companion object {
-        val USER_EMAIL = stringPreferencesKey("user_email")
 
-        //  guardamos el nombre del usuario
-        val USER_NAME = stringPreferencesKey("user_name")
+        val USER_EMAIL =
+            stringPreferencesKey("user_email")
+
+        /*
+         Guardamos el nombre del usuario
+        */
+        val USER_NAME =
+            stringPreferencesKey("user_name")
+
+        /*
+         Guardamos si el usuario inició sesión
+        */
+        val IS_LOGGED_IN =
+            booleanPreferencesKey("is_logged_in")
     }
 
     /*
       Obtener email como Flow (reactivo)
     */
-    val userEmail: Flow<String> = context.userDataStore.data
-        .map { preferences ->
+    val userEmail: Flow<String> =
+
+        context.userDataStore.data.map { preferences ->
+
             preferences[USER_EMAIL] ?: ""
         }
 
     /*
      Obtener nombre como Flow (reactivo)
     */
-    val userName: Flow<String> = context.userDataStore.data
-        .map { preferences ->
+    val userName: Flow<String> =
+
+        context.userDataStore.data.map { preferences ->
+
             preferences[USER_NAME] ?: ""
+        }
+
+    /*
+     Obtener estado de sesión
+    */
+    val isLoggedIn: Flow<Boolean> =
+
+        context.userDataStore.data.map { preferences ->
+
+            preferences[IS_LOGGED_IN] ?: false
         }
 
     /*
       Guardar email (login)
     */
     suspend fun saveUser(email: String) {
+
         context.userDataStore.edit { preferences ->
+
             preferences[USER_EMAIL] = email
         }
     }
@@ -52,8 +79,23 @@ class UserPreferences(private val context: Context) {
       Guardar nombre del usuario (perfil)
     */
     suspend fun saveUserName(name: String) {
+
         context.userDataStore.edit { preferences ->
+
             preferences[USER_NAME] = name
+        }
+    }
+
+    /*
+     Guardar estado de sesión
+    */
+    suspend fun saveLoginState(
+        loggedIn: Boolean
+    ) {
+
+        context.userDataStore.edit { preferences ->
+
+            preferences[IS_LOGGED_IN] = loggedIn
         }
     }
 
@@ -62,7 +104,9 @@ class UserPreferences(private val context: Context) {
      Borra todos los datos guardados
     */
     suspend fun logout() {
+
         context.userDataStore.edit { preferences ->
+
             preferences.clear()
         }
     }

@@ -12,32 +12,53 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
 @Composable
-fun SplashScreen(onNavigateToLogin: () -> Unit,
-                 onNavigateToHome: () -> Unit)
-{
+fun SplashScreen(
+    onNavigateToLogin: () -> Unit,
+    onNavigateToHome: () -> Unit
+) {
 
     val context = LocalContext.current
-    val userPreferences = UserPreferences(context)
 
-    //Ahora SplashScreen solo demora 2,5 segundos y devuelve el control de la
-    // navegacion a AppNavigation
+    val userPreferences =
+        UserPreferences(context)
+
+    /*
+    Ahora SplashScreen espera un momento y decide
+    automáticamente si el usuario ya inició sesión
+    */
     LaunchedEffect(Unit) {
+
         delay(1500)
 
-        val email = userPreferences.userEmail.first()
-        if (email.isNotEmpty()) {
+        /*
+        Consultamos el estado de sesión guardado
+        */
+        val isLoggedIn =
+            userPreferences.isLoggedIn.first()
+
+        /*
+        Si hay sesión iniciada → Home
+        Si no → Login
+        */
+        if (isLoggedIn) {
+
             onNavigateToHome()
+
         } else {
+
             onNavigateToLogin()
         }
     }
 
-
     Box(
         modifier = Modifier.fillMaxSize(),
+
         contentAlignment = Alignment.Center
     ) {
-        //Pantalla de Bienvenida (o Splash Screen), previa a mostrar la pantalla de Login
+
+        /*
+        Pantalla de Bienvenida (Splash Screen)
+        */
         BrandHeader()
     }
 }

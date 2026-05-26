@@ -23,31 +23,42 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
 
     fun onNombreChange(newNombre: String) {
         _nombre.value = newNombre
+        validarCampos() // EXPLICACIÓN: Validamos al cambiar el nombre
     }
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
-        validateEmail()
-    }
-
-    private fun validateEmail() {
-        _errorMessage.value = when {
-            _email.value.isBlank() -> null
-            !Patterns.EMAIL_ADDRESS.matcher(_email.value).matches() -> "Formato de correo inválido"
-            else -> null
-        }
+        validarCampos() // EXPLICACIÓN: Validamos al cambiar el correo
     }
 
     fun onPasswordChange(newPassword: String) {
         _password.value = newPassword
-        if (_password.value.length > 0 && _password.value.length < 6) {
-            _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
-        } else {
-            validateEmail() // Vuelve a validar el email si la pass está ok
+        validarCampos() //  Validamos al cambiar la contraseña
+    }
+
+    //  Una sola función centralizada que chequea todo en orden de prioridad y NO se pisa
+    private fun validarCampos() {
+        _errorMessage.value = when {
+            // 1. Si los campos están vacíos mientras tipea, no mostramos error molesto todavía
+            _email.value.isBlank() && _password.value.isBlank() -> null
+
+            // 2. Controlamos el formato del correo si el usuario ya escribió algo
+            _email.value.isNotBlank() && !Patterns.EMAIL_ADDRESS.matcher(_email.value).matches() -> {
+                "Formato de correo inválido"
+            }
+
+            // 3. Controlamos el largo de la contraseña si el usuario ya escribió algo
+            _password.value.isNotBlank() && _password.value.length < 6 -> {
+                "La contraseña debe tener al menos 6 caracteres"
+            }
+
+            // 4. Si pasa todos los filtros, limpiamos el error
+            else -> null
         }
     }
 
     fun register(onSuccess: () -> Unit) {
+        // Validación final antes de procesar el clic del botón
         if (_nombre.value.isBlank() || _email.value.isBlank() || _password.value.isBlank()) {
             _errorMessage.value = "Completa todos los campos"
             return
@@ -64,7 +75,7 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
         }
 
         _errorMessage.value = null
-        // Aquí iría la lógica de registro real (API, DB, etc.)
+
         onSuccess()
     }
 }

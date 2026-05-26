@@ -72,11 +72,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
 
-                        // Llamamos al archivo de navegación para que muestre el Login
-                        // LE PASAMOS NUESTRO VIEWMODEL: Ahora la navegación puede compartir este "cerebro" con las demás pantallas
-                        AppNavigation(
-                            superAhorroViewModel = superAhorroViewModel
-                        )
+
+                        AppNavigation()
                     }
                 }
             }

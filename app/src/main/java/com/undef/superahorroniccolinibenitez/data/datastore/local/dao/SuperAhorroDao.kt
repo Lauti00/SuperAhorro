@@ -27,6 +27,12 @@ interface SuperAhorroDao {
     @Query("SELECT * FROM compras ORDER BY id DESC")
     fun obtenerTodasLasCompras(): Flow<List<CompraEntity>>
 
+    @Update
+    suspend fun actualizarCompra(compra: CompraEntity)
+
+    @Query("DELETE FROM compras WHERE id = :compraId")
+    suspend fun eliminarCompraPorId(compraId: Int)
+
     // =========================
     // DETALLES
     // =========================
@@ -36,6 +42,15 @@ interface SuperAhorroDao {
 
     @Query("SELECT * FROM detalles_compra WHERE idCompra = :compraId")
     fun obtenerDetallesPorCompra(compraId: Int): Flow<List<DetalleCompraEntity>>
+
+    @Query("SELECT * FROM detalles_compra")
+    suspend fun obtenerTodosLosDetallesLista(): List<DetalleCompraEntity>
+
+    @Query("DELETE FROM detalles_compra WHERE idCompra = :compraId")
+    suspend fun eliminarDetallesPorCompraId(compraId: Int)
+
+    @Query("DELETE FROM detalles_compra WHERE idCompra = :compraId AND idProducto = :productoId")
+    suspend fun eliminarDetalleEspecifico(compraId: Int, productoId: Int)
 
     // =========================
     // CATÁLOGO

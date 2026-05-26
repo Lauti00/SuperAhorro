@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // Dependencias de Room (Nuestra Base de Datos Local)
     // Actualizado a 2.7.0-alpha11 para corregir el error: [ksp] java.lang.IllegalStateException: unexpected jvm signature V
@@ -61,6 +62,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,3 +72,4 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+

@@ -16,11 +16,18 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
         dao.obtenerTodasLasCompras()
 
     /*
-
     Ahora devuelve el ID generado por Room
     */
     suspend fun insertarCompra(compra: CompraEntity): Long {
         return dao.insertarCompra(compra)
+    }
+
+    suspend fun actualizarCompra(compra: CompraEntity) {
+        dao.actualizarCompra(compra)
+    }
+
+    suspend fun eliminarCompraPorId(compraId: Int) {
+        dao.eliminarCompraPorId(compraId)
     }
 
     // =========================
@@ -31,8 +38,20 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
         return dao.obtenerDetallesPorCompra(compraId)
     }
 
+    suspend fun obtenerTodosLosDetallesLista(): List<DetalleCompraEntity> {
+        return dao.obtenerTodosLosDetallesLista()
+    }
+
     suspend fun insertarDetalle(detalle: DetalleCompraEntity) {
         dao.insertarDetalle(detalle)
+    }
+
+    suspend fun eliminarDetallesPorCompraId(compraId: Int) {
+        dao.eliminarDetallesPorCompraId(compraId)
+    }
+
+    suspend fun eliminarDetalleEspecifico(compraId: Int, productoId: Int) {
+        dao.eliminarDetalleEspecifico(compraId, productoId)
     }
 
     // =========================

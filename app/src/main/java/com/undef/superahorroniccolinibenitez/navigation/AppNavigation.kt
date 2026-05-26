@@ -9,7 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.undef.superahorroniccolinibenitez.ui.screens.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
-import com.undef.superahorroniccolinibenitez.viewmodel.SuperAhorroViewModel
+import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
 
 /*
 1. Definimos las rutas de nuestra app.
@@ -50,11 +50,13 @@ sealed class AppScreens(val route: String) {
 2. Creamos el orquestador de navegación
 */
 @Composable
-fun AppNavigation(
-    superAhorroViewModel: SuperAhorroViewModel
-) {
+fun AppNavigation() {
 
     val navController = rememberNavController()
+
+    // INSTANCIAS COMPARTIDAS CENTRALES: Evita que Room pierda los datos al destruir pantallas o sesiones
+    val sharedHomeViewModel: HomeViewModel = viewModel()
+    val sharedNuevoProductoViewModel: NuevoProductoViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -214,10 +216,8 @@ fun AppNavigation(
 
         composable(AppScreens.Perfil.route) {
 
-            val homeViewModel: HomeViewModel = viewModel()
-
             ProfileScreen(
-                viewModel = homeViewModel,
+                viewModel = sharedHomeViewModel,
                 onBack = { navController.popBackStack() },
                 onSaveProfile = { navController.popBackStack() }
             )
@@ -229,10 +229,8 @@ fun AppNavigation(
 
         composable(AppScreens.Historial.route) {
 
-            val homeViewModel: HomeViewModel = viewModel()
-
             HistorialScreen(
-                viewModel = homeViewModel,
+                viewModel = sharedHomeViewModel,
                 onBack = { navController.popBackStack() },
                 onCompraClick = { compraId ->
 
@@ -249,10 +247,8 @@ fun AppNavigation(
 
         composable(AppScreens.Estadisticas.route) {
 
-            val homeViewModel: HomeViewModel = viewModel()
-
             EstadisticasScreen(
-                viewModel = homeViewModel,
+                viewModel = sharedHomeViewModel,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -286,12 +282,9 @@ fun AppNavigation(
             Ahora usamos el ViewModel REAL de Room
             */
             NuevoProductoScreen(
-
-                superAhorroViewModel = superAhorroViewModel,
-
-                onBack = {
-                    navController.popBackStack()
-                }
+                homeViewModel = sharedHomeViewModel,
+                nuevoProductoViewModel = sharedNuevoProductoViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -301,10 +294,8 @@ fun AppNavigation(
 
         composable(AppScreens.NuevaCompra.route) {
 
-            val homeViewModel: HomeViewModel = viewModel()
-
             NuevaCompraScreen(
-                homeViewModel = homeViewModel,
+                homeViewModel = sharedHomeViewModel,
 
                 onBack = {
                     navController.popBackStack()
@@ -342,10 +333,8 @@ fun AppNavigation(
             val compraId =
                 backStackEntry.arguments?.getInt("id")
 
-            val homeViewModel: HomeViewModel = viewModel()
-
             val compra =
-                homeViewModel.compras.value.find {
+                sharedHomeViewModel.compras.value.find {
 
                     it.id == compraId
                 }

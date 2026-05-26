@@ -18,7 +18,7 @@ fun RegistroScreen(
     onBackToLogin: () -> Unit,
     viewModel: RegistroViewModel = viewModel()
 ) {
-    // Colectamos los estados
+    // Colectamos los estados del ViewModel
     val nombre by viewModel.nombre.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -54,6 +54,7 @@ fun RegistroScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
+        //  Muestra los errores dinámicos del ViewModel de forma limpia
         errorMessage?.let {
             EspacioPequeño()
             Text(text = it, color = MaterialTheme.colorScheme.error)
@@ -66,10 +67,11 @@ fun RegistroScreen(
             onClick = {
                 viewModel.register { onRegisterSuccess() }
             },
-            enabled = errorMessage == null && 
-                      nombre.isNotBlank() && 
-                      email.isNotBlank() && 
-                      password.isNotBlank()
+            // El botón se habilitará estrictamente si no hay errores en el ViewModel y ningún campo está vacío
+            enabled = errorMessage == null &&
+                    nombre.isNotBlank() &&
+                    email.isNotBlank() &&
+                    password.isNotBlank()
         )
 
         EspacioPequeño()
