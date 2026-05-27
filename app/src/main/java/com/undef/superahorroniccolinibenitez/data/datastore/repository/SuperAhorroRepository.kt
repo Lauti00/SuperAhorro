@@ -34,6 +34,9 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
     // DETALLES
     // =========================
 
+    val todosLosDetalles: Flow<List<DetalleCompraEntity>> =
+        dao.obtenerTodosLosDetalles()
+
     fun obtenerDetallesPorCompra(compraId: Int): Flow<List<DetalleCompraEntity>> {
         return dao.obtenerDetallesPorCompra(compraId)
     }
@@ -63,6 +66,10 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
 
     suspend fun insertarProductoCatalogo(producto: CatalogoEntity) {
         dao.insertarProductoCatalogo(producto)
+    }
+
+    suspend fun contarProductosCatalogo(): Int {
+        return dao.contarProductosCatalogo()
     }
 
     /*

@@ -1,10 +1,11 @@
 package com.undef.superahorroniccolinibenitez.data.datastore.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import androidx.room.Delete
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CatalogoEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
@@ -43,6 +44,14 @@ interface SuperAhorroDao {
     @Query("SELECT * FROM detalles_compra WHERE idCompra = :compraId")
     fun obtenerDetallesPorCompra(compraId: Int): Flow<List<DetalleCompraEntity>>
 
+    /*
+    Ahora también observamos todos los detalles como Flow.
+    Esto permite que la UI se actualice automáticamente al volver a iniciar sesión
+    o cuando se agregan productos a una compra.
+    */
+    @Query("SELECT * FROM detalles_compra")
+    fun obtenerTodosLosDetalles(): Flow<List<DetalleCompraEntity>>
+
     @Query("SELECT * FROM detalles_compra")
     suspend fun obtenerTodosLosDetallesLista(): List<DetalleCompraEntity>
 
@@ -56,7 +65,10 @@ interface SuperAhorroDao {
     // CATÁLOGO
     // =========================
 
-    @Insert
+    /*
+    Usamos IGNORE para poder cargar productos iniciales sin duplicarlos.
+    */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarProductoCatalogo(producto: CatalogoEntity)
 
     @Update
@@ -65,6 +77,9 @@ interface SuperAhorroDao {
     @Delete
     suspend fun eliminarProducto(producto: CatalogoEntity)
 
-    @Query("SELECT * FROM catalogo_productos")
+    @Query("SELECT * FROM catalogo_productos ORDER BY id ASC")
     fun obtenerCatalogo(): Flow<List<CatalogoEntity>>
+
+    @Query("SELECT COUNT(*) FROM catalogo_productos")
+    suspend fun contarProductosCatalogo(): Int
 }

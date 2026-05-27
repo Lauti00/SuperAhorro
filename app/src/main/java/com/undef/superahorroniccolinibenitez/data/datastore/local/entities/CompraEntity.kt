@@ -1,4 +1,5 @@
 package com.undef.superahorroniccolinibenitez.data.datastore.local.entities
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

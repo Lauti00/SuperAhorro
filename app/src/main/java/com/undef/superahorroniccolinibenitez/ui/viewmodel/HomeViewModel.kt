@@ -3,23 +3,25 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import com.undef.superahorroniccolinibenitez.data.datastore.SuperAhorroDatabase
-import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CompraEntity
+import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CatalogoEntity
+import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhorroRepository
 import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.model.Producto
+import com.undef.superahorroniccolinibenitez.model.catalogoProductos
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -66,79 +68,37 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     init {
 
         /*
-        CARGA DE COMPRAS Y DETALLES DESDE ROOM
+        CARGA INICIAL DEL CATÁLOGO EN ROOM
+
+        Si la tabla está vacía, insertamos los productos base.
+        Esto evita que al volver a iniciar sesión el catálogo quede vacío
+        y las compras no puedan reconstruir correctamente sus productos.
+        */
+        inicializarCatalogoSiHaceFalta()
+
+        /*
+        CARGA DE COMPRAS, DETALLES Y CATÁLOGO DESDE ROOM
+
+        Usamos combine para observar todo junto:
+        - compras
+        - detalles de compra
+        - productos del catálogo
+
+        Así la pantalla se reconstruye desde la base de datos real
+        cada vez que se vuelve a iniciar sesión.
         */
         viewModelScope.launch {
 
-            repository.catalogo.collectLatest { entidadesCatalogo ->
+            combine(
+                repository.todasLasCompras,
+                repository.todosLosDetalles,
+                repository.catalogo
+            ) { entidadesCompras, entidadesDetalles, entidadesCatalogo ->
 
                 _listaCatalogo.value = entidadesCatalogo
 
-                val mapaCatalogo =
-                    entidadesCatalogo.associateBy { it.id }
-
-                repository.todasLasCompras.collectLatest { entidadesCompras ->
-
-                    val todosLosDetalles = withContext(Dispatchers.IO) {
-
-                        repository.obtenerTodosLosDetallesLista()
-                    }
-
-                    val mapaDetalles =
-                        todosLosDetalles.groupBy { it.idCompra }
-
-                    val listaComprasUI =
-                        entidadesCompras.map { entidadCompra ->
-
-                            val detallesDeEstaCompra =
-                                mapaDetalles[entidadCompra.id] ?: emptyList()
-
-                            val productosMapeados =
-                                detallesDeEstaCompra.mapNotNull { detalle ->
-
-                                    val itemCatalogo =
-                                        mapaCatalogo[detalle.idProducto]
-
-                                    if (itemCatalogo != null) {
-
-                                        Producto(
-                                            producto = CatalogoProducto(
-                                                id = itemCatalogo.id,
-                                                codigo = itemCatalogo.codigo,
-                                                nombre = itemCatalogo.nombre,
-                                                descripcion = itemCatalogo.descripcion,
-                                                precio = detalle.precioUnitario
-                                            ),
-                                            cantidad = detalle.cantidad
-                                        )
-
-                                    } else null
-                                }
-
-                            Compra(
-                                id = entidadCompra.id,
-                                supermercado = entidadCompra.supermercado,
-                                fecha = entidadCompra.fecha,
-                                hora = entidadCompra.hora,
-                                productos = productosMapeados,
-                                imagenUri = null
-                            )
-                        }
-
-                    _compras.value = listaComprasUI
-                }
-            }
-        }
-
-        /*
-        CARGA DEL CATÁLOGO
-        */
-        viewModelScope.launch {
-
-            repository.catalogo.collectLatest { entidades ->
-
                 _catalogo.value =
-                    entidades.map { entidad ->
+                    entidadesCatalogo.map { entidad ->
 
                         CatalogoProducto(
                             id = entidad.id,
@@ -148,6 +108,52 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                             precio = entidad.precio
                         )
                     }
+
+                val mapaCatalogo =
+                    entidadesCatalogo.associateBy { it.id }
+
+                val mapaDetalles =
+                    entidadesDetalles.groupBy { it.idCompra }
+
+                entidadesCompras.map { entidadCompra ->
+
+                    val detallesDeEstaCompra =
+                        mapaDetalles[entidadCompra.id] ?: emptyList()
+
+                    val productosMapeados =
+                        detallesDeEstaCompra.mapNotNull { detalle ->
+
+                            val itemCatalogo =
+                                mapaCatalogo[detalle.idProducto]
+
+                            if (itemCatalogo != null) {
+
+                                Producto(
+                                    producto = CatalogoProducto(
+                                        id = itemCatalogo.id,
+                                        codigo = itemCatalogo.codigo,
+                                        nombre = itemCatalogo.nombre,
+                                        descripcion = itemCatalogo.descripcion,
+                                        precio = detalle.precioUnitario
+                                    ),
+                                    cantidad = detalle.cantidad
+                                )
+
+                            } else null
+                        }
+
+                    Compra(
+                        id = entidadCompra.id,
+                        supermercado = entidadCompra.supermercado,
+                        fecha = entidadCompra.fecha,
+                        hora = entidadCompra.hora,
+                        productos = productosMapeados,
+                        imagenUri = entidadCompra.imagenUri
+                    )
+                }
+            }.collectLatest { listaComprasUI ->
+
+                _compras.value = listaComprasUI
             }
         }
 
@@ -171,6 +177,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /*
+    Inserta el catálogo inicial solamente si Room no tiene productos.
+    */
+    private fun inicializarCatalogoSiHaceFalta() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val cantidadProductos =
+                repository.contarProductosCatalogo()
+
+            if (cantidadProductos == 0) {
+
+                catalogoProductos.forEach { producto ->
+
+                    repository.insertarProductoCatalogo(
+                        CatalogoEntity(
+                            codigo = producto.codigo,
+                            nombre = producto.nombre,
+                            descripcion = producto.descripcion,
+                            precio = producto.precio
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     // =========================
     // CRUD COMPRAS PERSISTENTE
     // =========================
@@ -183,7 +216,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 id = compra.id,
                 supermercado = compra.supermercado,
                 fecha = compra.fecha,
-                hora = compra.hora
+                hora = compra.hora,
+                imagenUri = compra.imagenUri
             )
 
             val idGenerado =
@@ -243,7 +277,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     id = compraEditada.id,
                     supermercado = compraEditada.supermercado,
                     fecha = compraEditada.fecha,
-                    hora = compraEditada.hora
+                    hora = compraEditada.hora,
+                    imagenUri = compraEditada.imagenUri
                 )
 
                 repository.actualizarCompra(entidad)
@@ -391,6 +426,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
 
+            /*
+            Cerramos sesión solamente en DataStore.
+            NO borramos Room, para que las compras sigan persistidas.
+            */
             userPreferences.logout()
 
             onLogoutComplete()
