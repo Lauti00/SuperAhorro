@@ -1,14 +1,16 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
-import android.content.Intent //  IMPORTANTE para el Intent
+import android.content.Intent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext //  para obtener el contexto
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.undef.superahorroniccolinibenitez.R
+import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.MainDrawerContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
@@ -17,82 +19,154 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+
+    /*
+    IMPORTANTE:
+    Ahora recibimos el ViewModel compartido
+    */
+    viewModel: HomeViewModel,
+
     onLogout: () -> Unit,
     onNavigateToHistorial: () -> Unit,
     onNavigateToEstadisticas: () -> Unit,
     onNavigateToNuevaCompra: () -> Unit,
     onCompraClick: (Compra) -> Unit,
     onNavigateToPerfil: () -> Unit,
-
-    /*
-    NUEVA NAVEGACIÓN A SETTINGS
-    */
     onNavigateToSettings: () -> Unit
 ) {
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState =
+        rememberDrawerState(
+            initialValue = DrawerValue.Closed
+        )
+
     val scope = rememberCoroutineScope()
 
-    /*
-     IMPORTANTE:
-    En lugar de crear un ViewModel nuevo,
-    usamos el MISMO ViewModel asociado a la pantalla HOME
-    */
-    val viewModel: HomeViewModel = viewModel()
-
-    // Contexto necesario para lanzar el Intent
     val context = LocalContext.current
 
-    // Colectamos los estados del ViewModel
-    val userEmailState by viewModel.userEmail.collectAsState()
-    val comprasState by viewModel.compras.collectAsState()
+    /*
+    UserPreferences
+    */
+    val userPreferences = remember {
+        UserPreferences(context)
+    }
+
+    /*
+    Estado del tema
+    */
+    val darkThemeEnabled by
+    userPreferences.darkTheme.collectAsState(
+        initial = false
+    )
+
+    /*
+    Datos del ViewModel compartido
+    */
+    val userEmailState by
+    viewModel.userEmail.collectAsState()
+
+    val comprasState by
+    viewModel.compras.collectAsState()
 
     MainDrawerContainer(
+
         drawerState = drawerState,
 
-        // Pasamos el email del usuario (si implementaste DataStore)
         userEmail = userEmailState,
 
-        /*
-            Cuando se cierra la sesión, se llama a viewModel y este borra la sesión en dataStore.
-            "Se olvida del usuario que se registro, NO ELIMINA AL USUARIO ELIMINA EL LOGUEO
-            Sirve para notar que no esta un usuario en sesion"
-        */
         onLogout = {
+
             viewModel.logout {
+
                 onLogout()
             }
         },
 
-        onNavigateToHistorial = onNavigateToHistorial,
+        onNavigateToHistorial =
+            onNavigateToHistorial,
 
-        onNavigateToEstadisticas = onNavigateToEstadisticas,
+        onNavigateToEstadisticas =
+            onNavigateToEstadisticas,
 
-        onNavigateToPerfil = onNavigateToPerfil,
+        onNavigateToPerfil =
+            onNavigateToPerfil,
 
-        /*
-        NAVEGACIÓN A SETTINGS
-        */
-        onNavigateToSettings = onNavigateToSettings
+        onNavigateToSettings =
+            onNavigateToSettings
 
     ) {
 
         Scaffold(
+
             topBar = {
+
                 TopAppBar(
 
-                    //  Usamos strings.xml
-                    title = { Text(stringResource(R.string.home_title)) },
+                    title = {
+                        Text(
+                            stringResource(
+                                R.string.home_title
+                            )
+                        )
+                    },
 
                     navigationIcon = {
-                        IconButton(onClick = {
-                            if (!drawerState.isOpen) {
-                                scope.launch { drawerState.open() }
+
+                        IconButton(
+
+                            onClick = {
+
+                                if (!drawerState.isOpen) {
+
+                                    scope.launch {
+
+                                        drawerState.open()
+                                    }
+                                }
                             }
-                        }) {
+
+                        ) {
+
                             Icon(
                                 Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.cd_menu)
+                                contentDescription =
+                                    stringResource(
+                                        R.string.cd_menu
+                                    )
+                            )
+                        }
+                    },
+
+                    /*
+                    BOTÓN GLOBAL MODO OSCURO
+                    */
+                    actions = {
+
+                        IconButton(
+
+                            onClick = {
+
+                                scope.launch {
+
+                                    userPreferences.saveTheme(
+                                        !darkThemeEnabled
+                                    )
+                                }
+                            }
+
+                        ) {
+
+                            Icon(
+
+                                imageVector =
+                                    if (darkThemeEnabled) {
+                                        Icons.Default.Brightness7
+                                    } else {
+                                        Icons.Default.Brightness4
+                                    },
+
+                                contentDescription =
+                                    "Cambiar tema"
                             )
                         }
                     }
@@ -100,58 +174,69 @@ fun HomeScreen(
             },
 
             floatingActionButton = {
+
                 FloatingActionButton(
-                    onClick = onNavigateToNuevaCompra
+                    onClick =
+                        onNavigateToNuevaCompra
                 ) {
+
                     Text("+")
                 }
             }
 
         ) { paddingValues ->
 
-            /*IMPORTANTE:
-            Ahora pasamos las compras del ViewModel (NO mock)
-            es decir los datos ya no estan harcodeados , vienen del lugar central
-            VIEWMODEL
-            * */
             HomeContent(
+
                 paddingValues = paddingValues,
+
                 compras = comprasState,
 
                 /*
-                Cuando el usuario toca una compra (la card completa),
-                navegamos al detalle
+                Cuando el usuario toca una compra,
+                seleccionamos la compra y navegamos
                 */
                 onItemClick = { compra ->
-                    viewModel.seleccionarCompra(compra)
+
+                    viewModel.seleccionarCompra(
+                        compra
+                    )
+
                     onCompraClick(compra)
                 },
 
                 /*
-                 Función que se ejecuta cuando el usuario toca "Compartir"
-                Se recibe la compra y se lanza un Intent para compartirla
+                Compartir compra
                 */
                 onShare = { compra ->
 
                     val texto = """
+
                         Compra en ${compra.supermercado}
+
                         Fecha: ${compra.fecha}
+
                         Total: $${compra.total()}
+
                     """.trimIndent()
 
-                    /*Aca le digo que quiero compartir algo*/
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
+                    val intent =
+                        Intent(Intent.ACTION_SEND).apply {
 
-                        /*Aca le paso los datos, es el contenido.*/
-                        putExtra(Intent.EXTRA_TEXT, texto)
-                    }
+                            type = "text/plain"
 
-                    /*LANZO EL INTENT ACA*/
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                texto
+                            )
+                        }
+
                     context.startActivity(
 
-                        /*Muestro las opciones de compartir compra ws,gmail,etc*/
-                        Intent.createChooser(intent, "Compartir compra")
+                        Intent.createChooser(
+                            intent,
+                            "Compartir compra"
+                        )
                     )
                 }
             )

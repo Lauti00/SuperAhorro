@@ -203,6 +203,12 @@ fun AppNavigation(
 
             HomeScreen(
 
+                /*
+                IMPORTANTE:
+                Usamos el ViewModel compartido
+                */
+                viewModel = sharedHomeViewModel,
+
                 onLogout = {
 
                     navController.navigate(

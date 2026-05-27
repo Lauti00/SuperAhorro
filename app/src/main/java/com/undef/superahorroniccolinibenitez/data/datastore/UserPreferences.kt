@@ -132,14 +132,23 @@ class UserPreferences(private val context: Context) {
     }
 
     /*
-     Logout
-     Borra todos los datos guardados
-    */
+   Logout
+   Borra SOLO los datos de sesión
+   pero mantiene configuraciones
+  */
     suspend fun logout() {
 
         context.userDataStore.edit { preferences ->
 
-            preferences.clear()
+            preferences.remove(USER_EMAIL)
+
+            preferences.remove(USER_NAME)
+
+            preferences.remove(IS_LOGGED_IN)
+
+            /*
+            NO BORRAR DARK_THEME
+            */
         }
     }
 }
