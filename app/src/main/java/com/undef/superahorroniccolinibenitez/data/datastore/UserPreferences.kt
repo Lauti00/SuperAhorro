@@ -34,20 +34,30 @@ class UserPreferences(private val context: Context) {
             booleanPreferencesKey("is_logged_in")
 
         /*
-         NUEVO:
          Guardamos si el tema oscuro está activado
         */
         val DARK_THEME =
             booleanPreferencesKey("dark_theme")
+
+        /*
+         Datos del usuario registrado.
+         Estos datos quedan guardados aunque se cierre sesión.
+        */
+        val REGISTERED_NAME =
+            stringPreferencesKey("registered_name")
+
+        val REGISTERED_EMAIL =
+            stringPreferencesKey("registered_email")
+
+        val REGISTERED_PASSWORD =
+            stringPreferencesKey("registered_password")
     }
 
     /*
       Obtener email como Flow (reactivo)
     */
     val userEmail: Flow<String> =
-
         context.userDataStore.data.map { preferences ->
-
             preferences[USER_EMAIL] ?: ""
         }
 
@@ -55,9 +65,7 @@ class UserPreferences(private val context: Context) {
      Obtener nombre como Flow (reactivo)
     */
     val userName: Flow<String> =
-
         context.userDataStore.data.map { preferences ->
-
             preferences[USER_NAME] ?: ""
         }
 
@@ -65,30 +73,41 @@ class UserPreferences(private val context: Context) {
      Obtener estado de sesión
     */
     val isLoggedIn: Flow<Boolean> =
-
         context.userDataStore.data.map { preferences ->
-
             preferences[IS_LOGGED_IN] ?: false
         }
 
     /*
-     NUEVO:
      Obtener estado del tema
     */
     val darkTheme: Flow<Boolean> =
-
         context.userDataStore.data.map { preferences ->
-
             preferences[DARK_THEME] ?: false
+        }
+
+    /*
+     Obtener datos del usuario registrado.
+    */
+    val registeredName: Flow<String> =
+        context.userDataStore.data.map { preferences ->
+            preferences[REGISTERED_NAME] ?: ""
+        }
+
+    val registeredEmail: Flow<String> =
+        context.userDataStore.data.map { preferences ->
+            preferences[REGISTERED_EMAIL] ?: ""
+        }
+
+    val registeredPassword: Flow<String> =
+        context.userDataStore.data.map { preferences ->
+            preferences[REGISTERED_PASSWORD] ?: ""
         }
 
     /*
       Guardar email (login)
     */
     suspend fun saveUser(email: String) {
-
         context.userDataStore.edit { preferences ->
-
             preferences[USER_EMAIL] = email
         }
     }
@@ -97,9 +116,7 @@ class UserPreferences(private val context: Context) {
       Guardar nombre del usuario (perfil)
     */
     suspend fun saveUserName(name: String) {
-
         context.userDataStore.edit { preferences ->
-
             preferences[USER_NAME] = name
         }
     }
@@ -107,37 +124,53 @@ class UserPreferences(private val context: Context) {
     /*
      Guardar estado de sesión
     */
-    suspend fun saveLoginState(
-        loggedIn: Boolean
-    ) {
-
+    suspend fun saveLoginState(loggedIn: Boolean) {
         context.userDataStore.edit { preferences ->
-
             preferences[IS_LOGGED_IN] = loggedIn
         }
     }
 
     /*
-     NUEVO:
      Guardar estado del tema oscuro
     */
-    suspend fun saveTheme(
-        isDark: Boolean
-    ) {
-
+    suspend fun saveTheme(isDark: Boolean) {
         context.userDataStore.edit { preferences ->
-
             preferences[DARK_THEME] = isDark
+        }
+    }
+
+    /*
+     Guarda el usuario registrado.
+    */
+    suspend fun saveRegisteredUser(
+        name: String,
+        email: String,
+        password: String
+    ) {
+        context.userDataStore.edit { preferences ->
+            preferences[REGISTERED_NAME] = name
+            preferences[REGISTERED_EMAIL] = email
+            preferences[REGISTERED_PASSWORD] = password
+        }
+    }
+
+    /*
+
+     Actualiza también el nombre registrado.
+     Así el perfil no vuelve al nombre anterior después de cerrar sesión.
+    */
+    suspend fun updateRegisteredName(name: String) {
+        context.userDataStore.edit { preferences ->
+            preferences[REGISTERED_NAME] = name
         }
     }
 
     /*
    Logout
    Borra SOLO los datos de sesión
-   pero mantiene configuraciones
+   pero mantiene configuraciones y usuario registrado
   */
     suspend fun logout() {
-
         context.userDataStore.edit { preferences ->
 
             preferences.remove(USER_EMAIL)
@@ -145,10 +178,7 @@ class UserPreferences(private val context: Context) {
             preferences.remove(USER_NAME)
 
             preferences.remove(IS_LOGGED_IN)
-
-            /*
-            NO BORRAR DARK_THEME
-            */
         }
+
     }
 }

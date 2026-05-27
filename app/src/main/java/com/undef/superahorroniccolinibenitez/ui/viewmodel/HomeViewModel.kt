@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -34,7 +33,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // =========================
 
     /*
-    IMPORTANTE:
+
     Estas variables DEBEN estar antes del init
     para evitar NullPointerException
     */
@@ -55,7 +54,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val compraSeleccionada: StateFlow<Compra?> = _compraSeleccionada.asStateFlow()
 
     // =========================
-    // CATALOGO (Modelos de UI y Entidades de Base de Datos)
+    // CATALOGO Modelos de UI y Entidades de Base de Datos
     // =========================
 
     private val _catalogo = MutableStateFlow<List<CatalogoProducto>>(emptyList())
@@ -159,21 +158,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         /*
         CARGA DE DATOS DEL USUARIO
+
+        Ahora observamos DataStore en tiempo real.
+        Así el Home, el Drawer y el Perfil se actualizan cuando cambia la sesión
+        o cuando se modifica el nombre del perfil.
         */
         viewModelScope.launch {
 
-            _userEmail.value =
-                userPreferences.userEmail.first()
+            combine(
+                userPreferences.userEmail,
+                userPreferences.userName
+            ) { email, name ->
 
-            val savedName =
-                userPreferences.userName.first()
+                val nombreFinal =
+                    if (name.isNotEmpty()) {
+                        name
+                    } else {
+                        email.substringBefore("@")
+                    }
 
-            _userName.value =
-                if (savedName.isNotEmpty()) {
-                    savedName
-                } else {
-                    _userEmail.value.substringBefore("@")
-                }
+                email to nombreFinal
+
+            }.collectLatest { (email, nombreFinal) ->
+
+                _userEmail.value = email
+
+                _userName.value = nombreFinal
+            }
         }
     }
 
@@ -416,9 +427,22 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
 
-            userPreferences.saveUserName(nuevoNombre)
+            val nombreLimpio =
+                nuevoNombre.trim()
 
-            _userName.value = nuevoNombre
+            /*
+            Guardamos el nombre activo de la sesión.
+            */
+            userPreferences.saveUserName(nombreLimpio)
+
+            /*
+            También actualizamos el nombre registrado.
+            Si no hacemos esto, al cerrar sesión y volver a iniciar,
+            LoginViewModel vuelve a cargar el nombre viejo.
+            */
+            userPreferences.updateRegisteredName(nombreLimpio)
+
+            _userName.value = nombreLimpio
         }
     }
 

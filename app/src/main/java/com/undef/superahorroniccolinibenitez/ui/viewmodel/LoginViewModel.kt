@@ -8,6 +8,7 @@ import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
@@ -61,7 +62,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         _password.value = newPassword
     }
 
-    // LOGIN REAL (ahora guarda el usuario)
+    // LOGIN REAL LOCAL
     fun login(onSuccess: () -> Unit) {
 
         if (
@@ -75,7 +76,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // Verificamos que el correo sea el correcto antes de seguir
+        // Verificamos que el correo sea válido antes de seguir
         if (
             !Patterns.EMAIL_ADDRESS
                 .matcher(_email.value)
@@ -88,19 +89,59 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // Si está todo bien, limpiamos el error y seguimos
-        _errorMessage.value = null
-
         /*
-         GUARDAMOS LOS DATOS EN DATASTORE
+
+         Validamos contra el usuario registrado en DataStore.
         */
         viewModelScope.launch {
 
+            val emailIngresado =
+                _email.value.trim().lowercase()
+
+            val passwordIngresada =
+                _password.value
+
+            val emailRegistrado =
+                userPreferences.registeredEmail.first()
+
+            val passwordRegistrada =
+                userPreferences.registeredPassword.first()
+
+            val nombreRegistrado =
+                userPreferences.registeredName.first()
+
+            if (emailRegistrado.isBlank() || passwordRegistrada.isBlank()) {
+
+                _errorMessage.value =
+                    "No hay ningún usuario registrado"
+
+                return@launch
+            }
+
+            if (emailIngresado != emailRegistrado) {
+
+                _errorMessage.value =
+                    "Usuario no registrado"
+
+                return@launch
+            }
+
+            if (passwordIngresada != passwordRegistrada) {
+
+                _errorMessage.value =
+                    "Contraseña incorrecta"
+
+                return@launch
+            }
+
+            // Si está todo bien, limpiamos el error y seguimos
+            _errorMessage.value = null
+
             /*
-             Guardamos el email
+             Guardamos el email de la sesión actual
             */
             userPreferences.saveUser(
-                _email.value
+                emailIngresado
             )
 
             /*
@@ -111,14 +152,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             /*
-             También generamos el nombre automáticamente
-             Ej: lautaro@gmail.com → lautaro
+             Guardamos el nombre del usuario activo
             */
-            val nombre =
-                _email.value.substringBefore("@")
-
             userPreferences.saveUserName(
-                nombre
+                nombreRegistrado
             )
 
             /*
@@ -127,6 +164,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             onSuccess()
         }
     }
+
     /*
  LOGOUT
  Limpia la sesión guardada

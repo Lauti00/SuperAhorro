@@ -3,11 +3,17 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 import android.app.Application
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class RegistroViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val userPreferences =
+        UserPreferences(application)
 
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre.asStateFlow()
@@ -76,6 +82,37 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
 
         _errorMessage.value = null
 
-        onSuccess()
+        /*
+
+        Guardamos el usuario registrado y además iniciamos sesión.
+        */
+        viewModelScope.launch {
+
+            val nombreLimpio =
+                _nombre.value.trim()
+
+            val emailLimpio =
+                _email.value.trim().lowercase()
+
+            userPreferences.saveRegisteredUser(
+                name = nombreLimpio,
+                email = emailLimpio,
+                password = _password.value
+            )
+
+            userPreferences.saveUser(
+                email = emailLimpio
+            )
+
+            userPreferences.saveUserName(
+                name = nombreLimpio
+            )
+
+            userPreferences.saveLoginState(
+                loggedIn = true
+            )
+
+            onSuccess()
+        }
     }
 }
