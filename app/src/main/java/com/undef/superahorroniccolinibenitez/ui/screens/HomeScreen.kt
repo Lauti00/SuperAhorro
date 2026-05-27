@@ -45,6 +45,13 @@ fun HomeScreen(
     val context = LocalContext.current
 
     /*
+    Controla el AlertDialog de cierre de sesión
+    */
+    var showLogoutDialog by remember {
+        mutableStateOf(false)
+    }
+
+    /*
     UserPreferences
     */
     val userPreferences = remember {
@@ -68,6 +75,56 @@ fun HomeScreen(
     val comprasState by
     viewModel.compras.collectAsState()
 
+    if (showLogoutDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+
+            title = {
+                Text(
+                    text = stringResource(id = R.string.dialog_logout_title)
+                )
+            },
+
+            text = {
+                Text(
+                    text = stringResource(id = R.string.dialog_logout_message)
+                )
+            },
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+
+                        viewModel.logout {
+
+                            onLogout()
+                        }
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.dialog_logout_confirm)
+                    )
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.dialog_logout_cancel)
+                    )
+                }
+            }
+        )
+    }
+
     MainDrawerContainer(
 
         drawerState = drawerState,
@@ -76,10 +133,7 @@ fun HomeScreen(
 
         onLogout = {
 
-            viewModel.logout {
-
-                onLogout()
-            }
+            showLogoutDialog = true
         },
 
         onNavigateToHistorial =
@@ -166,7 +220,7 @@ fun HomeScreen(
                                     },
 
                                 contentDescription =
-                                    "Cambiar tema"
+                                    stringResource(id = R.string.cd_cambiar_tema)
                             )
                         }
                     }
@@ -180,7 +234,9 @@ fun HomeScreen(
                         onNavigateToNuevaCompra
                 ) {
 
-                    Text("+")
+                    Text(
+                        text = stringResource(id = R.string.btn_nueva_compra_fab)
+                    )
                 }
             }
 
@@ -210,15 +266,13 @@ fun HomeScreen(
                 */
                 onShare = { compra ->
 
-                    val texto = """
-
-                        Compra en ${compra.supermercado}
-
-                        Fecha: ${compra.fecha}
-
-                        Total: $${compra.total()}
-
-                    """.trimIndent()
+                    val texto = context.getString(
+                        R.string.formato_compartir_compra,
+                        compra.supermercado,
+                        compra.fecha,
+                        compra.hora,
+                        "%.2f".format(compra.total())
+                    )
 
                     val intent =
                         Intent(Intent.ACTION_SEND).apply {
@@ -235,7 +289,7 @@ fun HomeScreen(
 
                         Intent.createChooser(
                             intent,
-                            "Compartir compra"
+                            context.getString(R.string.chooser_compartir_compra)
                         )
                     )
                 }

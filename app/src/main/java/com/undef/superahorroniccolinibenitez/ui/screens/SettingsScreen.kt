@@ -38,8 +38,8 @@ fun SettingsScreen(
     ) {
 
         Text(
-            text = stringResource(id = R.string.label_gestion),
-            style = MaterialTheme.typography.titleMedium
+            text = stringResource(id = R.string.label_modo_oscuro),
+            style = MaterialTheme.typography.bodyLarge
         )
 
         EspacioNormal()

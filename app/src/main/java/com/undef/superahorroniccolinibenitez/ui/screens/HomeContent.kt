@@ -7,7 +7,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.ItemCompra
 
@@ -19,7 +21,7 @@ fun HomeContent(
     /*
     * Función que se pasa como parametro, cuando alguien quiera compartir ejecuta esto.
     * */
-    onShare: (Compra) -> Unit // <-- Nueva función para compartir
+    onShare: (Compra) -> Unit
 ) {
 
     if (compras.isEmpty()) {
@@ -31,7 +33,9 @@ fun HomeContent(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("No hay compras registradas")
+            Text(
+                text = stringResource(id = R.string.state_no_compras_registradas)
+            )
         }
 
     } else {

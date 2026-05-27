@@ -30,12 +30,20 @@
     <string name="home_title">Mis Últimas Compras</string>
     <string name="label_fecha">Fecha:</string>
     <string name="label_total">Total:</string>
+    <string name="cd_cambiar_tema">Cambiar tema</string>
+    <string name="btn_nueva_compra_fab">+</string>
 
     <!-- Drawer -->
     <string name="menu_title">Menú SuperAhorro</string>
     <string name="menu_historial">Mis Compras</string>
     <string name="menu_estadisticas">Estadísticas</string>
     <string name="menu_logout">Cerrar Sesión</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_logout_title">Cerrar sesión</string>
+    <string name="dialog_logout_message">¿Seguro que querés cerrar sesión?</string>
+    <string name="dialog_logout_confirm">Cerrar sesión</string>
+    <string name="dialog_logout_cancel">Cancelar</string>
 
     <!-- General -->
     <string name="cd_menu">Abrir menú</string>
@@ -96,12 +104,13 @@
 
     <string name="state_sin_datos">Sin datos</string>
 
-    <!--SettingsScreen -->
+    <!-- SettingsScreen -->
     <string name="title_configuracion">Configuración</string>
     <string name="label_gestion">Gestión</string>
     <string name="btn_gestionar_productos">Gestionar productos</string>
+    <string name="label_modo_oscuro">Modo oscuro</string>
 
-    <!--DetalleCompraScreen -->
+    <!-- DetalleCompraScreen -->
     <string name="title_detalle_compra">Detalle de Compra</string>
     <string name="label_ticket_compra">Ticket de compra</string>
     <string name="desc_imagen_ticket">Imagen del ticket</string>
@@ -120,6 +129,4 @@
     <string name="chooser_compartir_compra">Compartir compra</string>
 
     <string name="formato_compartir_compra">Compra en %1$s\nFecha: %2$s a las %3$s\nTotal: $%4$s</string>
-
-
 </resources>
