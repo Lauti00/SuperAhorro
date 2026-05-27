@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.undef.superahorroniccolinibenitez.ui.screens.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
+import com.undef.superahorroniccolinibenitez.viewmodel.SuperAhorroViewModel
 
 /*
 1. Definimos las rutas de nuestra app.
@@ -50,13 +51,22 @@ sealed class AppScreens(val route: String) {
 2. Creamos el orquestador de navegación
 */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    superAhorroViewModel: SuperAhorroViewModel
+) {
 
     val navController = rememberNavController()
 
-    // INSTANCIAS COMPARTIDAS CENTRALES: Evita que Room pierda los datos al destruir pantallas o sesiones
+    /*
+    INSTANCIAS COMPARTIDAS CENTRALES
+
+    Evita que Room pierda los datos al destruir
+    pantallas o sesiones.
+    */
     val sharedHomeViewModel: HomeViewModel = viewModel()
-    val sharedNuevoProductoViewModel: NuevoProductoViewModel = viewModel()
+
+    val sharedNuevoProductoViewModel: NuevoProductoViewModel =
+        viewModel()
 
     NavHost(
         navController = navController,
@@ -73,9 +83,13 @@ fun AppNavigation() {
 
                 onNavigateToLogin = {
 
-                    navController.navigate(AppScreens.Login.route) {
+                    navController.navigate(
+                        AppScreens.Login.route
+                    ) {
 
-                        popUpTo(AppScreens.Splash.route) {
+                        popUpTo(
+                            AppScreens.Splash.route
+                        ) {
                             inclusive = true
                         }
                     }
@@ -83,9 +97,13 @@ fun AppNavigation() {
 
                 onNavigateToHome = {
 
-                    navController.navigate(AppScreens.Home.route) {
+                    navController.navigate(
+                        AppScreens.Home.route
+                    ) {
 
-                        popUpTo(AppScreens.Splash.route) {
+                        popUpTo(
+                            AppScreens.Splash.route
+                        ) {
                             inclusive = true
                         }
                     }
@@ -103,20 +121,30 @@ fun AppNavigation() {
 
                 onLoginSuccess = {
 
-                    navController.navigate(AppScreens.Home.route) {
+                    navController.navigate(
+                        AppScreens.Home.route
+                    ) {
 
-                        popUpTo(AppScreens.Login.route) {
+                        popUpTo(
+                            AppScreens.Login.route
+                        ) {
                             inclusive = true
                         }
                     }
                 },
 
                 onNavigateToRegister = {
-                    navController.navigate(AppScreens.Registro.route)
+
+                    navController.navigate(
+                        AppScreens.Registro.route
+                    )
                 },
 
                 onNavigateToForgotPassword = {
-                    navController.navigate(AppScreens.OlvidarPassword.route)
+
+                    navController.navigate(
+                        AppScreens.OlvidarPassword.route
+                    )
                 }
             )
         }
@@ -131,9 +159,13 @@ fun AppNavigation() {
 
                 onRegisterSuccess = {
 
-                    navController.navigate(AppScreens.Home.route) {
+                    navController.navigate(
+                        AppScreens.Home.route
+                    ) {
 
-                        popUpTo(AppScreens.Login.route) {
+                        popUpTo(
+                            AppScreens.Login.route
+                        ) {
                             inclusive = true
                         }
                     }
@@ -173,38 +205,59 @@ fun AppNavigation() {
 
                 onLogout = {
 
-                    navController.navigate(AppScreens.Login.route) {
+                    navController.navigate(
+                        AppScreens.Login.route
+                    ) {
 
-                        popUpTo(AppScreens.Home.route) {
+                        popUpTo(
+                            AppScreens.Home.route
+                        ) {
                             inclusive = true
                         }
                     }
                 },
 
                 onNavigateToHistorial = {
-                    navController.navigate(AppScreens.Historial.route)
+
+                    navController.navigate(
+                        AppScreens.Historial.route
+                    )
                 },
 
                 onNavigateToEstadisticas = {
-                    navController.navigate(AppScreens.Estadisticas.route)
+
+                    navController.navigate(
+                        AppScreens.Estadisticas.route
+                    )
                 },
 
                 onNavigateToNuevaCompra = {
-                    navController.navigate(AppScreens.NuevaCompra.route)
+
+                    navController.navigate(
+                        AppScreens.NuevaCompra.route
+                    )
                 },
 
                 onNavigateToPerfil = {
-                    navController.navigate(AppScreens.Perfil.route)
+
+                    navController.navigate(
+                        AppScreens.Perfil.route
+                    )
                 },
 
                 onNavigateToSettings = {
-                    navController.navigate(AppScreens.Settings.route)
+
+                    navController.navigate(
+                        AppScreens.Settings.route
+                    )
                 },
 
                 onCompraClick = { compra ->
 
                     navController.navigate(
-                        AppScreens.DetalleCompra.createRoute(compra.id)
+                        AppScreens.DetalleCompra.createRoute(
+                            compra.id
+                        )
                     )
                 }
             )
@@ -218,8 +271,14 @@ fun AppNavigation() {
 
             ProfileScreen(
                 viewModel = sharedHomeViewModel,
-                onBack = { navController.popBackStack() },
-                onSaveProfile = { navController.popBackStack() }
+
+                onBack = {
+                    navController.popBackStack()
+                },
+
+                onSaveProfile = {
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -230,12 +289,19 @@ fun AppNavigation() {
         composable(AppScreens.Historial.route) {
 
             HistorialScreen(
+
                 viewModel = sharedHomeViewModel,
-                onBack = { navController.popBackStack() },
+
+                onBack = {
+                    navController.popBackStack()
+                },
+
                 onCompraClick = { compraId ->
 
                     navController.navigate(
-                        AppScreens.DetalleCompra.createRoute(compraId)
+                        AppScreens.DetalleCompra.createRoute(
+                            compraId
+                        )
                     )
                 }
             )
@@ -248,8 +314,12 @@ fun AppNavigation() {
         composable(AppScreens.Estadisticas.route) {
 
             EstadisticasScreen(
+
                 viewModel = sharedHomeViewModel,
-                onBack = { navController.popBackStack() }
+
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -260,7 +330,10 @@ fun AppNavigation() {
         composable(AppScreens.Settings.route) {
 
             SettingsScreen(
-                onBack = { navController.popBackStack() },
+
+                onBack = {
+                    navController.popBackStack()
+                },
 
                 onNavigateToNuevoProducto = {
 
@@ -282,9 +355,16 @@ fun AppNavigation() {
             Ahora usamos el ViewModel REAL de Room
             */
             NuevoProductoScreen(
-                homeViewModel = sharedHomeViewModel,
-                nuevoProductoViewModel = sharedNuevoProductoViewModel,
-                onBack = { navController.popBackStack() }
+
+                homeViewModel =
+                    sharedHomeViewModel,
+
+                nuevoProductoViewModel =
+                    sharedNuevoProductoViewModel,
+
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -295,7 +375,9 @@ fun AppNavigation() {
         composable(AppScreens.NuevaCompra.route) {
 
             NuevaCompraScreen(
-                homeViewModel = sharedHomeViewModel,
+
+                homeViewModel =
+                    sharedHomeViewModel,
 
                 onBack = {
                     navController.popBackStack()
@@ -319,11 +401,13 @@ fun AppNavigation() {
         // =========================
 
         composable(
+
             route = AppScreens.DetalleCompra.route,
 
             arguments = listOf(
 
                 navArgument("id") {
+
                     type = NavType.IntType
                 }
             )

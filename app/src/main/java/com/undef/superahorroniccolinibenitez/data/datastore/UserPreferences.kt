@@ -32,6 +32,13 @@ class UserPreferences(private val context: Context) {
         */
         val IS_LOGGED_IN =
             booleanPreferencesKey("is_logged_in")
+
+        /*
+         NUEVO:
+         Guardamos si el tema oscuro está activado
+        */
+        val DARK_THEME =
+            booleanPreferencesKey("dark_theme")
     }
 
     /*
@@ -62,6 +69,17 @@ class UserPreferences(private val context: Context) {
         context.userDataStore.data.map { preferences ->
 
             preferences[IS_LOGGED_IN] ?: false
+        }
+
+    /*
+     NUEVO:
+     Obtener estado del tema
+    */
+    val darkTheme: Flow<Boolean> =
+
+        context.userDataStore.data.map { preferences ->
+
+            preferences[DARK_THEME] ?: false
         }
 
     /*
@@ -96,6 +114,20 @@ class UserPreferences(private val context: Context) {
         context.userDataStore.edit { preferences ->
 
             preferences[IS_LOGGED_IN] = loggedIn
+        }
+    }
+
+    /*
+     NUEVO:
+     Guardar estado del tema oscuro
+    */
+    suspend fun saveTheme(
+        isDark: Boolean
+    ) {
+
+        context.userDataStore.edit { preferences ->
+
+            preferences[DARK_THEME] = isDark
         }
     }
 
