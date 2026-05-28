@@ -161,4 +161,13 @@
     <string name="formato_producto_dropdown">%1$s - $%2$s</string>
     <string name="settings_subtitle">Personalizá la aplicación y administrá tu catálogo.</string>
 
+    <!-- Historial Screen -->
+    <string name="historial_subtitle">Filtrá y revisá tus compras guardadas.</string>
+    <string name="filtro_todas">Todas</string>
+    <string name="filtro_este_mes">Este mes</string>
+    <string name="filtro_mes_anterior">Mes anterior</string>
+    <string name="filtro_este_anio">Este año</string>
+    <string name="historial_resultados">%1$d compras encontradas</string>
+    <string name="historial_sin_resultados">No hay compras para el filtro seleccionado.</string>
+
 </resources>
