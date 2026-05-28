@@ -1,17 +1,24 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.undef.superahorroniccolinibenitez.ui.components.*
 import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
+import com.undef.superahorroniccolinibenitez.ui.components.*
 import kotlinx.coroutines.launch
 
 @Composable
@@ -19,8 +26,8 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onNavigateToNuevoProducto: () -> Unit
 ) {
-
     val context = LocalContext.current
+
     val userPreferences = remember {
         UserPreferences(context)
     }
@@ -36,38 +43,65 @@ fun SettingsScreen(
         title = stringResource(id = R.string.title_configuracion),
         onBack = onBack
     ) {
-
-        Text(
-            text = stringResource(id = R.string.label_modo_oscuro),
-            style = MaterialTheme.typography.bodyLarge
+        SuperAhorroSectionTitle(
+            title = stringResource(id = R.string.title_configuracion),
+            subtitle = stringResource(id = R.string.settings_subtitle)
         )
 
         EspacioNormal()
 
-        /*
-        BOTÓN GESTIONAR PRODUCTOS
-        */
-        SuperAhorroButton(
-            text = stringResource(id = R.string.btn_gestionar_productos),
-            onClick = onNavigateToNuevoProducto
-        )
+        SuperAhorroCard {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Inventory2,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = stringResource(id = R.string.label_gestion),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            EspacioNormal()
+
+            /*
+            BOTÓN GESTIONAR PRODUCTOS
+            */
+            SuperAhorroButton(
+                text = stringResource(id = R.string.btn_gestionar_productos),
+                onClick = onNavigateToNuevoProducto,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         EspacioNormal()
 
         /*
          CONFIGURACIÓN DEL TEMA
         */
-        Card {
-
+        SuperAhorroCard {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    imageVector = Icons.Default.DarkMode,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
 
                 Text(
-                    text = "Modo oscuro",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = stringResource(id = R.string.label_modo_oscuro),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
                 )
 
                 Switch(

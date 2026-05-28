@@ -129,4 +129,36 @@
     <string name="chooser_compartir_compra">Compartir compra</string>
 
     <string name="formato_compartir_compra">Compra en %1$s\nFecha: %2$s a las %3$s\nTotal: $%4$s</string>
+
+    <!-- Home Dashboard -->
+    <string name="home_dashboard_title">Resumen de tus compras</string>
+    <string name="home_dashboard_subtitle">Controlá tus gastos y detectá dónde se va tu presupuesto.</string>
+    <string name="home_total_mes">Gasto registrado</string>
+    <string name="home_money_format">$%1$s</string>
+    <string name="home_presupuesto_usado">Usaste $%1$s de $%2$s como presupuesto de referencia</string>
+    <string name="home_cantidad_compras">Compras cargadas</string>
+    <string name="home_promedio_compra">Promedio por compra</string>
+    <string name="home_insights_title">Lecturas rápidas</string>
+    <string name="home_supermercado_frecuente">Supermercado más frecuente</string>
+    <string name="home_producto_top">Producto más comprado</string>
+    <string name="home_chip_room">Datos desde Room</string>
+    <string name="home_chip_datastore">Sesión persistente</string>
+    <string name="home_ultimas_compras">Últimas compras</string>
+    <string name="home_ultimas_compras_subtitle">Tus movimientos más recientes</string>
+    <string name="home_empty_subtitle">Cuando registres una compra, vas a ver acá tu resumen y tus últimos movimientos.</string>
+
+
+    <!-- Configuracion -->
+    <string name="menu_perfil">Mi Perfil</string>
+    <string name="menu_configuracion">Configuración</string>
+    <string name="profile_form_title">Datos personales</string>
+    <string name="profile_form_subtitle">Mantené actualizado el nombre visible de tu cuenta.</string>
+    <string name="btn_guardar_cambios">Guardar cambios</string>
+    <string name="catalogo_form_subtitle">Cargá productos para usarlos después en tus compras.</string>
+    <string name="catalogo_list_subtitle">Productos disponibles para registrar nuevas compras.</string>
+    <string name="nueva_compra_form_subtitle">Registrá el supermercado, elegí productos y adjuntá el ticket si querés.</string>
+    <string name="nueva_compra_productos_subtitle">Estos productos se guardarán como detalle de la compra.</string>
+    <string name="formato_producto_dropdown">%1$s - $%2$s</string>
+    <string name="settings_subtitle">Personalizá la aplicación y administrá tu catálogo.</string>
+
 </resources>

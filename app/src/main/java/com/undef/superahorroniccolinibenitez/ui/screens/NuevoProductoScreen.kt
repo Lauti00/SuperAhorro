@@ -40,129 +40,135 @@ fun NuevoProductoScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = if (state.idProductoEditando == null) {
-                    stringResource(id = R.string.title_agregar_nuevo_producto)
-                } else {
-                    stringResource(id = R.string.title_editando_producto, state.nombre)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (state.idProductoEditando == null) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.secondary
-                }
-            )
 
-            EspacioNormal()
+            SuperAhorroCard {
 
-            SuperAhorroTextField(
-                value = state.codigo,
-                onValueChange = { nuevoProductoViewModel.onCodigoChange(it) },
-                label = stringResource(id = R.string.label_codigo_placeholder)
-            )
-
-            EspacioNormal()
-
-            SuperAhorroTextField(
-                value = state.nombre,
-                onValueChange = { nuevoProductoViewModel.onNombreChange(it) },
-                label = stringResource(id = R.string.label_nombre_placeholder)
-            )
-
-            EspacioNormal()
-
-            SuperAhorroTextField(
-                value = state.descripcion,
-                onValueChange = { nuevoProductoViewModel.onDescripcionChange(it) },
-                label = stringResource(id = R.string.label_descripcion)
-            )
-
-            EspacioNormal()
-
-            SuperAhorroTextField(
-                value = state.precio,
-                onValueChange = { nuevoProductoViewModel.onPrecioChange(it) },
-                label = stringResource(id = R.string.label_precio_placeholder)
-            )
-
-            EspacioNormal()
-
-            if (state.error.isNotEmpty()) {
-                Text(
-                    text = state.error,
-                    color = MaterialTheme.colorScheme.error
-                )
-                EspacioNormal()
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SuperAhorroButton(
-                    text = if (state.idProductoEditando == null) {
-                        stringResource(id = R.string.btn_guardar_producto)
+                SuperAhorroSectionTitle(
+                    title = if (state.idProductoEditando == null) {
+                        stringResource(id = R.string.title_agregar_nuevo_producto)
                     } else {
-                        stringResource(id = R.string.btn_actualizar)
+                        stringResource(id = R.string.title_editando_producto, state.nombre)
                     },
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        nuevoProductoViewModel.validarYGuardar(
-                            catalogoExistente = catalogo,
-                            onCrear = { codigo, nombre, descripcion, precio ->
-                                homeViewModel.agregarProductoAlCatalogo(
-                                    codigo = codigo,
-                                    nombre = nombre,
-                                    descripcion = descripcion,
-                                    precio = precio
-                                )
-                                true
-                            },
-                            onEditar = { id, codigo, nombre, descripcion, precio ->
-                                // CONECTADO A ROOM: Ahora actualiza de verdad en la base de datos
-                                homeViewModel.actualizarProductoDelCatalogo(
-                                    id = id,
-                                    nuevoCodigo = codigo,
-                                    nuevoNombre = nombre,
-                                    nuevaDescripcion = descripcion,
-                                    nuevoPrecio = precio
-                                )
-                                nuevoProductoViewModel.cancelarEdicion() // Resetea el formulario al terminar
-                                true
-                            }
-                        )
-                    }
+                    subtitle = stringResource(id = R.string.catalogo_form_subtitle)
                 )
 
-                if (state.idProductoEditando != null) {
-                    OutlinedButton(
-                        onClick = { nuevoProductoViewModel.cancelarEdicion() },
-                        modifier = Modifier.height(48.dp)
-                    ) {
-                        Text(stringResource(id = R.string.btn_cancelar_abreviado))
+                EspacioNormal()
+
+                SuperAhorroTextField(
+                    value = state.codigo,
+                    onValueChange = { nuevoProductoViewModel.onCodigoChange(it) },
+                    label = stringResource(id = R.string.label_codigo_placeholder)
+                )
+
+                EspacioNormal()
+
+                SuperAhorroTextField(
+                    value = state.nombre,
+                    onValueChange = { nuevoProductoViewModel.onNombreChange(it) },
+                    label = stringResource(id = R.string.label_nombre_placeholder)
+                )
+
+                EspacioNormal()
+
+                SuperAhorroTextField(
+                    value = state.descripcion,
+                    onValueChange = { nuevoProductoViewModel.onDescripcionChange(it) },
+                    label = stringResource(id = R.string.label_descripcion)
+                )
+
+                EspacioNormal()
+
+                SuperAhorroTextField(
+                    value = state.precio,
+                    onValueChange = { nuevoProductoViewModel.onPrecioChange(it) },
+                    label = stringResource(id = R.string.label_precio_placeholder)
+                )
+
+                EspacioNormal()
+
+                if (state.error.isNotEmpty()) {
+                    Text(
+                        text = state.error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    EspacioNormal()
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SuperAhorroButton(
+                        text = if (state.idProductoEditando == null) {
+                            stringResource(id = R.string.btn_guardar_producto)
+                        } else {
+                            stringResource(id = R.string.btn_actualizar)
+                        },
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            nuevoProductoViewModel.validarYGuardar(
+                                catalogoExistente = catalogo,
+                                onCrear = { codigo, nombre, descripcion, precio ->
+                                    homeViewModel.agregarProductoAlCatalogo(
+                                        codigo = codigo,
+                                        nombre = nombre,
+                                        descripcion = descripcion,
+                                        precio = precio
+                                    )
+                                    true
+                                },
+                                onEditar = { id, codigo, nombre, descripcion, precio ->
+                                    // CONECTADO A ROOM: Ahora actualiza de verdad en la base de datos
+                                    homeViewModel.actualizarProductoDelCatalogo(
+                                        id = id,
+                                        nuevoCodigo = codigo,
+                                        nuevoNombre = nombre,
+                                        nuevaDescripcion = descripcion,
+                                        nuevoPrecio = precio
+                                    )
+                                    nuevoProductoViewModel.cancelarEdicion() // Resetea el formulario al terminar
+                                    true
+                                }
+                            )
+                        }
+                    )
+
+                    if (state.idProductoEditando != null) {
+                        OutlinedButton(
+                            onClick = { nuevoProductoViewModel.cancelarEdicion() },
+                            modifier = Modifier.height(50.dp),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Text(stringResource(id = R.string.btn_cancelar_abreviado))
+                        }
                     }
                 }
             }
 
             EspacioGrande()
 
-            Text(
-                text = stringResource(id = R.string.label_productos_en_lista, catalogo.size),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+            SuperAhorroSectionTitle(
+                title = stringResource(id = R.string.label_productos_en_lista, catalogo.size),
+                subtitle = stringResource(id = R.string.catalogo_list_subtitle)
             )
 
             EspacioNormal()
 
             if (catalogo.isEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.msg_catalogo_vacio),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+
+                SuperAhorroCard {
+                    Text(
+                        text = stringResource(id = R.string.msg_catalogo_vacio),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
             } else {
+
                 catalogo.forEach { producto ->
+
                     ProductoCatalogoItem(
                         producto = producto,
                         onEliminar = {
@@ -173,6 +179,7 @@ fun NuevoProductoScreen(
                             nuevoProductoViewModel.cargarParaEdicion(producto)
                         }
                     )
+
                     EspacioPequeño()
                 }
             }
@@ -188,16 +195,9 @@ fun ProductoCatalogoItem(
     onEliminar: () -> Unit,
     onEditar: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
-    ) {
+    SuperAhorroCard {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -207,18 +207,27 @@ fun ProductoCatalogoItem(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
+
                 Text(
                     text = stringResource(
                         id = R.string.label_formato_codigo_descripcion,
                         producto.codigo,
                         producto.descripcion
                     ),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 val precioFormateado = "%.2f".format(producto.precio)
+
                 Text(
-                    text = stringResource(id = R.string.label_formato_precio_catalogo, precioFormateado),
-                    style = MaterialTheme.typography.bodyMedium
+                    text = stringResource(
+                        id = R.string.label_formato_precio_catalogo,
+                        precioFormateado
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -230,6 +239,7 @@ fun ProductoCatalogoItem(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
+
                 IconButton(onClick = onEliminar) {
                     Icon(
                         Icons.Default.Delete,

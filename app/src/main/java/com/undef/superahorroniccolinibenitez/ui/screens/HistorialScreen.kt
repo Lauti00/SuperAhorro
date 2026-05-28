@@ -1,10 +1,12 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,10 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.ui.components.ItemCompra
 import com.undef.superahorroniccolinibenitez.ui.components.SimpleScreenContainer
+import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroCard
+import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroSectionTitle
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
-import com.undef.superahorroniccolinibenitez.R
 
 @Composable
 fun HistorialScreen(
@@ -30,7 +36,6 @@ fun HistorialScreen(
         title = stringResource(id = R.string.title_historial_compras),
         onBack = onBack
     ) {
-
         /*
           Obtenemos las compras del ViewModel
         */
@@ -38,18 +43,32 @@ fun HistorialScreen(
 
         if (compras.isEmpty()) {
 
-            // Caso sin compras
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = stringResource(id = R.string.state_no_compras_registradas))
+                SuperAhorroCard {
+                    Text(
+                        text = stringResource(id = R.string.state_no_compras_registradas),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
         } else {
 
-            // Mostramos la lista de compras del ViewModel
-            LazyColumn {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    SuperAhorroSectionTitle(
+                        title = stringResource(id = R.string.title_historial_compras),
+                        subtitle = stringResource(id = R.string.home_ultimas_compras_subtitle)
+                    )
+                }
+
                 items(compras) { compra ->
 
                     ItemCompra(
@@ -61,7 +80,6 @@ fun HistorialScreen(
                         },
 
                         onShare = {
-                            // Armamos la cadena usando el recurso multilinea con sus respectivos marcadores de posición
                             val texto = context.getString(
                                 R.string.formato_compartir_compra,
                                 compra.supermercado,

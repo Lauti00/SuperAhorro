@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.model.Compra
 
 @Composable
@@ -24,34 +26,68 @@ fun ItemCompra(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
             .clickable { onItemClick(compra) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape)
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                Text(compra.supermercado.take(1), fontWeight = FontWeight.Bold)
+                Text(
+                    text = compra.supermercado.take(1),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
             }
-            Spacer(modifier = Modifier.width(16.dp))
+
+            Spacer(modifier = Modifier.width(14.dp))
+
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = compra.supermercado, style = MaterialTheme.typography.titleMedium)
-                Text(text = compra.fecha, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = compra.supermercado,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Text(
+                    text = compra.fecha,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Text(
-                text = "$${compra.total()}",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = { onShare(compra) }) {
-                Icon(Icons.Default.Share, contentDescription = "Compartir")
+
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = stringResource(
+                        id = R.string.home_money_format,
+                        "%.2f".format(compra.total())
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+
+                IconButton(onClick = { onShare(compra) }) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = stringResource(id = R.string.chooser_compartir_compra)
+                    )
+                }
             }
         }
     }

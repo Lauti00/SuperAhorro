@@ -1,12 +1,20 @@
 package com.undef.superahorroniccolinibenitez.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.undef.superahorroniccolinibenitez.R
 import kotlinx.coroutines.launch
 
 // --- 1. EL CONTENEDOR DEL MENÚ LATERAL ---
@@ -20,7 +28,7 @@ fun MainDrawerContainer(
     onNavigateToPerfil: () -> Unit,
 
     /*
-     NUEVO:
+
     Navegación a configuración
     */
     onNavigateToSettings: () -> Unit,
@@ -36,14 +44,17 @@ fun MainDrawerContainer(
 
         drawerContent = {
 
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.surface
+            ) {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 Text(
-                    text = "Menú SuperAhorro",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleLarge
+                    text = stringResource(id = R.string.menu_title),
+                    modifier = Modifier.padding(horizontal = 18.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
                 )
 
                 /*
@@ -52,20 +63,25 @@ fun MainDrawerContainer(
                 Text(
                     text = userEmail,
                     modifier = Modifier.padding(
-                        horizontal = 16.dp,
+                        horizontal = 18.dp,
                         vertical = 8.dp
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
 
-                /*
-                MIS COMPRAS
-                */
                 NavigationDrawerItem(
-                    label = { Text("Mis Compras") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = null
+                        )
+                    },
+                    label = { Text(stringResource(id = R.string.menu_historial)) },
                     selected = false,
 
                     onClick = {
@@ -75,14 +91,18 @@ fun MainDrawerContainer(
                         }
 
                         onNavigateToHistorial()
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
-                /*
-                ESTADÍSTICAS
-                */
                 NavigationDrawerItem(
-                    label = { Text("Estadísticas") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.BarChart,
+                            contentDescription = null
+                        )
+                    },
+                    label = { Text(stringResource(id = R.string.menu_estadisticas)) },
                     selected = false,
 
                     onClick = {
@@ -92,14 +112,18 @@ fun MainDrawerContainer(
                         }
 
                         onNavigateToEstadisticas()
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
-                /*
-                PERFIL
-                */
                 NavigationDrawerItem(
-                    label = { Text("Mi Perfil") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null
+                        )
+                    },
+                    label = { Text(stringResource(id = R.string.menu_perfil)) },
                     selected = false,
 
                     onClick = {
@@ -109,14 +133,18 @@ fun MainDrawerContainer(
                         }
 
                         onNavigateToPerfil()
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
-                /*
-                 SETTINGS / CONFIGURACIÓN
-                */
                 NavigationDrawerItem(
-                    label = { Text("Configuración") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null
+                        )
+                    },
+                    label = { Text(stringResource(id = R.string.menu_configuracion)) },
                     selected = false,
 
                     onClick = {
@@ -126,14 +154,20 @@ fun MainDrawerContainer(
                         }
 
                         onNavigateToSettings()
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
-                /*
-                CERRAR SESIÓN
-                */
+                Spacer(modifier = Modifier.weight(1f))
+
                 NavigationDrawerItem(
-                    label = { Text("Cerrar Sesión") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = null
+                        )
+                    },
+                    label = { Text(stringResource(id = R.string.menu_logout)) },
                     selected = false,
 
                     onClick = {
@@ -143,51 +177,12 @@ fun MainDrawerContainer(
                         }
 
                         onLogout()
-                    }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
                 )
             }
         },
 
         content = content
     )
-}
-
-// --- 2. LA TARJETA DE RESUMEN ---
-@Composable
-fun ResumenGastosCard(
-    userName: String,
-    montoTotal: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Text(
-                text = "¡Hola, $userName!",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            EspacioPequeño()
-
-            Text(
-                text = "Este mes has gastado:"
-            )
-
-            Text(
-                text = montoTotal,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
 }

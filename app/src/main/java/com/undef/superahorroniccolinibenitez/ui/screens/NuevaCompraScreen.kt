@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource // IMPORTANTE: Librería para i18n
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -89,109 +90,135 @@ fun NuevaCompraScreen(
         onBack = onBack
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+
             Column(
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
-                    .padding(horizontal = 4.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
             ) {
-                SuperAhorroTextField(
-                    value = state.supermercado,
-                    onValueChange = { nuevaCompraViewModel.onSupermercadoChange(it) },
-                    label = stringResource(id = R.string.label_supermercado)
-                )
 
-                EspacioPequeño()
+                SuperAhorroCard {
 
-                Text(
-                    text = stringResource(
-                        id = R.string.label_fecha_hora,
-                        fechaDisplay,
-                        horaDisplay
-                    ),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                EspacioNormal()
-
-                ExposedDropdownMenuBox(
-                    expanded = state.expanded,
-                    onExpandedChange = { nuevaCompraViewModel.onExpandedChange(!state.expanded) }
-                ) {
-                    OutlinedTextField(
-                        value = state.productoSeleccionado?.nombre ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(id = R.string.placeholder_seleccionar_producto)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    SuperAhorroSectionTitle(
+                        title = stringResource(id = R.string.title_nueva_compra),
+                        subtitle = stringResource(id = R.string.nueva_compra_form_subtitle)
                     )
 
-                    ExposedDropdownMenu(
+                    EspacioNormal()
+
+                    SuperAhorroTextField(
+                        value = state.supermercado,
+                        onValueChange = { nuevaCompraViewModel.onSupermercadoChange(it) },
+                        label = stringResource(id = R.string.label_supermercado)
+                    )
+
+                    EspacioPequeño()
+
+                    Text(
+                        text = stringResource(
+                            id = R.string.label_fecha_hora,
+                            fechaDisplay,
+                            horaDisplay
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    EspacioNormal()
+
+                    ExposedDropdownMenuBox(
                         expanded = state.expanded,
-                        onDismissRequest = { nuevaCompraViewModel.onExpandedChange(false) }
+                        onExpandedChange = { nuevaCompraViewModel.onExpandedChange(!state.expanded) }
                     ) {
-                        catalogo.forEach { producto ->
-                            DropdownMenuItem(
-                                text = { Text("${producto.nombre} - $${producto.precio}") },
-                                onClick = { nuevaCompraViewModel.onProductoSeleccionado(producto) }
-                            )
+                        OutlinedTextField(
+                            value = state.productoSeleccionado?.nombre ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(id = R.string.placeholder_seleccionar_producto)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = state.expanded,
+                            onDismissRequest = { nuevaCompraViewModel.onExpandedChange(false) }
+                        ) {
+                            catalogo.forEach { producto ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            stringResource(
+                                                id = R.string.formato_producto_dropdown,
+                                                producto.nombre,
+                                                "%.2f".format(producto.precio)
+                                            )
+                                        )
+                                    },
+                                    onClick = { nuevaCompraViewModel.onProductoSeleccionado(producto) }
+                                )
+                            }
                         }
                     }
-                }
 
-                SuperAhorroTextButton(
-                    text = stringResource(id = R.string.btn_crear_producto),
-                    onClick = onNavigateToNuevoProducto
-                )
-
-                SuperAhorroTextField(
-                    value = state.cantidadProducto,
-                    onValueChange = { nuevaCompraViewModel.onCantidadChange(it) },
-                    label = stringResource(id = R.string.label_cantidad)
-                )
-
-                EspacioPequeño()
-
-                SuperAhorroButton(
-                    text = stringResource(id = R.string.btn_agregar_producto),
-                    onClick = { nuevaCompraViewModel.agregarProductoLocal() }
-                )
-
-                if (state.errorProducto.isNotEmpty()) {
-                    Text(
-                        state.errorProducto,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.labelSmall
+                    SuperAhorroTextButton(
+                        text = stringResource(id = R.string.btn_crear_producto),
+                        onClick = onNavigateToNuevoProducto
                     )
+
+                    SuperAhorroTextField(
+                        value = state.cantidadProducto,
+                        onValueChange = { nuevaCompraViewModel.onCantidadChange(it) },
+                        label = stringResource(id = R.string.label_cantidad)
+                    )
+
+                    EspacioPequeño()
+
+                    SuperAhorroButton(
+                        text = stringResource(id = R.string.btn_agregar_producto),
+                        onClick = { nuevaCompraViewModel.agregarProductoLocal() },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (state.errorProducto.isNotEmpty()) {
+                        EspacioPequeño()
+                        Text(
+                            text = state.errorProducto,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
 
                 EspacioNormal()
 
                 if (state.productos.isNotEmpty()) {
-                    Text(
-                        stringResource(id = R.string.title_productos_agregados),
-                        style = MaterialTheme.typography.titleSmall
+
+                    SuperAhorroSectionTitle(
+                        title = stringResource(id = R.string.title_productos_agregados),
+                        subtitle = stringResource(id = R.string.nueva_compra_productos_subtitle)
                     )
+
                     EspacioPequeño()
 
                     state.productos.forEach { item ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 0.5f
-                                )
-                            )
-                        ) {
+
+                        SuperAhorroCard {
                             Row(
-                                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        item.producto.nombre,
-                                        style = MaterialTheme.typography.bodyLarge
+                                        text = item.producto.nombre,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
                                     )
 
                                     val subtotalFormateado = "%.2f".format(item.subtotal())
+
                                     Text(
                                         text = stringResource(
                                             id = R.string.label_formato_subtotal,
@@ -199,7 +226,8 @@ fun NuevaCompraScreen(
                                             item.producto.precio,
                                             subtotalFormateado
                                         ),
-                                        style = MaterialTheme.typography.bodySmall
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
 
@@ -212,6 +240,7 @@ fun NuevaCompraScreen(
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
+
                                 IconButton(onClick = {
                                     nuevaCompraViewModel.eliminarProductoLocal(item)
                                 }) {
@@ -223,37 +252,54 @@ fun NuevaCompraScreen(
                                 }
                             }
                         }
+
+                        EspacioPequeño()
                     }
                 }
 
                 EspacioNormal()
 
-                val totalFormateado = "%.2f".format(state.totalCalculado)
-                Text(
-                    text = stringResource(id = R.string.label_total_dinamico, totalFormateado),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                state.imagenUri?.let { uri ->
-                    EspacioNormal()
+                SuperAhorroCard {
                     Text(
-                        stringResource(id = R.string.label_ticket_cargado),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    coil.compose.AsyncImage(
-                        model = uri,
-                        contentDescription = stringResource(id = R.string.cd_ticket),
-                        modifier = Modifier.fillMaxWidth().height(150.dp)
-                            .padding(vertical = 8.dp),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        text = stringResource(id = R.string.label_total_dinamico, "%.2f".format(state.totalCalculado)),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
+
+                state.imagenUri?.let { uri ->
+                    EspacioNormal()
+
+                    SuperAhorroSectionTitle(
+                        title = stringResource(id = R.string.label_ticket_cargado)
+                    )
+
+                    EspacioPequeño()
+
+                    SuperAhorroCard {
+                        coil.compose.AsyncImage(
+                            model = uri,
+                            contentDescription = stringResource(id = R.string.cd_ticket),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(170.dp),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
                 if (state.errorGeneral.isNotEmpty()) {
                     Text(
-                        state.errorGeneral,
+                        text = state.errorGeneral,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -275,7 +321,8 @@ fun NuevaCompraScreen(
                         onClick = {
                             val permiso = android.Manifest.permission.CAMERA
                             val tienePermiso = androidx.core.content.ContextCompat.checkSelfPermission(
-                                localContext, permiso
+                                localContext,
+                                permiso
                             ) == PackageManager.PERMISSION_GRANTED
 
                             if (tienePermiso) {
