@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.MainDrawerContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
+import com.undef.superahorroniccolinibenitez.ui.viewmodel.OfertasViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +36,12 @@ fun HomeScreen(
     onNavigateToPerfil: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
+    /*
+    ViewModel específico para Networking.
+    Carga promociones desde una API usando Retrofit.
+    */
+    val ofertasViewModel: OfertasViewModel = viewModel()
+    val ofertasState by ofertasViewModel.uiState.collectAsState()
 
     val drawerState =
         rememberDrawerState(
@@ -247,6 +255,16 @@ fun HomeScreen(
                 paddingValues = paddingValues,
 
                 compras = comprasState,
+
+                ofertas = ofertasState.ofertas,
+
+                ofertasLoading = ofertasState.isLoading,
+
+                ofertasError = ofertasState.error,
+
+                onRetryOfertas = {
+                    ofertasViewModel.cargarOfertas()
+                },
 
                 /*
                 Cuando el usuario toca una compra,

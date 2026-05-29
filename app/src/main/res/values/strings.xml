@@ -32,6 +32,12 @@
     <string name="label_total">Total:</string>
     <string name="cd_cambiar_tema">Cambiar tema</string>
     <string name="btn_nueva_compra_fab">+</string>
+    <string name="home_ofertas_title">Ofertas destacadas</string>
+    <string name="home_ofertas_subtitle">Promociones consultadas desde internet.</string>
+    <string name="home_ofertas_loading">Cargando ofertas...</string>
+    <string name="home_ofertas_empty">No hay ofertas disponibles por el momento.</string>
+    <string name="home_oferta_precio_descuento">$%1$s · %2$s OFF</string>
+    <string name="btn_reintentar">Reintentar</string>
 
     <!-- Drawer -->
     <string name="menu_title">Menú SuperAhorro</string>

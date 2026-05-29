@@ -63,7 +63,12 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
-
+    // Dependencias de Networking
+    // Retrofit nos permite consumir APIs REST.
+    // Gson convierte automáticamente el JSON recibido en objetos Kotlin.
+    val retrofitVersion = "2.11.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
