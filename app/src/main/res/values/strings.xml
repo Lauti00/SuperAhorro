@@ -38,6 +38,7 @@
     <string name="home_ofertas_empty">No hay ofertas disponibles por el momento.</string>
     <string name="home_oferta_precio_descuento">$%1$s · %2$s OFF</string>
     <string name="btn_reintentar">Reintentar</string>
+    <string name="home_oferta_ver">Ver oferta</string>
 
     <!-- Drawer -->
     <string name="menu_title">Menú SuperAhorro</string>

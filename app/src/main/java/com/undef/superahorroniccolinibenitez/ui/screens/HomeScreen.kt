@@ -17,6 +17,8 @@ import com.undef.superahorroniccolinibenitez.ui.components.MainDrawerContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.OfertasViewModel
 import kotlinx.coroutines.launch
+import android.net.Uri
+import com.undef.superahorroniccolinibenitez.model.OfertaSupermercado
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,6 +269,20 @@ fun HomeScreen(
                 },
 
                 /*
+                Cuando el usuario toca una oferta,
+                abrimos el enlace asociado
+                */
+                onOfertaClick = { oferta ->
+
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(oferta.url)
+                    )
+
+                    context.startActivity(intent)
+                },
+
+                /*
                 Cuando el usuario toca una compra,
                 seleccionamos la compra y navegamos
                 */
@@ -307,11 +323,14 @@ fun HomeScreen(
 
                         Intent.createChooser(
                             intent,
-                            context.getString(R.string.chooser_compartir_compra)
+                            context.getString(
+                                R.string.chooser_compartir_compra
+                            )
                         )
                     )
                 }
             )
         }
     }
+
 }

@@ -40,6 +40,7 @@ fun HomeContent(
     ofertasLoading: Boolean,
     ofertasError: String?,
     onRetryOfertas: () -> Unit,
+    onOfertaClick: (OfertaSupermercado) -> Unit,
     onItemClick: (Compra) -> Unit,
     /*
     * Función que se pasa como parametro, cuando alguien quiera compartir ejecuta esto.
@@ -330,7 +331,12 @@ fun HomeContent(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(ofertas) { oferta ->
-                            OfertaCard(oferta = oferta)
+                            OfertaCard(
+                                oferta = oferta,
+                                onClick = {
+                                    onOfertaClick(oferta)
+                                }
+                            )
                         }
                     }
                 }
@@ -463,10 +469,12 @@ private fun InsightRow(
 
 @Composable
 private fun OfertaCard(
-    oferta: OfertaSupermercado
+    oferta: OfertaSupermercado,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(240.dp),
+        modifier = Modifier.width(250.dp),
+        onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
@@ -503,6 +511,13 @@ private fun OfertaCard(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = stringResource(id = R.string.home_oferta_ver),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
         }
     }

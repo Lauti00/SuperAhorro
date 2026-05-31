@@ -12,5 +12,6 @@ data class OfertaSupermercado(
     val producto: String,
     val descripcion: String,
     val descuento: String,
-    val precio: Double
+    val precio: Double,
+    val url: String
 )
