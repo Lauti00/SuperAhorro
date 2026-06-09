@@ -5,8 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AssistChip
@@ -179,7 +179,7 @@ fun HomeContent(
                     valor = cantidadCompras.toString(),
                     icono = {
                         Icon(
-                            imageVector = Icons.Default.ReceiptLong,
+                            imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
                             contentDescription = null
                         )
                     }
@@ -473,14 +473,14 @@ private fun OfertaCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(250.dp),
+        modifier = Modifier.width(250.dp).height(180.dp),
         onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(14.dp).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
@@ -488,20 +488,28 @@ private fun OfertaCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
+            // Columna intermedia que absorbe el espacio restante de los textos variables
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = oferta.producto,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 2 // Si el texto es de 1 sola línea, el weight regalará
+                                // el espacio sobrante hacia abajo
+                )
 
-            Text(
-                text = oferta.producto,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
-            Text(
-                text = oferta.descripcion,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
+                Text(
+                    text = oferta.descripcion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 3 //Recortamos descripciones demasiados largas
+                )
+            }
+// Al estar fuera de la columna con weight, esto quedará perfectamente alineado abajo al final
             Text(
                 text = stringResource(
                     id = R.string.home_oferta_precio_descuento,
