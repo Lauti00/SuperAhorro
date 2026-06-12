@@ -8,10 +8,8 @@ la respuesta cruda de internet, mientras que este modelo
 representa lo que necesita mostrar la app.
 */
 data class OfertaSupermercado(
-    val supermercado: String,
     val producto: String,
     val descripcion: String,
-    val descuento: String,
     val precio: Double,
     val url: String
 )

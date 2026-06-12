@@ -473,22 +473,26 @@ private fun OfertaCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(250.dp).height(180.dp),
+        modifier = Modifier.width(250.dp).height(160.dp),
         onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp).fillMaxHeight(),
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Categoría traducida al español como etiqueta superior
             Text(
-                text = oferta.supermercado,
+                text = oferta.descripcion,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            // Columna intermedia que absorbe el espacio restante de los textos variables
+
+            // Columna intermedia que absorbe el espacio restante
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -498,34 +502,19 @@ private fun OfertaCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    maxLines = 2 // Si el texto es de 1 sola línea, el weight regalará
-                                // el espacio sobrante hacia abajo
-                )
-
-                Text(
-                    text = oferta.descripcion,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    maxLines = 3 //Recortamos descripciones demasiados largas
+                    maxLines = 2
                 )
             }
-// Al estar fuera de la columna con weight, esto quedará perfectamente alineado abajo al final
+
+            // Precio real de la API, alineado abajo
             Text(
                 text = stringResource(
-                    id = R.string.home_oferta_precio_descuento,
-                    "%.2f".format(oferta.precio),
-                    oferta.descuento
+                    id = R.string.home_oferta_precio,
+                    "%.2f".format(oferta.precio)
                 ),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = stringResource(id = R.string.home_oferta_ver),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
             )
         }
     }
