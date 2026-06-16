@@ -4,6 +4,9 @@ import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,13 +19,16 @@ import coil.compose.AsyncImage
 import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.ui.components.SimpleScreenContainer
+import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroButton
 import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroCard
 import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroSectionTitle
+import com.undef.superahorroniccolinibenitez.ui.components.EspacioNormal
 
 @Composable
 fun DetalleCompraScreen(
     compra: Compra,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onEditarCompra: () -> Unit
 ) {
     SimpleScreenContainer(
         title = stringResource(id = R.string.title_detalle_compra),
@@ -32,6 +38,14 @@ fun DetalleCompraScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            item {
+                SuperAhorroButton(
+                    text = stringResource(id = R.string.btn_editar_compra),
+                    onClick = onEditarCompra,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             item {
                 SuperAhorroCard {
                     Text(

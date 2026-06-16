@@ -19,7 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource // IMPORTANTE: Librería para i18n
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -28,36 +28,40 @@ import com.undef.superahorroniccolinibenitez.ui.components.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
 import com.undef.superahorroniccolinibenitez.R
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import com.undef.superahorroniccolinibenitez.model.Compra
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NuevaCompraScreen(
+fun EditarCompraScreen(
+    compra: Compra,
     homeViewModel: HomeViewModel,
-    nuevaCompraViewModel: NuevaCompraViewModel = viewModel(),
+    editarCompraViewModel: NuevaCompraViewModel = viewModel(),
     onBack: () -> Unit,
     onCompraGuardada: () -> Unit,
     onNavigateToNuevoProducto: () -> Unit,
     onNavigateToNuevoSupermercado: () -> Unit
 ) {
     val localContext = LocalContext.current
-    //  Scope local de Compose para controlar la sincronía del botón guardar
     val scope = rememberCoroutineScope()
 
-    val state by nuevaCompraViewModel.uiState.collectAsState()
+    val state by editarCompraViewModel.uiState.collectAsState()
     val catalogo by homeViewModel.catalogo.collectAsState()
     val supermercados by homeViewModel.supermercados.collectAsState()
 
-    val fechaDisplay = remember { LocalDate.now().toString() }
-    val horaDisplay = remember { LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) }
+    /*
+    Precargamos los datos de la compra existente la primera vez que
+    se abre la pantalla. LaunchedEffect con la clave compra.id garantiza
+    que solo se ejecuta una vez por compra, no en cada recomposición.
+    */
+    LaunchedEffect(compra.id) {
+        editarCompraViewModel.cargarCompraParaEdicion(compra)
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? -> nuevaCompraViewModel.onImagenUriChange(uri) }
+    ) { uri: Uri? -> editarCompraViewModel.onImagenUriChange(uri) }
 
     val crearImagenUri: (Context) -> Uri = remember {
         { ctx ->
@@ -70,7 +74,7 @@ fun NuevaCompraScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (!success) {
-            nuevaCompraViewModel.onImagenUriChange(null)
+            editarCompraViewModel.onImagenUriChange(null)
         }
     }
 
@@ -79,7 +83,7 @@ fun NuevaCompraScreen(
     ) { concedido ->
         if (concedido) {
             val uri = crearImagenUri(localContext)
-            nuevaCompraViewModel.onImagenUriChange(uri)
+            editarCompraViewModel.onImagenUriChange(uri)
             cameraLauncher.launch(uri)
         }
     }
@@ -88,7 +92,7 @@ fun NuevaCompraScreen(
         localContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
 
     SimpleScreenContainer(
-        title = stringResource(id = R.string.title_nueva_compra),
+        title = stringResource(id = R.string.title_editar_compra),
         onBack = onBack
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -102,20 +106,20 @@ fun NuevaCompraScreen(
                 SuperAhorroCard {
 
                     SuperAhorroSectionTitle(
-                        title = stringResource(id = R.string.title_nueva_compra),
-                        subtitle = stringResource(id = R.string.nueva_compra_form_subtitle)
+                        title = stringResource(id = R.string.title_editar_compra),
+                        subtitle = stringResource(id = R.string.editar_compra_subtitle)
                     )
 
                     EspacioNormal()
 
-                    // Combo de supermercados precargados
+                    // Dropdown de supermercados
                     ExposedDropdownMenuBox(
                         expanded = state.expandedSupermercados,
-                        onExpandedChange = { nuevaCompraViewModel.onExpandedSupermercadosChange(!state.expandedSupermercados) }
+                        onExpandedChange = { editarCompraViewModel.onExpandedSupermercadosChange(!state.expandedSupermercados) }
                     ) {
                         OutlinedTextField(
                             value = state.supermercado,
-                            onValueChange = { nuevaCompraViewModel.onSupermercadoChange(it) },
+                            onValueChange = { editarCompraViewModel.onSupermercadoChange(it) },
                             label = { Text(stringResource(id = R.string.label_supermercado)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expandedSupermercados) },
                             modifier = Modifier
@@ -126,12 +130,12 @@ fun NuevaCompraScreen(
 
                         ExposedDropdownMenu(
                             expanded = state.expandedSupermercados,
-                            onDismissRequest = { nuevaCompraViewModel.onExpandedSupermercadosChange(false) }
+                            onDismissRequest = { editarCompraViewModel.onExpandedSupermercadosChange(false) }
                         ) {
                             supermercados.forEach { s ->
                                 DropdownMenuItem(
                                     text = { Text(s.nombre) },
-                                    onClick = { nuevaCompraViewModel.onSupermercadoSeleccionado(s) }
+                                    onClick = { editarCompraViewModel.onSupermercadoSeleccionado(s) }
                                 )
                             }
                         }
@@ -144,23 +148,12 @@ fun NuevaCompraScreen(
                         onClick = onNavigateToNuevoSupermercado
                     )
 
-                    EspacioPequeño()
-
-                    Text(
-                        text = stringResource(
-                            id = R.string.label_fecha_hora,
-                            fechaDisplay,
-                            horaDisplay
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
                     EspacioNormal()
 
+                    // Dropdown de productos del catálogo
                     ExposedDropdownMenuBox(
                         expanded = state.expanded,
-                        onExpandedChange = { nuevaCompraViewModel.onExpandedChange(!state.expanded) }
+                        onExpandedChange = { editarCompraViewModel.onExpandedChange(!state.expanded) }
                     ) {
                         OutlinedTextField(
                             value = state.productoSeleccionado?.nombre ?: "",
@@ -176,7 +169,7 @@ fun NuevaCompraScreen(
 
                         ExposedDropdownMenu(
                             expanded = state.expanded,
-                            onDismissRequest = { nuevaCompraViewModel.onExpandedChange(false) }
+                            onDismissRequest = { editarCompraViewModel.onExpandedChange(false) }
                         ) {
                             catalogo.forEach { producto ->
                                 DropdownMenuItem(
@@ -189,7 +182,7 @@ fun NuevaCompraScreen(
                                             )
                                         )
                                     },
-                                    onClick = { nuevaCompraViewModel.onProductoSeleccionado(producto) }
+                                    onClick = { editarCompraViewModel.onProductoSeleccionado(producto) }
                                 )
                             }
                         }
@@ -200,17 +193,19 @@ fun NuevaCompraScreen(
                         onClick = onNavigateToNuevoProducto
                     )
 
+                    // Cantidad
                     SuperAhorroTextField(
                         value = state.cantidadProducto,
-                        onValueChange = { nuevaCompraViewModel.onCantidadChange(it) },
+                        onValueChange = { editarCompraViewModel.onCantidadChange(it) },
                         label = stringResource(id = R.string.label_cantidad)
                     )
 
                     EspacioPequeño()
 
+                    // Precio editable — pre-relleno con el valor del catálogo al elegir producto
                     SuperAhorroTextField(
                         value = state.precioProducto,
-                        onValueChange = { nuevaCompraViewModel.onPrecioChange(it) },
+                        onValueChange = { editarCompraViewModel.onPrecioChange(it) },
                         label = stringResource(id = R.string.label_precio_placeholder)
                     )
 
@@ -218,7 +213,7 @@ fun NuevaCompraScreen(
 
                     SuperAhorroButton(
                         text = stringResource(id = R.string.btn_agregar_producto),
-                        onClick = { nuevaCompraViewModel.agregarProductoLocal() },
+                        onClick = { editarCompraViewModel.agregarProductoLocal() },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -234,6 +229,7 @@ fun NuevaCompraScreen(
 
                 EspacioNormal()
 
+                // Lista de productos agregados a esta compra
                 if (state.productos.isNotEmpty()) {
 
                     SuperAhorroSectionTitle(
@@ -257,22 +253,21 @@ fun NuevaCompraScreen(
                                         fontWeight = FontWeight.Bold
                                     )
 
-                                    val subtotalFormateado = "%.2f".format(item.subtotal())
-
                                     Text(
                                         text = stringResource(
                                             id = R.string.label_formato_subtotal,
                                             item.cantidad,
                                             item.producto.precio,
-                                            subtotalFormateado
+                                            "%.2f".format(item.subtotal())
                                         ),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
 
+                                // Editar: sube el producto de vuelta al formulario
                                 IconButton(onClick = {
-                                    nuevaCompraViewModel.editarProductoLocal(item)
+                                    editarCompraViewModel.editarProductoLocal(item)
                                 }) {
                                     Icon(
                                         Icons.Default.Edit,
@@ -281,8 +276,9 @@ fun NuevaCompraScreen(
                                     )
                                 }
 
+                                // Eliminar: quita el producto de la lista
                                 IconButton(onClick = {
-                                    nuevaCompraViewModel.eliminarProductoLocal(item)
+                                    editarCompraViewModel.eliminarProductoLocal(item)
                                 }) {
                                     Icon(
                                         Icons.Default.Delete,
@@ -299,15 +295,20 @@ fun NuevaCompraScreen(
 
                 EspacioNormal()
 
+                // Total dinámico
                 SuperAhorroCard {
                     Text(
-                        text = stringResource(id = R.string.label_total_dinamico, "%.2f".format(state.totalCalculado)),
+                        text = stringResource(
+                            id = R.string.label_total_dinamico,
+                            "%.2f".format(state.totalCalculado)
+                        ),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
 
+                // Ticket adjunto
                 state.imagenUri?.let { uri ->
                     EspacioNormal()
 
@@ -332,6 +333,7 @@ fun NuevaCompraScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
+            // Barra inferior: foto + guardar
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -361,13 +363,12 @@ fun NuevaCompraScreen(
                         onClick = {
                             val permiso = android.Manifest.permission.CAMERA
                             val tienePermiso = androidx.core.content.ContextCompat.checkSelfPermission(
-                                localContext,
-                                permiso
+                                localContext, permiso
                             ) == PackageManager.PERMISSION_GRANTED
 
                             if (tienePermiso) {
                                 val uri = crearImagenUri(localContext)
-                                nuevaCompraViewModel.onImagenUriChange(uri)
+                                editarCompraViewModel.onImagenUriChange(uri)
                                 cameraLauncher.launch(uri)
                             } else {
                                 permisoCameraLauncher.launch(permiso)
@@ -380,15 +381,24 @@ fun NuevaCompraScreen(
 
                 EspacioPequeño()
 
+                /*
+                Al guardar reutilizamos validarYGuardar pero pasamos el ID
+                original de la compra (compra.id), para que HomeViewModel
+                ejecute un UPDATE en Room en lugar de un INSERT.
+                */
                 SuperAhorroButton(
-                    text = stringResource(id = R.string.btn_guardar_compra),
+                    text = stringResource(id = R.string.btn_guardar_cambios),
                     onClick = {
-                        //  Pasamos 0 como ID provisional. Room autogenerará la secuencia numérica única real.
-                        nuevaCompraViewModel.validarYGuardar(idNuevaCompra = 0) { compraLista ->
+                        editarCompraViewModel.validarYGuardar(
+                            idNuevaCompra = compra.id
+                        ) { compraEditada ->
                             scope.launch {
-                                // CORREGIDO: Agregamos la compra incluyendo su estado de productos actual
-                                val compraConProductos = compraLista.copy(productos = state.productos)
-                                homeViewModel.agregarCompra(compraConProductos)
+                                val compraFinal = compraEditada.copy(
+                                    fecha = compra.fecha,
+                                    hora = compra.hora,
+                                    productos = state.productos
+                                )
+                                homeViewModel.editarCompra(compraFinal)
                                 onCompraGuardada()
                             }
                         }

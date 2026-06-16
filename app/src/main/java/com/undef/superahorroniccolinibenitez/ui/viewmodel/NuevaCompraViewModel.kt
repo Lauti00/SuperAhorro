@@ -23,6 +23,9 @@ data class NuevaCompraUiState(
     val productoSeleccionado: CatalogoProducto? = null,
     val expanded: Boolean = false,
     val cantidadProducto: String = "",
+    // Campo de precio editable: se pre-rellena al elegir producto del catálogo,
+    // pero el usuario puede cambiarlo libremente antes de agregar
+    val precioProducto: String = "",
     val imagenUri: Uri? = null,
     val productos: List<Producto> = emptyList(),
     val errorGeneral: String = "",
@@ -38,12 +41,12 @@ class NuevaCompraViewModel : ViewModel() {
     val uiState: StateFlow<NuevaCompraUiState> = _uiState.asStateFlow()
 
     fun onSupermercadoChange(nuevoTexto: String) {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
-                supermercado = nuevoTexto, 
+                supermercado = nuevoTexto,
                 supermercadoSeleccionado = null,
                 errorGeneral = ""
-            ) 
+            )
         }
     }
 
@@ -52,13 +55,13 @@ class NuevaCompraViewModel : ViewModel() {
     }
 
     fun onSupermercadoSeleccionado(supermercado: Supermercado) {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
-                supermercadoSeleccionado = supermercado, 
+                supermercadoSeleccionado = supermercado,
                 supermercado = supermercado.nombre,
                 expandedSupermercados = false,
                 errorGeneral = ""
-            ) 
+            )
         }
     }
 
@@ -66,12 +69,27 @@ class NuevaCompraViewModel : ViewModel() {
         _uiState.update { it.copy(expanded = expanded) }
     }
 
+    /*
+    Al elegir un producto del catálogo, pre-rellena el precio con el valor
+    del catálogo para que el usuario lo vea de inmediato y pueda modificarlo.
+    */
     fun onProductoSeleccionado(producto: CatalogoProducto) {
-        _uiState.update { it.copy(productoSeleccionado = producto, expanded = false, errorProducto = "") }
+        _uiState.update {
+            it.copy(
+                productoSeleccionado = producto,
+                precioProducto = "%.2f".format(producto.precio),
+                expanded = false,
+                errorProducto = ""
+            )
+        }
     }
 
     fun onCantidadChange(cantidad: String) {
         _uiState.update { it.copy(cantidadProducto = cantidad, errorProducto = "") }
+    }
+
+    fun onPrecioChange(precio: String) {
+        _uiState.update { it.copy(precioProducto = precio, errorProducto = "") }
     }
 
     fun onImagenUriChange(uri: Uri?) {
@@ -81,29 +99,53 @@ class NuevaCompraViewModel : ViewModel() {
     fun agregarProductoLocal() {
         val state = _uiState.value
         val cantidad = state.cantidadProducto.toIntOrNull()
+        // Aceptamos coma o punto como separador decimal
+        val precio = state.precioProducto.replace(",", ".").toDoubleOrNull()
 
-        if (state.productoSeleccionado == null) {
-            _uiState.update { it.copy(errorProducto = "Seleccioná un producto") }
-        } else if (cantidad == null || cantidad <= 0) {
-            _uiState.update { it.copy(errorProducto = "Cantidad inválida") }
-        } else {
-            val nuevoProducto = Producto(producto = state.productoSeleccionado, cantidad = cantidad)
-            _uiState.update {
-                it.copy(
-                    productos = it.productos + nuevoProducto,
-                    productoSeleccionado = null,
-                    cantidadProducto = "",
-                    errorProducto = ""
+        when {
+            state.productoSeleccionado == null -> {
+                _uiState.update { it.copy(errorProducto = "Seleccioná un producto") }
+            }
+            cantidad == null || cantidad <= 0 -> {
+                _uiState.update { it.copy(errorProducto = "Cantidad inválida") }
+            }
+            precio == null || precio < 0 -> {
+                _uiState.update { it.copy(errorProducto = "Precio inválido") }
+            }
+            else -> {
+                /*
+                Creamos una copia del producto del catálogo con el precio que ingresó
+                el usuario en este momento de la compra. Así el precio del catálogo
+                no se modifica, solo el precio registrado para esta compra.
+                */
+                val productoConPrecioEditado = state.productoSeleccionado.copy(precio = precio)
+                val nuevoProducto = Producto(
+                    producto = productoConPrecioEditado,
+                    cantidad = cantidad
                 )
+                _uiState.update {
+                    it.copy(
+                        productos = it.productos + nuevoProducto,
+                        productoSeleccionado = null,
+                        cantidadProducto = "",
+                        precioProducto = "",
+                        errorProducto = ""
+                    )
+                }
             }
         }
     }
 
+    /*
+    Al editar un producto de la lista, vuelve a cargar el precio que tenía
+    registrado ese ítem (no el del catálogo) para que el usuario lo pueda ajustar.
+    */
     fun editarProductoLocal(producto: Producto) {
         _uiState.update {
             it.copy(
                 productoSeleccionado = producto.producto,
                 cantidadProducto = producto.cantidad.toString(),
+                precioProducto = "%.2f".format(producto.producto.precio),
                 productos = it.productos - producto
             )
         }
@@ -111,6 +153,26 @@ class NuevaCompraViewModel : ViewModel() {
 
     fun eliminarProductoLocal(producto: Producto) {
         _uiState.update { it.copy(productos = it.productos - producto) }
+    }
+
+    /*
+    Precarga el estado con los datos de una compra existente para poder editarla.
+    Llamado desde EditarCompraScreen al iniciar.
+    */
+    fun cargarCompraParaEdicion(compra: Compra) {
+        _uiState.update {
+            it.copy(
+                supermercado = compra.supermercado,
+                productos = compra.productos,
+                imagenUri = compra.imagenUri?.let { uri -> android.net.Uri.parse(uri) },
+                errorGeneral = "",
+                errorProducto = ""
+            )
+        }
+    }
+
+    fun limpiarEstado() {
+        _uiState.value = NuevaCompraUiState()
     }
 
     fun validarYGuardar(idNuevaCompra: Int, onSuccess: (Compra) -> Unit) {

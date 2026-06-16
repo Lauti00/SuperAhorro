@@ -11,6 +11,7 @@ import com.undef.superahorroniccolinibenitez.ui.screens.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoSupermercadoViewModel
+import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
 import com.undef.superahorroniccolinibenitez.viewmodel.SuperAhorroViewModel
 
 /*
@@ -48,6 +49,13 @@ sealed class AppScreens(val route: String) {
             return "detalle_compra/$id"
         }
     }
+
+    object EditarCompra : AppScreens("editar_compra/{id}") {
+
+        fun createRoute(id: Int): String {
+            return "editar_compra/$id"
+        }
+    }
 }
 
 /*
@@ -73,6 +81,9 @@ fun AppNavigation(
 
     val sharedNuevoSupermercadoViewModel: NuevoSupermercadoViewModel =
         viewModel()
+
+    val sharedEditarCompraViewModel: NuevaCompraViewModel =
+        viewModel(key = "editar_compra_vm")
 
     NavHost(
         navController = navController,
@@ -479,6 +490,63 @@ fun AppNavigation(
 
                     onBack = {
                         navController.popBackStack()
+                    },
+
+                    onEditarCompra = {
+                        navController.navigate(
+                            AppScreens.EditarCompra.createRoute(it.id)
+                        )
+                    }
+                )
+            }
+        }
+
+        // =========================
+        // EDITAR COMPRA
+        // =========================
+
+        composable(
+            route = AppScreens.EditarCompra.route,
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+
+            val compraId =
+                backStackEntry.arguments?.getInt("id")
+
+            val compra =
+                sharedHomeViewModel.compras.value.find {
+                    it.id == compraId
+                }
+
+            compra?.let {
+
+                EditarCompraScreen(
+
+                    compra = it,
+
+                    homeViewModel = sharedHomeViewModel,
+
+                    editarCompraViewModel = sharedEditarCompraViewModel,
+
+                    onBack = {
+                        sharedEditarCompraViewModel.limpiarEstado()
+                        navController.popBackStack()
+                    },
+
+                    onCompraGuardada = {
+                        sharedEditarCompraViewModel.limpiarEstado()
+                        navController.popBackStack()
+                        navController.popBackStack()
+                    },
+
+                    onNavigateToNuevoProducto = {
+                        navController.navigate(AppScreens.NuevoProducto.route)
+                    },
+
+                    onNavigateToNuevoSupermercado = {
+                        navController.navigate(AppScreens.NuevoSupermercado.route)
                     }
                 )
             }
