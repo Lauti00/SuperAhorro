@@ -12,7 +12,6 @@ import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoSupermercadoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
-import com.undef.superahorroniccolinibenitez.viewmodel.SuperAhorroViewModel
 
 /*
 1. Definimos las rutas de nuestra app.
@@ -62,9 +61,7 @@ sealed class AppScreens(val route: String) {
 2. Creamos el orquestador de navegación
 */
 @Composable
-fun AppNavigation(
-    superAhorroViewModel: SuperAhorroViewModel
-) {
+fun AppNavigation() {
 
     val navController = rememberNavController()
 
@@ -426,7 +423,8 @@ fun AppNavigation(
 
         composable(AppScreens.NuevaCompra.route) {
 
-            NuevaCompraScreen(
+            // Modo alta: compraExistente queda en null por defecto
+            CompraFormScreen(
 
                 homeViewModel =
                     sharedHomeViewModel,
@@ -522,13 +520,14 @@ fun AppNavigation(
 
             compra?.let {
 
-                EditarCompraScreen(
+                // Modo edición: pasamos compraExistente con los datos a precargar
+                CompraFormScreen(
 
-                    compra = it,
+                    compraExistente = it,
 
                     homeViewModel = sharedHomeViewModel,
 
-                    editarCompraViewModel = sharedEditarCompraViewModel,
+                    compraViewModel = sharedEditarCompraViewModel,
 
                     onBack = {
                         sharedEditarCompraViewModel.limpiarEstado()
