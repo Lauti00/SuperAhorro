@@ -444,17 +444,11 @@ fun CompraFormScreen(
 
                                 if (esEdicion) {
                                     homeViewModel.editarCompra(compraFinal)
-                                    onCompraGuardada()
                                 } else {
-                                    /*
-                                    agregarCompra es suspend: esperamos a que termine
-                                    completamente (Room + POST) antes de navegar.
-                                    Así el scope de la corrutina no se destruye
-                                    antes de que el POST llegue al servidor.
-                                    */
                                     homeViewModel.agregarCompra(compraFinal)
-                                    onCompraGuardada()
                                 }
+
+                                onCompraGuardada()
                             }
                         }
                     },

@@ -163,6 +163,7 @@
     <string name="menu_configuracion">Configuración</string>
     <string name="profile_form_title">Datos personales</string>
     <string name="profile_form_subtitle">Mantené actualizado el nombre visible de tu cuenta.</string>
+    <string name="btn_guardar_cambios">Guardar cambios</string>
     <string name="catalogo_form_subtitle">Cargá productos para usarlos después en tus compras.</string>
     <string name="catalogo_list_subtitle">Productos disponibles para registrar nuevas compras.</string>
     <string name="nueva_compra_form_subtitle">Registrá el supermercado, elegí productos y adjuntá el ticket si querés.</string>
