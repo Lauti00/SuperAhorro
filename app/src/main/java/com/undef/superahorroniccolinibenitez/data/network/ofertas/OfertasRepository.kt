@@ -56,4 +56,33 @@ class OfertasRepository {
             )
         }
     }
+
+    /*
+    Registra una compra en el servidor remoto via POST.
+
+    Recibe los datos de la compra ya guardada en Room y los
+    envía a FakeStore /products. Devuelve el id que el servidor
+    asignó al objeto creado (ficticio en FakeStore, pero la
+    respuesta HTTP 200 con body confirma que el POST fue exitoso).
+
+    Se llama desde HomeViewModel después del INSERT en Room,
+    de forma fire-and-forget: si falla la red la compra ya
+    quedó guardada localmente y no se pierde nada.
+    */
+    suspend fun registrarCompra(
+        supermercado: String,
+        total: Double,
+        fecha: String,
+        hora: String
+    ): CompraPostResponseDto {
+
+        val body = CompraPostDto(
+            title       = supermercado,
+            price       = total,
+            category    = "compra-superahorro",
+            description = "$fecha $hora"
+        )
+
+        return apiService.registrarCompra(body)
+    }
 }

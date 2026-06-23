@@ -10,6 +10,9 @@ import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.Compr
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.SupermercadoEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhorroRepository
+import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toModel
+import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toEntity
+import com.undef.superahorroniccolinibenitez.data.network.ofertas.OfertasRepository
 import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.model.Producto
@@ -24,12 +27,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userPreferences = UserPreferences(application)
     private val database = SuperAhorroDatabase.getDatabase(application)
     private val repository = SuperAhorroRepository(database.superAhorroDao())
+
+    /*
+    Instancia del repository de red, reutilizado aquí para el POST.
+    El GET de ofertas sigue siendo responsabilidad de OfertasViewModel.
+    */
+    private val ofertasRepository = OfertasRepository()
 
     // =========================
     // USER DATA Y ESTADÍSTICAS
@@ -113,17 +123,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                 _listaCatalogo.value = entidadesCatalogo
 
-                _catalogo.value =
-                    entidadesCatalogo.map { entidad ->
-
-                        CatalogoProducto(
-                            id = entidad.id,
-                            codigo = entidad.codigo,
-                            nombre = entidad.nombre,
-                            descripcion = entidad.descripcion,
-                            precio = entidad.precio
-                        )
-                    }
+                // Usamos el mapper en lugar de mapeo inline
+                _catalogo.value = entidadesCatalogo.map { it.toModel() }
 
                 val mapaCatalogo =
                     entidadesCatalogo.associateBy { it.id }
@@ -230,16 +231,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
             if (cantidadProductos == 0) {
 
+                // Usamos toEntity() del mapper
                 catalogoProductos.forEach { producto ->
-
-                    repository.insertarProductoCatalogo(
-                        CatalogoEntity(
-                            codigo = producto.codigo,
-                            nombre = producto.nombre,
-                            descripcion = producto.descripcion,
-                            precio = producto.precio
-                        )
-                    )
+                    repository.insertarProductoCatalogo(producto.toEntity())
                 }
             }
         }
@@ -281,6 +275,42 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 )
 
                 repository.insertarDetalle(detalleEntidad)
+            }
+        }
+
+        /*
+        POST a FakeStore lanzado en viewModelScope.
+
+        El problema anterior era que el POST vivía dentro de
+        withContext(Dispatchers.IO) que a su vez era llamado desde
+        un rememberCoroutineScope() de Compose. Ese scope se cancela
+        cuando popBackStack() destruye la pantalla, matando el POST
+        antes de que OkHttp abra la conexión.
+
+        viewModelScope sobrevive a la navegación — existe mientras
+        el ViewModel esté vivo — así el POST siempre llega al servidor.
+        */
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("HomeViewModel", "Iniciando POST para compra de ${compra.supermercado}")
+            try {
+                val total = compra.productos.sumOf { it.subtotal() }
+                val respuesta = ofertasRepository.registrarCompra(
+                    supermercado = compra.supermercado,
+                    total        = total,
+                    fecha        = compra.fecha,
+                    hora         = compra.hora
+                )
+                Log.i(
+                    "HomeViewModel",
+                    "POST exitoso — id servidor: ${respuesta.id}, " +
+                    "supermercado: ${respuesta.title}, " +
+                    "total: \$${respuesta.price}"
+                )
+            } catch (e: Exception) {
+                Log.w(
+                    "HomeViewModel",
+                    "POST fallido (compra guardada en Room igualmente): ${e.message}"
+                )
             }
         }
     }
@@ -403,17 +433,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (yaExiste) return false
 
         viewModelScope.launch {
-
-            val nuevaEntidad = CatalogoEntity(
+            // Usamos toEntity() del mapper
+            val nuevaEntidad = CatalogoProducto(
+                id = 0,
                 codigo = codigo.trim(),
                 nombre = nombre.trim(),
                 descripcion = descripcion.trim(),
                 precio = precio
-            )
+            ).toEntity()
 
-            repository.insertarProductoCatalogo(
-                nuevaEntidad
-            )
+            repository.insertarProductoCatalogo(nuevaEntidad)
         }
 
         return true
@@ -438,18 +467,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     ) {
 
         viewModelScope.launch {
-
-            val entidadActualizada = CatalogoEntity(
+            // Usamos toEntity() del mapper
+            val entidadActualizada = CatalogoProducto(
                 id = id,
                 codigo = nuevoCodigo.trim(),
                 nombre = nuevoNombre.trim(),
                 descripcion = nuevaDescripcion.trim(),
                 precio = nuevoPrecio
-            )
+            ).toEntity()
 
-            repository.actualizarProducto(
-                entidadActualizada
-            )
+            repository.actualizarProducto(entidadActualizada)
         }
     }
 
