@@ -51,6 +51,12 @@ class UserPreferences(private val context: Context) {
 
         val REGISTERED_PASSWORD =
             stringPreferencesKey("registered_password")
+
+        /*
+         Guardamos el idioma seleccionado por el usuario ("es", "en")
+        */
+        val APP_LANGUAGE =
+            stringPreferencesKey("app_language")
     }
 
     /*
@@ -101,6 +107,14 @@ class UserPreferences(private val context: Context) {
     val registeredPassword: Flow<String> =
         context.userDataStore.data.map { preferences ->
             preferences[REGISTERED_PASSWORD] ?: ""
+        }
+
+    /*
+     Obtener el idioma actual. Por defecto usa "es" (Español).
+    */
+    val appLanguage: Flow<String> =
+        context.userDataStore.data.map { preferences ->
+            preferences[APP_LANGUAGE] ?: "es"
         }
 
     /*
@@ -162,6 +176,15 @@ class UserPreferences(private val context: Context) {
     suspend fun updateRegisteredName(name: String) {
         context.userDataStore.edit { preferences ->
             preferences[REGISTERED_NAME] = name
+        }
+    }
+
+    /*
+     Guardar el idioma seleccionado ("es" o "en")
+    */
+    suspend fun saveLanguage(languageCode: String) {
+        context.userDataStore.edit { preferences ->
+            preferences[APP_LANGUAGE] = languageCode
         }
     }
 

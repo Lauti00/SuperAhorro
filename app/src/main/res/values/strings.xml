@@ -30,7 +30,6 @@
     <string name="btn_guardar_password">Guardar Contraseña</string>
     <string name="btn_reenviar_codigo">Volver a enviar código</string>
 
-    <!-- Home -->
     <string name="home_title">Mis Últimas Compras</string>
     <string name="label_fecha">Fecha:</string>
     <string name="label_total">Total:</string>
@@ -43,19 +42,16 @@
     <string name="home_oferta_precio">$%1$s</string>
     <string name="btn_reintentar">Reintentar</string>
 
-    <!-- Drawer -->
     <string name="menu_title">Menú SuperAhorro</string>
     <string name="menu_historial">Mis Compras</string>
     <string name="menu_estadisticas">Estadísticas</string>
     <string name="menu_logout">Cerrar Sesión</string>
 
-    <!-- Dialogs -->
     <string name="dialog_logout_title">Cerrar sesión</string>
     <string name="dialog_logout_message">¿Seguro que querés cerrar sesión?</string>
     <string name="dialog_logout_confirm">Cerrar sesión</string>
     <string name="dialog_logout_cancel">Cancelar</string>
 
-    <!-- General -->
     <string name="cd_menu">Abrir menú</string>
     <string name="label_supermercado">Supermercado</string>
     <string name="label_producto">Producto</string>
@@ -63,7 +59,6 @@
     <string name="label_precio">Precio</string>
     <string name="label_imagen">Imagen</string>
 
-    <!-- Nueva Compra -->
     <string name="title_nueva_compra">Nueva Compra</string>
     <string name="placeholder_seleccionar_producto">Seleccionar producto</string>
     <string name="btn_crear_producto">¿No está en la lista? Crear producto</string>
@@ -82,7 +77,6 @@
     <string name="cd_eliminar">Eliminar</string>
     <string name="cd_ticket">Ticket</string>
 
-    <!-- Nuevo Producto -->
     <string name="title_gestionar_catalogo">Gestionar Catálogo</string>
     <string name="title_agregar_nuevo_producto">Agregar nuevo producto</string>
     <string name="title_editando_producto">Editando: %1$s</string>
@@ -101,7 +95,6 @@
     <string name="label_formato_codigo_descripcion">%1$s - %2$s</string>
     <string name="label_formato_precio_catalogo">$%1$s</string>
 
-    <!-- Estadísticas -->
     <string name="title_estadisticas">Estadísticas</string>
     <string name="label_gasto_total">Gasto total</string>
     <string name="label_cantidad_compras">Cantidad de compras</string>
@@ -114,13 +107,11 @@
 
     <string name="state_sin_datos">Sin datos</string>
 
-    <!-- SettingsScreen -->
     <string name="title_configuracion">Configuración</string>
     <string name="label_gestion">Gestión</string>
     <string name="btn_gestionar_productos">Gestionar productos</string>
     <string name="label_modo_oscuro">Modo oscuro</string>
 
-    <!-- DetalleCompraScreen -->
     <string name="title_detalle_compra">Detalle de Compra</string>
     <string name="label_ticket_compra">Ticket de compra</string>
     <string name="desc_imagen_ticket">Imagen del ticket</string>
@@ -133,14 +124,12 @@
     <string name="formato_producto_titulo">%1$s (Cód: %2$s)</string>
     <string name="formato_producto_valores">%1$d x $%2$s = $%3$s</string>
 
-    <!-- Mensajes -->
     <string name="title_historial_compras">Historial de Compras</string>
     <string name="state_no_compras_registradas">No hay compras registradas</string>
     <string name="chooser_compartir_compra">Compartir compra</string>
 
     <string name="formato_compartir_compra">Compra en %1$s\nFecha: %2$s a las %3$s\nTotal: $%4$s</string>
 
-    <!-- Home Dashboard -->
     <string name="home_dashboard_title">Resumen de tus compras</string>
     <string name="home_dashboard_subtitle">Controlá tus gastos y detectá dónde se va tu presupuesto.</string>
     <string name="home_total_mes">Gasto registrado</string>
@@ -157,8 +146,6 @@
     <string name="home_ultimas_compras_subtitle">Tus movimientos más recientes</string>
     <string name="home_empty_subtitle">Cuando registres una compra, vas a ver acá tu resumen y tus últimos movimientos.</string>
 
-
-    <!-- Configuracion -->
     <string name="menu_perfil">Mi Perfil</string>
     <string name="menu_configuracion">Configuración</string>
     <string name="profile_form_title">Datos personales</string>
@@ -171,7 +158,6 @@
     <string name="formato_producto_dropdown">%1$s - $%2$s</string>
     <string name="settings_subtitle">Personalizá la aplicación y administrá tu catálogo.</string>
 
-    <!-- Historial Screen -->
     <string name="historial_subtitle">Filtrá y revisá tus compras guardadas.</string>
     <string name="filtro_todas">Todas</string>
     <string name="filtro_este_mes">Este mes</string>
@@ -180,12 +166,11 @@
     <string name="historial_resultados">%1$d compras encontradas</string>
     <string name="historial_sin_resultados">No hay compras para el filtro seleccionado.</string>
 
-    <!-- Supermercados -->
     <string name="label_gestion_supermercados">Gestión de Supermercados</string>
     <string name="btn_crear_supermercado">¿No está en la lista? Agregar supermercado</string>
     <string name="btn_gestionar_supermercados">Gestionar supermercados</string>
     <string name="placeholder_nombre_supermercado">Nombre del supermercado</string>
-    <string name="title_agregar_supermercado">Agregar Supermercado</string>
+    <string name="title_agregar_supermercado">Agregar Supermerkado</string>
     <string name="msg_supermercado_agregado">Supermercado agregado correctamente</string>
     <string name="msg_supermercado_existe">Este supermercado ya existe</string>
     <string name="title_gestionar_supermercados">Gestionar Supermercados</string>
@@ -196,4 +181,7 @@
     <string name="msg_lista_supermercados_vacia">No hay supermercados cargados aún.</string>
     <string name="btn_guardar_supermercado">Guardar Supermercado</string>
 
+    <string name="label_language">Idioma</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">English</string>
 </resources>
