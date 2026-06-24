@@ -10,6 +10,10 @@ import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.Compr
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.SupermercadoEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhorroRepository
+import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toModel
+import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toEntity
+import com.undef.superahorroniccolinibenitez.data.network.ofertas.OfertasRepository
+import android.util.Log
 import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.model.Compra
 import com.undef.superahorroniccolinibenitez.model.Producto
@@ -30,6 +34,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val userPreferences = UserPreferences(application)
     private val database = SuperAhorroDatabase.getDatabase(application)
     private val repository = SuperAhorroRepository(database.superAhorroDao())
+
+    /*
+    Instancia del repository de red para el POST.
+    El GET de ofertas sigue siendo responsabilidad de OfertasViewModel.
+    */
+    private val ofertasRepository = OfertasRepository()
 
     // =========================
     // USER DATA Y ESTADÍSTICAS
@@ -113,17 +123,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                 _listaCatalogo.value = entidadesCatalogo
 
-                _catalogo.value =
-                    entidadesCatalogo.map { entidad ->
-
-                        CatalogoProducto(
-                            id = entidad.id,
-                            codigo = entidad.codigo,
-                            nombre = entidad.nombre,
-                            descripcion = entidad.descripcion,
-                            precio = entidad.precio
-                        )
-                    }
+                _catalogo.value = entidadesCatalogo.map { it.toModel() }
 
                 val mapaCatalogo =
                     entidadesCatalogo.associateBy { it.id }
@@ -231,15 +231,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             if (cantidadProductos == 0) {
 
                 catalogoProductos.forEach { producto ->
-
-                    repository.insertarProductoCatalogo(
-                        CatalogoEntity(
-                            codigo = producto.codigo,
-                            nombre = producto.nombre,
-                            descripcion = producto.descripcion,
-                            precio = producto.precio
-                        )
-                    )
+                    repository.insertarProductoCatalogo(producto.toEntity())
                 }
             }
         }
@@ -281,6 +273,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 )
 
                 repository.insertarDetalle(detalleEntidad)
+            }
+        }
+
+        /*
+        POST a FakeStore lanzado en viewModelScope para que sobreviva
+        a la navegación. rememberCoroutineScope() se cancela cuando
+        Compose destruye la pantalla al hacer popBackStack(), lo que
+        mataba el POST antes de que OkHttp abriera la conexión.
+        viewModelScope vive mientras el ViewModel exista.
+        */
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("HomeViewModel", "Iniciando POST para compra de ${compra.supermercado}")
+            try {
+                val total = compra.productos.sumOf { it.subtotal() }
+                val respuesta = ofertasRepository.registrarCompra(
+                    supermercado = compra.supermercado,
+                    total        = total,
+                    fecha        = compra.fecha,
+                    hora         = compra.hora
+                )
+                Log.i("HomeViewModel",
+                    "POST exitoso — id servidor: ${respuesta.id}, " +
+                    "supermercado: ${respuesta.title}, " +
+                    "total: \$${respuesta.price}")
+            } catch (e: Exception) {
+                Log.w("HomeViewModel",
+                    "POST fallido (compra guardada en Room igualmente): ${e.message}")
             }
         }
     }
@@ -403,16 +422,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (yaExiste) return false
 
         viewModelScope.launch {
-
-            val nuevaEntidad = CatalogoEntity(
-                codigo = codigo.trim(),
-                nombre = nombre.trim(),
-                descripcion = descripcion.trim(),
-                precio = precio
-            )
-
             repository.insertarProductoCatalogo(
-                nuevaEntidad
+                CatalogoProducto(
+                    id = 0,
+                    codigo = codigo.trim(),
+                    nombre = nombre.trim(),
+                    descripcion = descripcion.trim(),
+                    precio = precio
+                ).toEntity()
             )
         }
 
@@ -438,17 +455,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     ) {
 
         viewModelScope.launch {
-
-            val entidadActualizada = CatalogoEntity(
-                id = id,
-                codigo = nuevoCodigo.trim(),
-                nombre = nuevoNombre.trim(),
-                descripcion = nuevaDescripcion.trim(),
-                precio = nuevoPrecio
-            )
-
             repository.actualizarProducto(
-                entidadActualizada
+                CatalogoProducto(
+                    id = id,
+                    codigo = nuevoCodigo.trim(),
+                    nombre = nuevoNombre.trim(),
+                    descripcion = nuevaDescripcion.trim(),
+                    precio = nuevoPrecio
+                ).toEntity()
             )
         }
     }
