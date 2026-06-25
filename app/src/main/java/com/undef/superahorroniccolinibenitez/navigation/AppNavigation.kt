@@ -32,6 +32,8 @@ sealed class AppScreens(val route: String) {
 
     object NuevoProducto : AppScreens("nuevo_producto_screen")
 
+    object EanScanner : AppScreens("ean_scanner_screen")
+
     object NuevoSupermercado : AppScreens("nuevo_supermercado_screen")
 
     object Historial : AppScreens("historial_screen")
@@ -392,6 +394,34 @@ fun AppNavigation() {
                     sharedNuevoProductoViewModel,
 
                 onBack = {
+                    navController.popBackStack()
+                },
+
+                onNavigateToEanScanner = {
+                    navController.navigate(AppScreens.EanScanner.route)
+                }
+            )
+        }
+
+        // =========================
+        // ESCÁNER EAN
+        // =========================
+
+        composable(AppScreens.EanScanner.route) {
+
+            EanScannerScreen(
+
+                onEanDetectado = { ean ->
+                    /*
+                    Al detectar el EAN volvemos a NuevoProducto y
+                    disparamos la búsqueda en la API desde el
+                    ViewModel compartido, que ya está en memoria.
+                    */
+                    navController.popBackStack()
+                    sharedNuevoProductoViewModel.buscarPorEan(ean)
+                },
+
+                onCancelar = {
                     navController.popBackStack()
                 }
             )

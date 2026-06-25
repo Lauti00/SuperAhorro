@@ -178,6 +178,16 @@
     <string name="msg_lista_supermercados_vacia">No supermarkets loaded yet.</string>
     <string name="btn_guardar_supermercado">Save Supermarket</string>
 
+    <!-- EAN Scanner and local API -->
+    <string name="cd_escanear_ean">Scan EAN barcode</string>
+    <string name="btn_buscar_producto_api">Search in database</string>
+    <string name="btn_cancelar_escaneo">Cancel scan</string>
+    <string name="ean_scanner_instruccion">Point the camera at the product barcode</string>
+    <string name="msg_buscando_en_api">Searching for product…</string>
+    <string name="msg_producto_encontrado_api">✓ Product found — enter the price</string>
+    <string name="msg_producto_no_encontrado_api">Product not found — fill in the details and it will be saved to the database</string>
+    <string name="msg_error_api">Could not connect to API: %1$s</string>
+
     <string name="label_language">Language</string>
     <string name="language_spanish">Español</string>
     <string name="language_english">English</string>

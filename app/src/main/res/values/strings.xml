@@ -150,7 +150,6 @@
     <string name="menu_configuracion">Configuración</string>
     <string name="profile_form_title">Datos personales</string>
     <string name="profile_form_subtitle">Mantené actualizado el nombre visible de tu cuenta.</string>
-    <string name="btn_guardar_cambios">Guardar cambios</string>
     <string name="catalogo_form_subtitle">Cargá productos para usarlos después en tus compras.</string>
     <string name="catalogo_list_subtitle">Productos disponibles para registrar nuevas compras.</string>
     <string name="nueva_compra_form_subtitle">Registrá el supermercado, elegí productos y adjuntá el ticket si querés.</string>
@@ -180,6 +179,16 @@
     <string name="label_supermercados_en_lista">Supermercados en lista (%1$d)</string>
     <string name="msg_lista_supermercados_vacia">No hay supermercados cargados aún.</string>
     <string name="btn_guardar_supermercado">Guardar Supermercado</string>
+
+    <!-- Escáner EAN y API local -->
+    <string name="cd_escanear_ean">Escanear código EAN</string>
+    <string name="btn_buscar_producto_api">Buscar en base de datos</string>
+    <string name="btn_cancelar_escaneo">Cancelar escaneo</string>
+    <string name="ean_scanner_instruccion">Apuntá la cámara al código de barras del producto</string>
+    <string name="msg_buscando_en_api">Buscando producto…</string>
+    <string name="msg_producto_encontrado_api">✓ Producto encontrado — completá el precio</string>
+    <string name="msg_producto_no_encontrado_api">Producto no encontrado — completá los datos y se guardará en la base</string>
+    <string name="msg_error_api">No se pudo conectar con la API: %1$s</string>
 
     <string name="label_language">Idioma</string>
     <string name="language_spanish">Español</string>

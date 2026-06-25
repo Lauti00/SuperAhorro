@@ -1,11 +1,33 @@
 package com.undef.superahorroniccolinibenitez.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CatalogoEntity
+import com.undef.superahorroniccolinibenitez.data.network.productos.ProductosApiRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+/*
+Estado de la búsqueda en la API local.
+
+Idle       → no se buscó nada todavía (estado inicial)
+Buscando   → GET en curso, mostramos spinner
+Encontrado → la API devolvió el producto, campos autocompletos
+NoEncontrado → 404, el usuario debe completar todo a mano
+              y al guardar se hará un POST a la API
+Error      → no se pudo conectar con la API
+*/
+sealed class ApiEstado {
+    object Idle : ApiEstado()
+    object Buscando : ApiEstado()
+    object Encontrado : ApiEstado()
+    object NoEncontrado : ApiEstado()
+    data class Error(val mensaje: String) : ApiEstado()
+}
 
 data class NuevoProductoUiState(
     val codigo: String = "",
@@ -13,241 +35,166 @@ data class NuevoProductoUiState(
     val descripcion: String = "",
     val precio: String = "",
     val idProductoEditando: Int? = null,
-    val error: String = ""
+    val error: String = "",
+    val apiEstado: ApiEstado = ApiEstado.Idle
 )
 
 class NuevoProductoViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        NuevoProductoUiState()
-    )
+    private val productosApiRepository = ProductosApiRepository()
 
-    val uiState: StateFlow<NuevoProductoUiState> =
-        _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(NuevoProductoUiState())
+    val uiState: StateFlow<NuevoProductoUiState> = _uiState.asStateFlow()
 
     fun onCodigoChange(codigo: String) {
-
         _uiState.update {
             it.copy(
                 codigo = codigo,
-                error = ""
+                error = "",
+                // Al cambiar el código a mano reseteamos el estado de la API
+                apiEstado = ApiEstado.Idle
             )
         }
     }
 
     fun onNombreChange(nombre: String) {
-
-        _uiState.update {
-            it.copy(
-                nombre = nombre,
-                error = ""
-            )
-        }
+        _uiState.update { it.copy(nombre = nombre, error = "") }
     }
 
     fun onDescripcionChange(descripcion: String) {
-
-        _uiState.update {
-            it.copy(
-                descripcion = descripcion,
-                error = ""
-            )
-        }
+        _uiState.update { it.copy(descripcion = descripcion, error = "") }
     }
 
     fun onPrecioChange(precio: String) {
-
-        if (
-            precio.all {
-                    char ->
-                char.isDigit() ||
-                        char == '.' ||
-                        char == ','
-            }
-        ) {
-
-            _uiState.update {
-                it.copy(
-                    precio = precio,
-                    error = ""
-                )
-            }
+        if (precio.all { it.isDigit() || it == '.' || it == ',' }) {
+            _uiState.update { it.copy(precio = precio, error = "") }
         }
     }
 
     /*
-    CARGAR PRODUCTO PARA EDICIÓN
+    Recibe el EAN detectado por el escáner o escrito a mano
+    y lanza la búsqueda en la API local.
     */
+    fun buscarPorEan(ean: String) {
+        if (ean.isBlank()) return
+
+        _uiState.update { it.copy(codigo = ean, apiEstado = ApiEstado.Buscando) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val resultado = productosApiRepository.buscarPorEan(ean)
+
+            _uiState.update { current ->
+                when (resultado) {
+                    is ProductosApiRepository.BusquedaResult.Encontrado -> {
+                        /*
+                        Autocompleta nombre y descripción con los datos de la API.
+                        El precio lo deja vacío para que el usuario lo complete.
+                        */
+                        current.copy(
+                            nombre      = resultado.producto.nombre,
+                            descripcion = resultado.producto.descripcion,
+                            apiEstado   = ApiEstado.Encontrado
+                        )
+                    }
+                    is ProductosApiRepository.BusquedaResult.NoEncontrado -> {
+                        current.copy(apiEstado = ApiEstado.NoEncontrado)
+                    }
+                    is ProductosApiRepository.BusquedaResult.Error -> {
+                        current.copy(apiEstado = ApiEstado.Error(resultado.mensaje))
+                    }
+                }
+            }
+        }
+    }
+
     fun cargarParaEdicion(producto: CatalogoEntity) {
-
         _uiState.update {
-
             it.copy(
                 idProductoEditando = producto.id,
-                codigo = producto.codigo,
-                nombre = producto.nombre,
-                descripcion = producto.descripcion,
-                precio = producto.precio.toString(),
-                error = ""
+                codigo             = producto.codigo,
+                nombre             = producto.nombre,
+                descripcion        = producto.descripcion,
+                precio             = producto.precio.toString(),
+                error              = "",
+                apiEstado          = ApiEstado.Idle
             )
         }
     }
 
-    /*
-    CANCELAR EDICIÓN
-    */
     fun cancelarEdicion() {
-
-        _uiState.update {
-            NuevoProductoUiState()
-        }
+        _uiState.update { NuevoProductoUiState() }
     }
 
     /*
-    VALIDAR Y GUARDAR
+    Valida, guarda en Room y — si la API no tenía el producto —
+    también hace el POST para registrarlo en la API local.
     */
     fun validarYGuardar(
         catalogoExistente: List<CatalogoEntity>,
-        onCrear: (
-            String,
-            String,
-            String,
-            Double
-        ) -> Boolean,
-        onEditar: (
-            Int,
-            String,
-            String,
-            String,
-            Double
-        ) -> Unit
+        onCrear: (String, String, String, Double) -> Boolean,
+        onEditar: (Int, String, String, String, Double) -> Unit
     ) {
-
         val state = _uiState.value
 
-        val codigoTrim =
-            state.codigo.trim()
-
-        val nombreTrim =
-            state.nombre.trim()
-
-        val descripcionTrim =
-            state.descripcion.trim()
-
-        val precioLimpio =
-            state.precio.replace(",", ".")
-
-        val precioDouble =
-            precioLimpio.toDoubleOrNull()
+        val codigoTrim      = state.codigo.trim()
+        val nombreTrim      = state.nombre.trim()
+        val descripcionTrim = state.descripcion.trim()
+        val precioLimpio    = state.precio.replace(",", ".")
+        val precioDouble    = precioLimpio.toDoubleOrNull()
 
         when {
-
-            codigoTrim.isEmpty() -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "El código no puede estar vacío"
-                    )
-                }
-            }
+            codigoTrim.isEmpty() ->
+                _uiState.update { it.copy(error = "El código no puede estar vacío") }
 
             catalogoExistente.any {
+                it.codigo == codigoTrim && it.id != state.idProductoEditando
+            } ->
+                _uiState.update { it.copy(error = "Ya existe un producto con este código") }
 
-                it.codigo == codigoTrim &&
-                        it.id != state.idProductoEditando
+            nombreTrim.isEmpty() ->
+                _uiState.update { it.copy(error = "El nombre no puede estar vacío") }
 
-            } -> {
+            nombreTrim.length < 2 ->
+                _uiState.update { it.copy(error = "Nombre demasiado corto") }
 
-                _uiState.update {
-                    it.copy(
-                        error = "Ya existe un producto con este código"
-                    )
-                }
-            }
+            descripcionTrim.isEmpty() ->
+                _uiState.update { it.copy(error = "La descripción no puede estar vacía") }
 
-            nombreTrim.isEmpty() -> {
+            precioLimpio.isEmpty() ->
+                _uiState.update { it.copy(error = "Debes ingresar un precio") }
 
-                _uiState.update {
-                    it.copy(
-                        error = "El nombre no puede estar vacío"
-                    )
-                }
-            }
+            precioDouble == null ->
+                _uiState.update { it.copy(error = "Formato de precio inválido") }
 
-            nombreTrim.length < 2 -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "Nombre demasiado corto"
-                    )
-                }
-            }
-
-            descripcionTrim.isEmpty() -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "La descripción no puede estar vacía"
-                    )
-                }
-            }
-
-            precioLimpio.isEmpty() -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "Debes ingresar un precio"
-                    )
-                }
-            }
-
-            precioDouble == null -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "Formato de precio inválido"
-                    )
-                }
-            }
-
-            precioDouble <= 0 -> {
-
-                _uiState.update {
-                    it.copy(
-                        error = "El precio debe ser mayor a 0"
-                    )
-                }
-            }
+            precioDouble <= 0 ->
+                _uiState.update { it.copy(error = "El precio debe ser mayor a 0") }
 
             else -> {
-
                 if (state.idProductoEditando == null) {
 
-                    val agregado =
-                        onCrear(
-                            codigoTrim,
-                            nombreTrim,
-                            descripcionTrim,
-                            precioDouble
-                        )
+                    val agregado = onCrear(codigoTrim, nombreTrim, descripcionTrim, precioDouble)
 
                     if (!agregado) {
-
-                        _uiState.update {
-                            it.copy(
-                                error = "Ese producto ya existe"
-                            )
-                        }
-
+                        _uiState.update { it.copy(error = "Ese producto ya existe") }
                     } else {
-
-                        _uiState.update {
-                            NuevoProductoUiState()
+                        /*
+                        Si la API no tenía el producto (NoEncontrado), lo enviamos
+                        ahora con un POST para que quede registrado en la API local.
+                        El precio no se manda a la API — solo ean, nombre y descripción.
+                        */
+                        if (state.apiEstado is ApiEstado.NoEncontrado) {
+                            viewModelScope.launch(Dispatchers.IO) {
+                                productosApiRepository.guardarProducto(
+                                    ean         = codigoTrim,
+                                    nombre      = nombreTrim,
+                                    descripcion = descripcionTrim
+                                )
+                            }
                         }
+                        _uiState.update { NuevoProductoUiState() }
                     }
 
                 } else {
-
                     onEditar(
                         state.idProductoEditando,
                         codigoTrim,
@@ -255,10 +202,7 @@ class NuevoProductoViewModel : ViewModel() {
                         descripcionTrim,
                         precioDouble
                     )
-
-                    _uiState.update {
-                        NuevoProductoUiState()
-                    }
+                    _uiState.update { NuevoProductoUiState() }
                 }
             }
         }
