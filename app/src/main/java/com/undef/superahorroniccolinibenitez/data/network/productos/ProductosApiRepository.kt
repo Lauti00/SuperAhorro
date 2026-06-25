@@ -42,6 +42,15 @@ class ProductosApiRepository {
     }
 
     /*
+    Resultado tipado del PUT.
+    */
+    sealed class ActualizacionResult {
+        data class Actualizado(val producto: ProductoLocalDto) : ActualizacionResult()
+        object NoEncontrado : ActualizacionResult()
+        data class Error(val mensaje: String) : ActualizacionResult()
+    }
+
+    /*
     Busca un producto por EAN en la API local.
     */
     suspend fun buscarPorEan(ean: String): BusquedaResult {
@@ -90,6 +99,40 @@ class ProductosApiRepository {
             }
         } catch (e: Exception) {
             GuardadoResult.Error("No se pudo conectar con la API: ${e.message}")
+        }
+    }
+
+
+    /*
+    Actualiza nombre y descripción de un producto existente en la API.
+    El precio no se manda — vive solo en Room.
+    Se llama cuando el producto ya estaba en Room y el usuario lo editó.
+    */
+    suspend fun actualizarProducto(
+        ean: String,
+        nombre: String,
+        descripcion: String
+    ): ActualizacionResult {
+        return try {
+            val response = apiService.actualizarProducto(
+                ean = ean.trim(),
+                producto = ProductoLocalDto(
+                    ean         = ean.trim(),
+                    nombre      = nombre.trim(),
+                    descripcion = descripcion.trim()
+                )
+            )
+            when {
+                response.isSuccessful -> {
+                    val producto = response.body()
+                    if (producto != null) ActualizacionResult.Actualizado(producto)
+                    else ActualizacionResult.Error("Respuesta vacía del servidor")
+                }
+                response.code() == 404 -> ActualizacionResult.NoEncontrado
+                else -> ActualizacionResult.Error("Error del servidor: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            ActualizacionResult.Error("No se pudo conectar con la API: ${e.message}")
         }
     }
 }

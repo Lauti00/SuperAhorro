@@ -34,4 +34,14 @@ interface ProductosApiService {
     suspend fun guardarProducto(
         @Body producto: ProductoLocalDto
     ): Response<ProductoLocalDto>
+
+    /*
+    Actualiza nombre y descripcion de un producto existente.
+    El precio no se manda — vive solo en Room.
+    */
+    @PUT("productos/{ean}")
+    suspend fun actualizarProducto(
+        @Path("ean") ean: String,
+        @Body producto: ProductoLocalDto
+    ): Response<ProductoLocalDto>
 }

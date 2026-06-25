@@ -142,6 +142,21 @@ class NuevoProductoViewModel : ViewModel() {
         val precioLimpio    = state.precio.replace(",", ".")
         val precioDouble    = precioLimpio.toDoubleOrNull()
 
+        /*
+        Si el código ya existe en Room y NO estamos editando todavía,
+        cargamos ese producto en modo edición automáticamente.
+        Así el usuario puede cambiar el precio (y nombre/descripción)
+        sin ver un mensaje de error.
+        */
+        val productoExistenteEnRoom = catalogoExistente.find {
+            it.codigo == codigoTrim && it.id != state.idProductoEditando
+        }
+
+        if (productoExistenteEnRoom != null && state.idProductoEditando == null) {
+            cargarParaEdicion(productoExistenteEnRoom)
+            return
+        }
+
         when {
             codigoTrim.isEmpty() ->
                 _uiState.update { it.copy(error = "El código no puede estar vacío") }
@@ -202,6 +217,20 @@ class NuevoProductoViewModel : ViewModel() {
                         descripcionTrim,
                         precioDouble
                     )
+
+                    /*
+                    PUT a la API: actualiza nombre y descripción del producto.
+                    El precio no se manda — vive solo en Room.
+                    Fire-and-forget: si falla la red el UPDATE en Room ya ocurrió.
+                    */
+                    viewModelScope.launch(Dispatchers.IO) {
+                        productosApiRepository.actualizarProducto(
+                            ean         = codigoTrim,
+                            nombre      = nombreTrim,
+                            descripcion = descripcionTrim
+                        )
+                    }
+
                     _uiState.update { NuevoProductoUiState() }
                 }
             }
