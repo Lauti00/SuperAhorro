@@ -212,7 +212,6 @@ fun NuevoProductoScreen(
                                         nuevoPrecio     = precio
                                     )
                                     nuevoProductoViewModel.cancelarEdicion()
-                                    true
                                 }
                             )
                         }

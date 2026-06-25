@@ -23,6 +23,9 @@
     <string name="msg_ingresa_correo">Enter your registered email address and we will send you a security code.</string>
     <string name="btn_enviar_codigo">Send Code</string>
     <string name="btn_cancelar">Cancel and go back</string>
+    <string name="title_editar_compra">Edit Purchase</string>
+    <string name="editar_compra_subtitle">Modify the supermarket, products or their prices.</string>
+    <string name="btn_editar_compra">Edit purchase</string>
     <string name="msg_codigo_enviado">We have sent a code to:\n%1$s</string>
     <string name="btn_guardar_password">Save Password</string>
     <string name="btn_reenviar_codigo">Resend code</string>
