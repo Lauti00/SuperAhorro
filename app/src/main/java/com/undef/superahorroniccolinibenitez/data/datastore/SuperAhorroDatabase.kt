@@ -36,7 +36,7 @@ abstract class SuperAhorroDatabase : RoomDatabase() {
                     SuperAhorroDatabase::class.java,
                     "super_ahorro_database.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
                 INSTANCE = instance
                 instance

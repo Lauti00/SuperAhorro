@@ -1,5 +1,7 @@
 package com.undef.superahorroniccolinibenitez.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -12,6 +14,7 @@ import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoSupermercadoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
+import androidx.compose.runtime.collectAsState
 
 /*
 1. Definimos las rutas de nuestra app.
@@ -62,6 +65,7 @@ sealed class AppScreens(val route: String) {
 /*
 2. Creamos el orquestador de navegación
 */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
 
@@ -353,8 +357,6 @@ fun AppNavigation() {
 
             SettingsScreen(
 
-                homeViewModel = sharedHomeViewModel,
-
                 onBack = {
                     navController.popBackStack()
                 },
@@ -505,7 +507,7 @@ fun AppNavigation() {
                 backStackEntry.arguments?.getInt("id")
 
             val compra =
-                sharedHomeViewModel.compras.value.find {
+                sharedHomeViewModel.compras.collectAsState().value.find {
 
                     it.id == compraId
                 }
@@ -544,7 +546,7 @@ fun AppNavigation() {
                 backStackEntry.arguments?.getInt("id")
 
             val compra =
-                sharedHomeViewModel.compras.value.find {
+                sharedHomeViewModel.compras.collectAsState().value.find {
                     it.id == compraId
                 }
 

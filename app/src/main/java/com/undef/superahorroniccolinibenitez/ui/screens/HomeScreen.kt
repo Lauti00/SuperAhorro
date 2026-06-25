@@ -17,8 +17,7 @@ import com.undef.superahorroniccolinibenitez.ui.components.MainDrawerContainer
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.OfertasViewModel
 import kotlinx.coroutines.launch
-import android.net.Uri
-import com.undef.superahorroniccolinibenitez.model.OfertaSupermercado
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +88,6 @@ fun HomeScreen(
 
         AlertDialog(
             onDismissRequest = {
-                showLogoutDialog = false
             },
 
             title = {
@@ -107,10 +105,7 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showLogoutDialog = false
-
                         viewModel.logout {
-
                             onLogout()
                         }
                     }
@@ -124,7 +119,6 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        showLogoutDialog = false
                     }
                 ) {
                     Text(
@@ -142,8 +136,6 @@ fun HomeScreen(
         userEmail = userEmailState,
 
         onLogout = {
-
-            showLogoutDialog = true
         },
 
         onNavigateToHistorial =
@@ -276,7 +268,7 @@ fun HomeScreen(
 
                     val intent = Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse(oferta.url)
+                        oferta.url.toUri()
                     )
 
                     context.startActivity(intent)

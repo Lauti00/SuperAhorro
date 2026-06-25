@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import androidx.core.net.toUri
 
 data class NuevaCompraUiState(
     val supermercado: String = "",
@@ -164,7 +165,7 @@ class NuevaCompraViewModel : ViewModel() {
             it.copy(
                 supermercado = compra.supermercado,
                 productos = compra.productos,
-                imagenUri = compra.imagenUri?.let { uri -> android.net.Uri.parse(uri) },
+                imagenUri = compra.imagenUri?.toUri(),
                 errorGeneral = "",
                 errorProducto = ""
             )

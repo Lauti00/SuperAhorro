@@ -63,8 +63,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _compras = MutableStateFlow<List<Compra>>(emptyList())
     val compras: StateFlow<List<Compra>> = _compras.asStateFlow()
 
-    private val _compraSeleccionada = MutableStateFlow<Compra?>(null)
-    val compraSeleccionada: StateFlow<Compra?> = _compraSeleccionada.asStateFlow()
 
     // =========================
     // CATALOGO Modelos de UI y Entidades de Base de Datos
@@ -188,9 +186,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             ) { email, name ->
 
                 val nombreFinal =
-                    if (name.isNotEmpty()) {
-                        name
-                    } else {
+                    name.ifEmpty {
                         email.substringBefore("@")
                     }
 
@@ -296,33 +292,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 Log.i("HomeViewModel",
                     "POST exitoso — id servidor: ${respuesta.id}, " +
                     "supermercado: ${respuesta.title}, " +
-                    "total: \$${respuesta.price}")
+                            $$"total: $$${respuesta.price}"
+                )
             } catch (e: Exception) {
                 Log.w("HomeViewModel",
                     "POST fallido (compra guardada en Room igualmente): ${e.message}")
-            }
-        }
-    }
-
-    fun seleccionarCompra(compra: Compra) {
-
-        _compraSeleccionada.value = compra
-    }
-
-    fun eliminarCompra(compra: Compra) {
-
-        viewModelScope.launch {
-
-            withContext(Dispatchers.IO) {
-
-                repository.eliminarDetallesPorCompraId(compra.id)
-
-                repository.eliminarCompraPorId(compra.id)
-            }
-
-            if (_compraSeleccionada.value?.id == compra.id) {
-
-                _compraSeleccionada.value = null
             }
         }
     }
@@ -356,43 +330,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                     repository.insertarDetalle(detalleEntidad)
                 }
-            }
-
-            _compraSeleccionada.value = compraEditada
-        }
-    }
-
-    fun eliminarProductoDeCompra(
-        compraId: Int,
-        producto: Producto
-    ) {
-
-        viewModelScope.launch {
-
-            withContext(Dispatchers.IO) {
-
-                repository.eliminarDetalleEspecifico(
-                    compraId,
-                    producto.producto.id
-                )
-            }
-
-            val compraActual =
-                _compras.value.find { it.id == compraId }
-
-            if (
-                compraActual != null &&
-                _compraSeleccionada.value?.id == compraId
-            ) {
-
-                val nuevosProductos =
-                    compraActual.productos.filter {
-
-                        it.producto.id != producto.producto.id
-                    }
-
-                _compraSeleccionada.value =
-                    compraActual.copy(productos = nuevosProductos)
             }
         }
     }
@@ -595,4 +532,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
     }
+
+    fun seleccionarCompra(clickedCompra: com.undef.superahorroniccolinibenitez.model.Compra) {}
 }

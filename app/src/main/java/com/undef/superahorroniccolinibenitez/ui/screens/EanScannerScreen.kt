@@ -1,7 +1,9 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -13,14 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
@@ -40,12 +39,12 @@ yaDetectado evita que ML Kit dispare onEanDetectado
 múltiples veces para el mismo código mientras la cámara
 sigue procesando frames.
 */
+@OptIn(ExperimentalGetImage::class)
 @Composable
 fun EanScannerScreen(
     onEanDetectado: (String) -> Unit,
     onCancelar: () -> Unit
 ) {
-    val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val yaDetectado = remember { mutableStateOf(false) }
 

@@ -1,12 +1,8 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +18,7 @@ import com.undef.superahorroniccolinibenitez.ui.components.SimpleScreenContainer
 import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroButton
 import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroCard
 import com.undef.superahorroniccolinibenitez.ui.components.SuperAhorroSectionTitle
-import com.undef.superahorroniccolinibenitez.ui.components.EspacioNormal
+import androidx.core.net.toUri
 
 @Composable
 fun DetalleCompraScreen(
@@ -83,7 +79,7 @@ fun DetalleCompraScreen(
             compra.imagenUri?.let { uriString ->
 
                 item {
-                    val uri = Uri.parse(uriString)
+                    val uri = uriString.toUri()
 
                     SuperAhorroSectionTitle(
                         title = stringResource(id = R.string.label_ticket_compra)

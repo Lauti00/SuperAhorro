@@ -164,18 +164,4 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             onSuccess()
         }
     }
-
-    /*
- LOGOUT
- Limpia la sesión guardada
-*/
-    fun logout(onLogoutComplete: () -> Unit) {
-
-        viewModelScope.launch {
-
-            userPreferences.logout()
-
-            onLogoutComplete()
-        }
-    }
 }

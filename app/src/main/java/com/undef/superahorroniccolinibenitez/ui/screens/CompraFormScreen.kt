@@ -432,7 +432,7 @@ fun CompraFormScreen(
                             idNuevaCompra = idParaGuardar
                         ) { compraResultado ->
                             scope.launch {
-                                val compraFinal = if (esEdicion && compraExistente != null) {
+                                val compraFinal = if (esEdicion) {
                                     compraResultado.copy(
                                         fecha = compraExistente.fecha,
                                         hora = compraExistente.hora,

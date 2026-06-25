@@ -1,6 +1,8 @@
 package com.undef.superahorroniccolinibenitez.ui.screens
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +40,7 @@ enum class FiltroHistorial {
     ESTE_ANIO
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistorialScreen(
     viewModel: HomeViewModel,
@@ -218,6 +221,7 @@ private fun FiltroHistorialChip(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 private fun filtrarComprasPorPeriodo(
     compras: List<Compra>,
     filtro: FiltroHistorial

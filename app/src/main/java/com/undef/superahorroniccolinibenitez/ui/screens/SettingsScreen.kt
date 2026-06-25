@@ -23,12 +23,10 @@ import androidx.compose.ui.res.stringResource
 import com.undef.superahorroniccolinibenitez.R
 import com.undef.superahorroniccolinibenitez.data.datastore.UserPreferences
 import com.undef.superahorroniccolinibenitez.ui.components.*
-import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    homeViewModel: HomeViewModel,
     onBack: () -> Unit,
     onNavigateToNuevoProducto: () -> Unit,
     onNavigateToNuevoSupermercado: () -> Unit

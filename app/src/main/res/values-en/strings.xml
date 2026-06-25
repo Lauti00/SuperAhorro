@@ -37,7 +37,7 @@
     <string name="btn_nueva_compra_fab">+</string>
     <string name="home_ofertas_title">Reference prices</string>
     <string name="home_ofertas_subtitle">Products requested in real time from FakeStore API.</string>
-    <string name="home_ofertas_loading">Loading offers...</string>
+    <string name="home_ofertas_loading">Loading offers…</string>
     <string name="home_ofertas_empty">No offers available at the moment.</string>
     <string name="home_oferta_precio">$%1$s</string>
     <string name="btn_reintentar">Retry</string>
@@ -81,7 +81,7 @@
     <string name="title_agregar_nuevo_producto">Add new product</string>
     <string name="title_editando_producto">Editing: %1$s</string>
 
-    <string name="label_codigo_placeholder">Code (e.g., 779...)</string>
+    <string name="label_codigo_placeholder">Code (e.g., 779…)</string>
     <string name="label_nombre_placeholder">Product name (e.g., Milk)</string>
     <string name="label_descripcion">Description</string>
     <string name="label_precio_placeholder">Price (e.g., 1200.50)</string>
@@ -188,7 +188,7 @@
     <string name="ean_scanner_instruccion">Point the camera at the product barcode</string>
     <string name="msg_buscando_en_api">Searching for product…</string>
     <string name="msg_producto_encontrado_api">✓ Product found — enter the price</string>
-    <string name="msg_producto_no_encontrado_api">Product not found — fill in the details and it will be saved to the database</string>
+    <string name="msg_producto_no_encontrado_api">Product not found — fill in the details, and it will be saved to the database</string>
     <string name="msg_error_api">Could not connect to API: %1$s</string>
 
     <string name="label_language">Language</string>

@@ -27,10 +27,6 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
         dao.actualizarCompra(compra)
     }
 
-    suspend fun eliminarCompraPorId(compraId: Int) {
-        dao.eliminarCompraPorId(compraId)
-    }
-
     // =========================
     // DETALLES
     // =========================
@@ -38,24 +34,12 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
     val todosLosDetalles: Flow<List<DetalleCompraEntity>> =
         dao.obtenerTodosLosDetalles()
 
-    fun obtenerDetallesPorCompra(compraId: Int): Flow<List<DetalleCompraEntity>> {
-        return dao.obtenerDetallesPorCompra(compraId)
-    }
-
-    suspend fun obtenerTodosLosDetallesLista(): List<DetalleCompraEntity> {
-        return dao.obtenerTodosLosDetallesLista()
-    }
-
     suspend fun insertarDetalle(detalle: DetalleCompraEntity) {
         dao.insertarDetalle(detalle)
     }
 
     suspend fun eliminarDetallesPorCompraId(compraId: Int) {
         dao.eliminarDetallesPorCompraId(compraId)
-    }
-
-    suspend fun eliminarDetalleEspecifico(compraId: Int, productoId: Int) {
-        dao.eliminarDetalleEspecifico(compraId, productoId)
     }
 
     // =========================

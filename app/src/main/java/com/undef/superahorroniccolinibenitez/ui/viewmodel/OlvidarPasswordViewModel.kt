@@ -43,7 +43,7 @@ class OlvidarPasswordViewModel(application: Application) : AndroidViewModel(appl
 
     fun onNuevaPasswordChange(newPassword: String) {
         _nuevaPassword.value = newPassword
-        if (_nuevaPassword.value.length > 0 && _nuevaPassword.value.length < 6) {
+        if (_nuevaPassword.value.length in 1..<6) {
             _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"
         } else {
             _errorMessage.value = null
