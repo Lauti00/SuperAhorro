@@ -36,6 +36,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = SuperAhorroRepository(database.superAhorroDao())
 
     /*
+    Expone el repository para que AppNavigation pueda pasárselo
+    a NuevoProductoViewModelFactory. El ViewModel sigue siendo
+    el único que escribe en Room — solo compartimos la referencia.
+    */
+    fun getRepository(): SuperAhorroRepository = repository
+
+    /*
     Instancia del repository de red para el POST.
     El GET de ofertas sigue siendo responsabilidad de OfertasViewModel.
     */

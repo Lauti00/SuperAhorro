@@ -3,6 +3,7 @@ package com.undef.superahorroniccolinibenitez.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CatalogoEntity
+import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhorroRepository
 import com.undef.superahorroniccolinibenitez.data.network.productos.ProductosApiRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +40,9 @@ data class NuevoProductoUiState(
     val apiEstado: ApiEstado = ApiEstado.Idle
 )
 
-class NuevoProductoViewModel : ViewModel() {
+class NuevoProductoViewModel(
+    private val superAhorroRepository: SuperAhorroRepository
+) : ViewModel() {
 
     private val productosApiRepository = ProductosApiRepository()
 
@@ -72,8 +75,13 @@ class NuevoProductoViewModel : ViewModel() {
     }
 
     /*
-    Recibe el EAN detectado por el escáner o escrito a mano
-    y lanza la búsqueda en la API local.
+    Recibe el EAN detectado por el escáner o escrito a mano.
+
+    El Repository decide dónde buscar:
+      1. Room primero (caché local)
+      2. Si no está en Room → API → guarda en Room → devuelve
+
+    El ViewModel no sabe ni le importa de dónde vino el dato.
     */
     fun buscarPorEan(ean: String) {
         if (ean.isBlank()) return
@@ -81,27 +89,20 @@ class NuevoProductoViewModel : ViewModel() {
         _uiState.update { it.copy(codigo = ean, apiEstado = ApiEstado.Buscando) }
 
         viewModelScope.launch(Dispatchers.IO) {
-            val resultado = productosApiRepository.buscarPorEan(ean)
+            val producto = superAhorroRepository.buscarProductoPorEan(
+                ean           = ean,
+                apiRepository = productosApiRepository
+            )
 
             _uiState.update { current ->
-                when (resultado) {
-                    is ProductosApiRepository.BusquedaResult.Encontrado -> {
-                        /*
-                        Autocompleta nombre y descripción con los datos de la API.
-                        El precio lo deja vacío para que el usuario lo complete.
-                        */
-                        current.copy(
-                            nombre      = resultado.producto.nombre,
-                            descripcion = resultado.producto.descripcion,
-                            apiEstado   = ApiEstado.Encontrado
-                        )
-                    }
-                    is ProductosApiRepository.BusquedaResult.NoEncontrado -> {
-                        current.copy(apiEstado = ApiEstado.NoEncontrado)
-                    }
-                    is ProductosApiRepository.BusquedaResult.Error -> {
-                        current.copy(apiEstado = ApiEstado.Error(resultado.mensaje))
-                    }
+                if (producto != null) {
+                    current.copy(
+                        nombre      = producto.nombre,
+                        descripcion = producto.descripcion,
+                        apiEstado   = ApiEstado.Encontrado
+                    )
+                } else {
+                    current.copy(apiEstado = ApiEstado.NoEncontrado)
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.Catal
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.CompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.DetalleCompraEntity
 import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.SupermercadoEntity
+import com.undef.superahorroniccolinibenitez.data.network.productos.ProductosApiRepository
 import kotlinx.coroutines.flow.Flow
 
 class SuperAhorroRepository(private val dao: SuperAhorroDao) {
@@ -92,5 +93,50 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
 
     suspend fun contarSupermercados(): Int {
         return dao.contarSupermercados()
+    }
+
+    /*
+    Busca un producto por EAN:
+
+    1. Busca primero en Room (caché local)
+       → Si lo encuentra, lo devuelve sin tocar la red
+
+    2. Si no está en Room, consulta la API
+       → Si la API lo tiene, lo guarda en Room y lo devuelve
+       → Si la API tampoco lo tiene, devuelve null
+
+    La UI siempre recibe un CatalogoEntity — no sabe ni le importa
+    si el dato vino de Room o de la API.
+    */
+    suspend fun buscarProductoPorEan(
+        ean: String,
+        apiRepository: ProductosApiRepository
+    ): CatalogoEntity? {
+
+        // Paso 1: buscar en Room
+        val enRoom = dao.buscarPorCodigo(ean)
+        if (enRoom != null) return enRoom
+
+        // Paso 2: no estaba en Room → consultar la API
+        val enApi = apiRepository.buscarPorEan(ean)
+        if (enApi is ProductosApiRepository.BusquedaResult.Encontrado) {
+
+            // Guardar en Room lo que trajo la API
+            // precio = 0.0 porque el precio lo completa el usuario
+            dao.insertarProductoCatalogo(
+                CatalogoEntity(
+                    codigo      = ean,
+                    nombre      = enApi.producto.nombre,
+                    descripcion = enApi.producto.descripcion,
+                    precio      = 0.0
+                )
+            )
+
+            // Devolver desde Room para mantener la consistencia
+            return dao.buscarPorCodigo(ean)
+        }
+
+        // Paso 3: ni Room ni API lo tienen
+        return null
     }
 }
