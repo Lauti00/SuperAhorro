@@ -13,6 +13,7 @@ import com.undef.superahorroniccolinibenitez.data.datastore.repository.SuperAhor
 import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toModel
 import com.undef.superahorroniccolinibenitez.data.datastore.local.mappers.toEntity
 import com.undef.superahorroniccolinibenitez.data.network.ofertas.OfertasRepository
+import com.undef.superahorroniccolinibenitez.data.network.productos.ProductosApiRepository
 import android.util.Log
 import com.undef.superahorroniccolinibenitez.model.CatalogoProducto
 import com.undef.superahorroniccolinibenitez.model.Compra
@@ -33,7 +34,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userPreferences = UserPreferences(application)
     private val database = SuperAhorroDatabase.getDatabase(application)
-    private val repository = SuperAhorroRepository(database.superAhorroDao())
+    private val repository = SuperAhorroRepository(
+        database.superAhorroDao(),
+        productosApiRepository = ProductosApiRepository()
+    )
 
     /*
     Expone el repository para que AppNavigation pueda pasárselo

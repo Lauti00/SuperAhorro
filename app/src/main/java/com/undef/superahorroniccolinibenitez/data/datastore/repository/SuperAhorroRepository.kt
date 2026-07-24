@@ -8,7 +8,9 @@ import com.undef.superahorroniccolinibenitez.data.datastore.local.entities.Super
 import com.undef.superahorroniccolinibenitez.data.network.productos.ProductosApiRepository
 import kotlinx.coroutines.flow.Flow
 
-class SuperAhorroRepository(private val dao: SuperAhorroDao) {
+class SuperAhorroRepository(
+    private val dao: SuperAhorroDao,
+    private val productosApiRepository: ProductosApiRepository) {
 
     // =========================
     // COMPRAS
@@ -108,17 +110,13 @@ class SuperAhorroRepository(private val dao: SuperAhorroDao) {
     La UI siempre recibe un CatalogoEntity — no sabe ni le importa
     si el dato vino de Room o de la API.
     */
-    suspend fun buscarProductoPorEan(
-        ean: String,
-        apiRepository: ProductosApiRepository
-    ): CatalogoEntity? {
-
+    suspend fun buscarProductoPorEan(ean: String): CatalogoEntity? {
         // Paso 1: buscar en Room
         val enRoom = dao.buscarPorCodigo(ean)
         if (enRoom != null) return enRoom
 
         // Paso 2: no estaba en Room → consultar la API
-        val enApi = apiRepository.buscarPorEan(ean)
+        val enApi = productosApiRepository.buscarPorEan(ean)
         if (enApi is ProductosApiRepository.BusquedaResult.Encontrado) {
 
             // Guardar en Room lo que trajo la API

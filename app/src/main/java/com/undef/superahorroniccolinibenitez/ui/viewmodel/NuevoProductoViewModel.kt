@@ -86,13 +86,11 @@ class NuevoProductoViewModel(
     fun buscarPorEan(ean: String) {
         if (ean.isBlank()) return
 
+        //Guarda el codigo y cambia estado de ApiEstado para mostrar spinner en el Screen
         _uiState.update { it.copy(codigo = ean, apiEstado = ApiEstado.Buscando) }
 
         viewModelScope.launch(Dispatchers.IO) {
-            val producto = superAhorroRepository.buscarProductoPorEan(
-                ean           = ean,
-                apiRepository = productosApiRepository
-            )
+            val producto = superAhorroRepository.buscarProductoPorEan(ean)
 
             _uiState.update { current ->
                 if (producto != null) {
