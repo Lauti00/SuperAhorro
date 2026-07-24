@@ -81,6 +81,8 @@ interface SuperAhorroDao {
     @Query("SELECT * FROM catalogo_productos ORDER BY id ASC")
     fun obtenerCatalogo(): Flow<List<CatalogoEntity>>
 
+    @Query("SELECT * FROM catalogo_productos WHERE codigo = :codigo LIMIT 1")
+    suspend fun buscarPorCodigo(codigo: String): CatalogoEntity?
     @Query("SELECT COUNT(*) FROM catalogo_productos")
     suspend fun contarProductosCatalogo(): Int
 

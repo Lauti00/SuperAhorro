@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.androidx.ui)
 
     // Dependencias de Room (Nuestra Base de Datos Local)
     // Actualizado a 2.7.0-alpha11 para corregir el error: [ksp] java.lang.IllegalStateException: unexpected jvm signature V

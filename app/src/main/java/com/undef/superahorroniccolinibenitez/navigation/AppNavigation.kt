@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.undef.superahorroniccolinibenitez.ui.screens.*
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.HomeViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModel
+import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoProductoViewModelFactory
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevoSupermercadoViewModel
 import com.undef.superahorroniccolinibenitez.ui.viewmodel.NuevaCompraViewModel
 import androidx.compose.runtime.collectAsState
@@ -80,7 +81,9 @@ fun AppNavigation() {
     val sharedHomeViewModel: HomeViewModel = viewModel()
 
     val sharedNuevoProductoViewModel: NuevoProductoViewModel =
-        viewModel()
+        viewModel(factory = NuevoProductoViewModelFactory(
+                sharedHomeViewModel.getRepository()
+            ))
 
     val sharedNuevoSupermercadoViewModel: NuevoSupermercadoViewModel =
         viewModel()
